@@ -67,136 +67,11 @@ export const builderReducer = (state: BuilderState, action: BuilderAction): Buil
         form,
         originalForm: form,
         history,
-        formId: form.id,
+        formId: form?.id || null,
         lastModified: Date.now(),
         autoSave: {
           ...state.autoSave,
-          hasUnsavedChanges: hasUnsavedChanges(next, state.originalForm)
-        }
-      }
-    }
-
-    case 'CLEAR_HISTORY': {
-      return {
-        ...state,
-        history: {
-          ...defaultHistoryState,
-          present: state.form
-        }
-      }
-    }
-
-    case 'SET_HISTORY_MAX_SIZE': {
-      const { maxSize } = action.payload
-      const { past } = state.history
-      
-      // Truncate past if it exceeds new max size
-      const truncatedPast = past.length > maxSize 
-        ? past.slice(past.length - maxSize) 
-        : past
-      
-      return {
-        ...state,
-        history: {
-          ...state.history,
-          past: truncatedPast,
-          maxSize
-        }
-      }
-    }
-
-    // Loading actions
-    case 'SET_LOADING': {
-      return {
-        ...state,
-        loading: {
-          ...state.loading,
-          isLoading: action.payload.isLoading
-        }
-      }
-    }
-
-    case 'SET_SAVING': {
-      return {
-        ...state,
-        loading: {
-          ...state.loading,
-          isSaving: action.payload.isSaving
-        }
-      }
-    }
-
-    case 'SET_PUBLISHING': {
-      return {
-        ...state,
-        loading: {
-          ...state.loading,
-          isPublishing: action.payload.isPublishing
-        }
-      }
-    }
-
-    case 'SET_ERROR': {
-      return {
-        ...state,
-        loading: {
-          ...state.loading,
-          error: action.payload.error
-        }
-      }
-    }
-
-    case 'ADD_WARNING': {
-      return {
-        ...state,
-        loading: {
-          ...state.loading,
-          warnings: [...state.loading.warnings, action.payload.warning]
-        }
-      }
-    }
-
-    case 'CLEAR_WARNINGS': {
-      return {
-        ...state,
-        loading: {
-          ...state.loading,
-          warnings: []
-        }
-      }
-    }
-
-    // Storage actions
-    case 'LOAD_FROM_STORAGE': {
-      const { data } = action.payload
-      return {
-        ...state,
-        ...data,
-        lastModified: Date.now()
-      }
-    }
-
-    case 'SAVE_TO_STORAGE': {
-      // This action doesn't change state, it's handled by the provider
-      return state
-    }
-
-    case 'CLEAR_STORAGE': {
-      // This action doesn't change state, it's handled by the provider
-      return state
-    }
-
-    default:
-      return state
-  }
-}d: Date.now(),
-        autoSave: {
-          ...state.autoSave,
-          hasUnsavedChanges: false
-        },
-        loading: {
-          ...state.loading,
-          error: null
+          hasUnsavedChanges: hasUnsavedChanges(form, state.originalForm)
         }
       }
     }
@@ -612,4 +487,125 @@ export const builderReducer = (state: BuilderState, action: BuilderAction): Buil
           present: next,
           future: newFuture
         },
-        lastModifie
+        lastModified: Date.now(),
+        autoSave: {
+          ...state.autoSave,
+          hasUnsavedChanges: hasUnsavedChanges(next, state.originalForm)
+        }
+      }
+    }
+
+    case 'CLEAR_HISTORY': {
+      return {
+        ...state,
+        history: {
+          ...defaultHistoryState,
+          present: state.form
+        }
+      }
+    }
+
+    case 'SET_HISTORY_MAX_SIZE': {
+      const { maxSize } = action.payload
+      const { past } = state.history
+      
+      // Truncate past if it exceeds new max size
+      const truncatedPast = past.length > maxSize 
+        ? past.slice(past.length - maxSize) 
+        : past
+      
+      return {
+        ...state,
+        history: {
+          ...state.history,
+          past: truncatedPast,
+          maxSize
+        }
+      }
+    }
+
+    // Loading actions
+    case 'SET_LOADING': {
+      return {
+        ...state,
+        loading: {
+          ...state.loading,
+          isLoading: action.payload.isLoading
+        }
+      }
+    }
+
+    case 'SET_SAVING': {
+      return {
+        ...state,
+        loading: {
+          ...state.loading,
+          isSaving: action.payload.isSaving
+        }
+      }
+    }
+
+    case 'SET_PUBLISHING': {
+      return {
+        ...state,
+        loading: {
+          ...state.loading,
+          isPublishing: action.payload.isPublishing
+        }
+      }
+    }
+
+    case 'SET_ERROR': {
+      return {
+        ...state,
+        loading: {
+          ...state.loading,
+          error: action.payload.error
+        }
+      }
+    }
+
+    case 'ADD_WARNING': {
+      return {
+        ...state,
+        loading: {
+          ...state.loading,
+          warnings: [...state.loading.warnings, action.payload.warning]
+        }
+      }
+    }
+
+    case 'CLEAR_WARNINGS': {
+      return {
+        ...state,
+        loading: {
+          ...state.loading,
+          warnings: []
+        }
+      }
+    }
+
+    // Storage actions
+    case 'LOAD_FROM_STORAGE': {
+      const { data } = action.payload
+      return {
+        ...state,
+        ...data,
+        lastModified: Date.now()
+      }
+    }
+
+    case 'SAVE_TO_STORAGE': {
+      // This action doesn't change state, it's handled by the provider
+      return state
+    }
+
+    case 'CLEAR_STORAGE': {
+      // This action doesn't change state, it's handled by the provider
+      return state
+    }
+
+    default:
+      return state
+  }
+}

@@ -9,6 +9,7 @@ import { Settings, ChevronRight, FileText, Palette, Zap } from "lucide-react";
 import { FieldProperties } from "./FieldProperties";
 import { FormSettings } from "./FormSettings";
 import { ThemeCustomizer } from "./ThemeCustomizer";
+import { useBuilder } from "../../providers/BuilderProvider";
 
 export interface RightPanelProps {
   collapsed?: boolean;
@@ -25,6 +26,14 @@ export const RightPanel: React.FC<RightPanelProps> = ({
   onTabChange,
   className = "",
 }) => {
+  const {
+    state: { form, selectedFieldId },
+    selectedField,
+    updateField,
+    updateForm,
+    fieldCount,
+  } = useBuilder();
+
   if (collapsed) {
     return (
       <div
@@ -37,12 +46,24 @@ export const RightPanel: React.FC<RightPanelProps> = ({
     );
   }
 
+  const handleFieldUpdate = (updates: any) => {
+    if (selectedFieldId) {
+      updateField(selectedFieldId, updates);
+    }
+  };
+
+  const handleFormUpdate = (updates: any) => {
+    if (form) {
+      updateForm(updates);
+    }
+  };
+
   return (
     <div className={`border-l bg-card flex flex-col h-full ${className}`}>
       {/* Header */}
       <div className="p-4 border-b">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-semibold">Additional question properties</h3>
+          <h3 className="font-semibold">Properties</h3>
           <Button variant="ghost" size="sm" onClick={onToggleCollapse}>
             <ChevronRight className="w-4 h-4" />
           </Button>
@@ -72,24 +93,121 @@ export const RightPanel: React.FC<RightPanelProps> = ({
             </TabsTrigger>
           </TabsList>
         </Tabs>
+
+        {/* Context Information */}
+        <div className="mt-3 text-xs text-muted-foreground">
+          {activeTab === "field" && selectedField && (
+            <div className="space-y-1">
+              <div>Selected: {selectedField.label || "Untitled Field"}</div>
+              <div>Type: {selectedField.type}</div>
+            </div>
+          )}
+          {activeTab === "field" && !selectedField && (
+            <div>No field selected</div>
+          )}
+          {activeTab === "form" && (
+            <div className="space-y-1">
+              <div>{form?.title || "Untitled Form"}</div>
+              <div>
+                {fieldCount} field{fieldCount !== 1 ? "s" : ""}
+              </div>
+            </div>
+          )}
+          {activeTab === "theme" && <div>Customize form appearance</div>}
+        </div>
       </div>
 
       {/* Content */}
       <ScrollArea className="flex-1">
         <Tabs value={activeTab} className="h-full">
           <TabsContent value="field" className="m-0 h-full">
-            <FieldProperties />
+            <FieldProperties
+              selectedField={selectedField}
+              onFieldUpdate={handleFieldUpdate}
+            />
           </TabsContent>
 
           <TabsContent value="form" className="m-0 h-full">
-            <FormSettings />
+            <FormSettings form={form} onFormUpdate={handleFormUpdate} />
           </TabsContent>
 
           <TabsContent value="theme" className="m-0 h-full">
-            <ThemeCustomizer />
+            <ThemeCustomizer
+              theme={form?.theme}
+              onThemeUpdate={(themeUpdates) =>
+                handleFormUpdate({ theme: { ...form?.theme, ...themeUpdates } })
+              }
+            />
           </TabsContent>
         </Tabs>
       </ScrollArea>
+
+      {/* Footer with Quick Actions */}
+      <div className="p-4 border-t bg-muted/30">
+        <div className="space-y-2">
+          {activeTab === "field" && selectedField && (
+            <div className="flex gap-1">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 text-xs"
+                onClick={() => {
+                  // Duplicate field functionality
+                  console.log("Duplicate field:", selectedField.id);
+                }}
+              >
+                Duplicate
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 text-xs text-destructive hover:text-destructive"
+                onClick={() => {
+                  // Delete field functionality
+                  if (window.confirm("Delete this field?")) {
+                    console.log("Delete field:", selectedField.id);
+                  }
+                }}
+              >
+                Delete
+              </Button>
+            </div>
+          )}
+
+          {activeTab === "form" && (
+            <div className="text-xs text-muted-foreground text-center">
+              Form settings auto-save
+            </div>
+          )}
+
+          {activeTab === "theme" && (
+            <div className="flex gap-1">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 text-xs"
+                onClick={() => {
+                  // Reset theme functionality
+                  console.log("Reset theme to default");
+                }}
+              >
+                Reset
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 text-xs"
+                onClick={() => {
+                  // Preview theme functionality
+                  console.log("Preview theme changes");
+                }}
+              >
+                Preview
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 };

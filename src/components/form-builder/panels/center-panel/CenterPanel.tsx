@@ -18,6 +18,7 @@ import { FormCanvas } from "./FormCanvas";
 import { FormPreview } from "./FormPreview";
 import { EmptyState } from "./EmptyState";
 import { CanvasToolbar } from "./canvas-toolbar/CanvasToolbar";
+import { useBuilder } from "../../providers/BuilderProvider";
 
 export interface CenterPanelProps {
   previewMode?: boolean;
@@ -30,13 +31,30 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({
   onPreviewToggle,
   className = "",
 }) => {
-  const [viewportMode, setViewportMode] = useState<
+  const {
+    state: {
+      form,
+      ui: { viewportMode },
+      selectedFieldId,
+      autoSave,
+    },
+    addFieldByType,
+    selectField,
+    saveForm,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
+    hasUnsavedChanges,
+    fieldCount,
+  } = useBuilder();
+
+  const [localViewportMode, setLocalViewportMode] = useState<
     "desktop" | "tablet" | "mobile"
-  >("desktop");
-  const [hasFields, setHasFields] = useState(false); // This would come from form state
+  >(viewportMode);
 
   const getViewportClass = () => {
-    switch (viewportMode) {
+    switch (localViewportMode) {
       case "mobile":
         return "max-w-sm mx-auto";
       case "tablet":
@@ -46,6 +64,19 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({
     }
   };
 
+  const handleAddField = () => {
+    // Default to adding a short text field
+    addFieldByType("shortText");
+  };
+
+  const handlePreviewToggle = () => {
+    onPreviewToggle?.();
+  };
+
+  const handleSave = async () => {
+    await saveForm();
+  };
+
   return (
     <div className={`flex flex-col h-full bg-muted/30 ${className}`}>
       {/* Toolbar */}
@@ -53,36 +84,49 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <h3 className="font-semibold">
-              {previewMode ? "Form preview" : "Form Builder"}
+              {previewMode ? "Form Preview" : "Form Builder"}
             </h3>
-            {hasFields && (
+            <div className="flex items-center gap-2">
               <Badge variant="outline">
-                {hasFields ? "3 fields" : "0 fields"}
+                {fieldCount} field{fieldCount !== 1 ? "s" : ""}
               </Badge>
-            )}
+
+              {form?.title && (
+                <Badge variant="secondary" className="max-w-[200px] truncate">
+                  {form.title}
+                </Badge>
+              )}
+
+              {/* Auto-save indicator */}
+              {autoSave.enabled && hasUnsavedChanges && (
+                <Badge variant="destructive" className="text-xs">
+                  Unsaved changes
+                </Badge>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
             {/* Viewport Toggle */}
             <div className="flex items-center gap-1 mr-4">
               <Button
-                variant={viewportMode === "desktop" ? "default" : "ghost"}
+                variant={localViewportMode === "desktop" ? "default" : "ghost"}
                 size="sm"
-                onClick={() => setViewportMode("desktop")}
+                onClick={() => setLocalViewportMode("desktop")}
               >
                 <Monitor className="w-4 h-4" />
               </Button>
               <Button
-                variant={viewportMode === "tablet" ? "default" : "ghost"}
+                variant={localViewportMode === "tablet" ? "default" : "ghost"}
                 size="sm"
-                onClick={() => setViewportMode("tablet")}
+                onClick={() => setLocalViewportMode("tablet")}
               >
                 <Tablet className="w-4 h-4" />
               </Button>
               <Button
-                variant={viewportMode === "mobile" ? "default" : "ghost"}
+                variant={localViewportMode === "mobile" ? "default" : "ghost"}
                 size="sm"
-                onClick={() => setViewportMode("mobile")}
+                onClick={() => setLocalViewportMode("mobile")}
               >
                 <Smartphone className="w-4 h-4" />
               </Button>
@@ -94,7 +138,7 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({
             <Button
               variant={previewMode ? "default" : "outline"}
               size="sm"
-              onClick={onPreviewToggle}
+              onClick={handlePreviewToggle}
             >
               {previewMode ? (
                 <>
@@ -121,18 +165,35 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({
         <div className="p-8">
           <div className={getViewportClass()}>
             {previewMode ? (
-              <FormPreview />
-            ) : hasFields ? (
-              <FormCanvas />
+              <FormPreview form={form} viewportMode={localViewportMode} />
+            ) : fieldCount > 0 ? (
+              <FormCanvas
+                form={form}
+                selectedFieldId={selectedFieldId}
+                onFieldSelect={selectField}
+                onFieldAdd={addFieldByType}
+                viewportMode={localViewportMode}
+              />
             ) : (
-              <EmptyState onAddField={() => setHasFields(true)} />
+              <EmptyState onAddField={handleAddField} />
             )}
           </div>
         </div>
       </ScrollArea>
 
-      {/* Canvas Toolbar - appears when editing */}
-      {!previewMode && hasFields && <CanvasToolbar />}
+      {/* Canvas Toolbar - appears when editing and has fields */}
+      {!previewMode && fieldCount > 0 && (
+        <CanvasToolbar
+          onSave={handleSave}
+          onPreview={handlePreviewToggle}
+          onUndo={undo}
+          onRedo={redo}
+          onAddField={handleAddField}
+          canUndo={canUndo}
+          canRedo={canRedo}
+          isDirty={hasUnsavedChanges}
+        />
+      )}
     </div>
   );
 };

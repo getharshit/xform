@@ -241,6 +241,10 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
     []
   );
 
+  const updateForm = useCallback((updates: Partial<Form>) => {
+    dispatch({ type: "UPDATE_FORM", payload: { updates } });
+  }, []);
+
   const deleteField = useCallback((fieldId: string) => {
     dispatch({ type: "DELETE_FIELD", payload: { fieldId } });
   }, []);
@@ -376,6 +380,7 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
     // Helper functions
     addField,
     updateField,
+    updateForm,
     deleteField,
     duplicateField,
     selectField,

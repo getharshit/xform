@@ -17,6 +17,8 @@ export interface BuilderStorageData {
     rightPanelWidth: number
     activePanelTab: 'field' | 'form' | 'theme'
     builderStep: 'build' | 'design' | 'integrate' | 'share'
+    previewMode: boolean
+    viewportMode: 'desktop' | 'tablet' | 'mobile'
   }
   selectedFieldId: string | null
   lastSaved: number

@@ -2,7 +2,7 @@
 
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -12,8 +12,19 @@ import {
 } from "@/components/ui/resizable";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import { Settings, Eye, Save, Share2, Menu } from "lucide-react";
+import {
+  Settings,
+  Eye,
+  Save,
+  Share2,
+  Menu,
+  AlertCircle,
+  CheckCircle2,
+} from "lucide-react";
+import { Form } from "@/types/form";
+
+// Import our new state management
+import { BuilderProvider, useBuilder } from "../providers/BuilderProvider";
 
 // Import panels
 import { LeftPanel } from "../panels/left-panel/LeftPanel";
@@ -22,28 +33,48 @@ import { RightPanel } from "../panels/right-panel/RightPanel";
 import { FloatingAddQuestionToolbar } from "../floating-elements/FloatingAddQuestionToolbar";
 
 export interface FormBuilderLayoutProps {
+  initialForm?: Form;
   formId?: string;
-  onSave?: () => void;
+  onSave?: (form: Form) => Promise<boolean>;
   onPreview?: () => void;
-  onPublish?: () => void;
+  onPublish?: (form: Form) => Promise<boolean>;
+  onError?: (error: string) => void;
   className?: string;
 }
 
-export const FormBuilderLayout: React.FC<FormBuilderLayoutProps> = ({
-  formId,
-  onSave,
-  onPreview,
-  onPublish,
-  className = "",
-}) => {
-  const [activeStep, setActiveStep] = useState<
-    "build" | "design" | "integrate" | "share"
-  >("build");
-  const [leftPanelCollapsed, setLeftPanelCollapsed] = useState(false);
-  const [rightPanelCollapsed, setRightPanelCollapsed] = useState(false);
-  const [previewMode, setPreviewMode] = useState(false);
+// Inner component that uses the builder context
+const FormBuilderLayoutInner: React.FC<{
+  onSave?: (form: Form) => Promise<boolean>;
+  onPreview?: () => void;
+  onPublish?: (form: Form) => Promise<boolean>;
+}> = ({ onSave, onPreview, onPublish }) => {
+  const {
+    state,
+    toggleLeftPanel,
+    toggleRightPanel,
+    setBuilderStep,
+    setPanelTab,
+    saveForm,
+    publishForm,
+    hasUnsavedChanges,
+    addFieldByType,
+    fieldCount,
+  } = useBuilder();
 
-  // Fix: Handle string type from Tabs component
+  const {
+    form,
+    ui: {
+      builderStep,
+      leftPanelCollapsed,
+      rightPanelCollapsed,
+      previewMode,
+      activePanelTab,
+    },
+    loading: { isSaving, isPublishing, error },
+    autoSave,
+  } = state;
+
+  // Handle step changes with proper typing
   const handleStepChange = (value: string) => {
     if (
       value === "build" ||
@@ -51,34 +82,100 @@ export const FormBuilderLayout: React.FC<FormBuilderLayoutProps> = ({
       value === "integrate" ||
       value === "share"
     ) {
-      setActiveStep(value);
+      setBuilderStep(value);
     }
   };
 
-  const togglePreview = () => {
-    setPreviewMode(!previewMode);
+  const handleSave = async () => {
+    if (onSave && form) {
+      const success = await onSave(form);
+      if (!success) {
+        // Error is handled by the provider
+        return;
+      }
+    } else {
+      // Use built-in save functionality
+      await saveForm();
+    }
+  };
+
+  const handlePublish = async () => {
+    if (onPublish && form) {
+      const success = await onPublish(form);
+      if (!success) {
+        // Error is handled by the provider
+        return;
+      }
+    } else {
+      // Use built-in publish functionality
+      await publishForm();
+    }
+  };
+
+  const handlePreview = () => {
     onPreview?.();
   };
 
   const handleFieldAdd = (fieldType: string) => {
-    console.log("Adding field:", fieldType);
-    // This will be connected to the form builder state later
+    addFieldByType(fieldType);
   };
 
   return (
-    <div className={`h-screen flex flex-col bg-background ${className}`}>
+    <div className="h-screen flex flex-col bg-background">
       {/* Top Navigation Bar */}
       <div className="border-b bg-card">
         <div className="flex items-center justify-between p-4">
           {/* Left side - Logo/Title */}
           <div className="flex items-center gap-4">
-            <h1 className="text-lg font-semibold">Form Builder</h1>
-            <Badge variant="outline">Draft</Badge>
+            <h1 className="text-lg font-semibold">
+              {form?.title || "Form Builder"}
+            </h1>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline">
+                {fieldCount} field{fieldCount !== 1 ? "s" : ""}
+              </Badge>
+
+              {/* Auto-save status */}
+              {autoSave.enabled && (
+                <Badge
+                  variant={hasUnsavedChanges ? "destructive" : "secondary"}
+                  className="flex items-center gap-1"
+                >
+                  {autoSave.isSaving ? (
+                    <>
+                      <div className="w-2 h-2 bg-current rounded-full animate-pulse" />
+                      Saving...
+                    </>
+                  ) : hasUnsavedChanges ? (
+                    <>
+                      <AlertCircle className="w-3 h-3" />
+                      Unsaved
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-3 h-3" />
+                      Saved
+                    </>
+                  )}
+                </Badge>
+              )}
+
+              {/* Error indicator */}
+              {error && (
+                <Badge
+                  variant="destructive"
+                  className="flex items-center gap-1"
+                >
+                  <AlertCircle className="w-3 h-3" />
+                  Error
+                </Badge>
+              )}
+            </div>
           </div>
 
           {/* Center - Step Navigation */}
           <Tabs
-            value={activeStep}
+            value={builderStep}
             onValueChange={handleStepChange}
             className="flex-1 max-w-md"
           >
@@ -90,19 +187,28 @@ export const FormBuilderLayout: React.FC<FormBuilderLayoutProps> = ({
             </TabsList>
           </Tabs>
 
-          {/* Right side - Actions (removed Undo/Redo) */}
+          {/* Right side - Actions */}
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="sm" onClick={togglePreview}>
+            <Button variant="ghost" size="sm" onClick={handlePreview}>
               <Eye className="w-4 h-4 mr-2" />
               Preview
             </Button>
-            <Button variant="outline" size="sm" onClick={onSave}>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleSave}
+              disabled={isSaving || !form}
+            >
               <Save className="w-4 h-4 mr-2" />
-              Save
+              {isSaving ? "Saving..." : "Save"}
             </Button>
-            <Button size="sm" onClick={onPublish}>
+            <Button
+              size="sm"
+              onClick={handlePublish}
+              disabled={isPublishing || !form}
+            >
               <Share2 className="w-4 h-4 mr-2" />
-              Publish
+              {isPublishing ? "Publishing..." : "Publish"}
             </Button>
           </div>
         </div>
@@ -110,7 +216,7 @@ export const FormBuilderLayout: React.FC<FormBuilderLayoutProps> = ({
 
       {/* Main Content Area */}
       <div className="flex-1 overflow-hidden relative">
-        <Tabs value={activeStep} className="h-full">
+        <Tabs value={builderStep} className="h-full">
           {/* Build Step */}
           <TabsContent value="build" className="h-full m-0">
             <ResizablePanelGroup direction="horizontal" className="h-full">
@@ -120,9 +226,7 @@ export const FormBuilderLayout: React.FC<FormBuilderLayoutProps> = ({
                   <ResizablePanel defaultSize={25} minSize={20} maxSize={35}>
                     <LeftPanel
                       collapsed={leftPanelCollapsed}
-                      onToggleCollapse={() =>
-                        setLeftPanelCollapsed(!leftPanelCollapsed)
-                      }
+                      onToggleCollapse={toggleLeftPanel}
                     />
                   </ResizablePanel>
                   <ResizableHandle />
@@ -134,18 +238,16 @@ export const FormBuilderLayout: React.FC<FormBuilderLayoutProps> = ({
                 <CenterPanel previewMode={previewMode} />
               </ResizablePanel>
 
-              {/* Right Panel - Properties (made narrower) */}
+              {/* Right Panel - Properties */}
               {!rightPanelCollapsed && (
                 <>
                   <ResizableHandle />
                   <ResizablePanel defaultSize={15} minSize={15} maxSize={25}>
                     <RightPanel
                       collapsed={rightPanelCollapsed}
-                      onToggleCollapse={() =>
-                        setRightPanelCollapsed(!rightPanelCollapsed)
-                      }
-                      activeTab="field"
-                      onTabChange={() => {}}
+                      onToggleCollapse={toggleRightPanel}
+                      activeTab={activePanelTab}
+                      onTabChange={setPanelTab}
                     />
                   </ResizablePanel>
                 </>
@@ -153,7 +255,9 @@ export const FormBuilderLayout: React.FC<FormBuilderLayoutProps> = ({
             </ResizablePanelGroup>
 
             {/* Floating Add Question Toolbar - Only show in build step */}
-            <FloatingAddQuestionToolbar onFieldAdd={handleFieldAdd} />
+            {!previewMode && (
+              <FloatingAddQuestionToolbar onFieldAdd={handleFieldAdd} />
+            )}
           </TabsContent>
 
           {/* Design Step */}
@@ -203,7 +307,7 @@ export const FormBuilderLayout: React.FC<FormBuilderLayoutProps> = ({
           variant="outline"
           size="sm"
           className="absolute left-4 top-1/2 transform -translate-y-1/2 z-10"
-          onClick={() => setLeftPanelCollapsed(false)}
+          onClick={toggleLeftPanel}
         >
           <Menu className="w-4 h-4" />
         </Button>
@@ -214,11 +318,42 @@ export const FormBuilderLayout: React.FC<FormBuilderLayoutProps> = ({
           variant="outline"
           size="sm"
           className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10"
-          onClick={() => setRightPanelCollapsed(false)}
+          onClick={toggleRightPanel}
         >
           <Settings className="w-4 h-4" />
         </Button>
       )}
+    </div>
+  );
+};
+
+// Main component that provides the builder context
+export const FormBuilderLayout: React.FC<FormBuilderLayoutProps> = ({
+  initialForm,
+  formId,
+  onSave,
+  onPreview,
+  onPublish,
+  onError,
+  className = "",
+}) => {
+  return (
+    <div className={className}>
+      <BuilderProvider
+        initialForm={initialForm}
+        formId={formId}
+        onFormSave={onSave}
+        onFormPublish={onPublish}
+        onError={onError}
+        enablePersistence={true}
+        autoSaveInterval={30000} // 30 seconds
+      >
+        <FormBuilderLayoutInner
+          onSave={onSave}
+          onPreview={onPreview}
+          onPublish={onPublish}
+        />
+      </BuilderProvider>
     </div>
   );
 };

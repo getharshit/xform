@@ -139,6 +139,7 @@ export interface BuilderContextValue {
   // Helper functions
   addField: (field: FormField, index?: number) => void
   updateField: (fieldId: string, updates: Partial<FormField>) => void
+  updateForm: (updates: Partial<Form>) => void
   deleteField: (fieldId: string) => void
   duplicateField: (fieldId: string, newIndex?: number) => void
   selectField: (fieldId: string | null) => void
