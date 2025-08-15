@@ -255,9 +255,8 @@ const FormBuilderLayoutInner: React.FC<{
             </ResizablePanelGroup>
 
             {/* Floating Add Question Toolbar - Only show in build step */}
-            {!previewMode && (
-              <FloatingAddQuestionToolbar onFieldAdd={handleFieldAdd} />
-            )}
+
+            <FloatingAddQuestionToolbar onFieldAdd={handleFieldAdd} />
           </TabsContent>
 
           {/* Design Step */}

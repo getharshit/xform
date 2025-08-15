@@ -30,18 +30,23 @@ import {
   Minus,
   Play,
   CheckCircle,
+  Sparkles,
+  Layout,
 } from "lucide-react";
+import { useBuilder } from "../providers/BuilderProvider";
+import { FIELD_CATEGORIES } from "../utils/field-templates";
 
 export interface FloatingAddQuestionToolbarProps {
   onFieldAdd?: (fieldType: string) => void;
   className?: string;
 }
 
-// Field types organized by categories
+// Field types organized by categories with icons
 const fieldCategories = [
   {
     id: "text-fields",
     label: "Text Fields",
+    icon: Type,
     fields: [
       { type: "shortText", label: "Short Text", icon: Type },
       { type: "longText", label: "Long Text", icon: AlignLeft },
@@ -53,6 +58,7 @@ const fieldCategories = [
   {
     id: "choice-fields",
     label: "Choice Fields",
+    icon: CircleDot,
     fields: [
       { type: "multipleChoice", label: "Multiple Choice", icon: CircleDot },
       { type: "dropdown", label: "Dropdown", icon: ChevronDown },
@@ -63,11 +69,13 @@ const fieldCategories = [
   {
     id: "rating-fields",
     label: "Rating Fields",
+    icon: Star,
     fields: [{ type: "numberRating", label: "Rating Scale", icon: Star }],
   },
   {
     id: "special-fields",
     label: "Special Fields",
+    icon: Sparkles,
     fields: [
       { type: "statement", label: "Statement", icon: FileText },
       { type: "legal", label: "Legal", icon: Scale },
@@ -77,6 +85,7 @@ const fieldCategories = [
   {
     id: "structure-fields",
     label: "Structure Fields",
+    icon: Layout,
     fields: [
       { type: "pageBreak", label: "Page Break", icon: Minus },
       { type: "startingPage", label: "Welcome Page", icon: Play },
@@ -90,10 +99,28 @@ export const FloatingAddQuestionToolbar: React.FC<
 > = ({ onFieldAdd, className = "" }) => {
   const [isOpen, setIsOpen] = useState(false);
 
+  // Use the builder context
+  const {
+    addFieldByType,
+    fieldCount,
+    state: { form },
+  } = useBuilder();
+
   const handleFieldSelect = (fieldType: string) => {
-    onFieldAdd?.(fieldType);
+    // Use the integrated state management
+    if (onFieldAdd) {
+      onFieldAdd(fieldType);
+    } else {
+      // Use the built-in addFieldByType method
+      addFieldByType(fieldType);
+    }
     setIsOpen(false);
   };
+
+  // Don't show toolbar if there's no form
+  if (!form) {
+    return null;
+  }
 
   return (
     <div
@@ -136,7 +163,7 @@ export const FloatingAddQuestionToolbar: React.FC<
                             <Button
                               key={field.type}
                               variant="ghost"
-                              className="h-auto p-3 flex gap-2 hover:bg-primary/10 hover:border-primary/20 border border-transparent transition-all"
+                              className="h-auto p-3 flex flex-col gap-2 hover:bg-primary/10 hover:border-primary/20 border border-transparent transition-all"
                               onClick={() => handleFieldSelect(field.type)}
                             >
                               <div className="w-12 h-8 rounded bg-primary/10 flex items-center justify-center">
@@ -158,9 +185,21 @@ export const FloatingAddQuestionToolbar: React.FC<
               </PopoverContent>
             </Popover>
 
-            <Badge variant="outline" className="text-xs">
-              Floating toolbar
-            </Badge>
+            {/* Status badges */}
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-xs">
+                {fieldCount} field{fieldCount !== 1 ? "s" : ""}
+              </Badge>
+
+              {form?.title && (
+                <Badge
+                  variant="secondary"
+                  className="text-xs max-w-[150px] truncate"
+                >
+                  {form.title}
+                </Badge>
+              )}
+            </div>
           </div>
         </CardContent>
       </Card>
