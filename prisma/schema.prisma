@@ -1,0 +1,43 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Form {
+  id            String   @id @default(cuid())
+  title         String
+  description   String?
+  prompt        String?  // Original AI prompt
+  fields        Json     // ExtendedFormField[] - Enhanced form structure as JSON
+  fieldGroups   Json?    // FieldGroup[] - For multi-step forms (optional)
+  theme         Json     @default("{}")  // FormTheme - Colors, fonts, logo (backward compatible)
+  customization Json     @default("{}")  // FormCustomization - Advanced styling options
+  layout        Json     @default("{}")  // FormLayoutConfig - Layout configuration
+  settings      Json     @default("{}")  // FormSettings - Form behavior settings
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  responses Response[]
+  
+  @@map("forms")
+}
+
+model Response {
+  id          String   @id @default(cuid())
+  formId      String
+  data        Json     // Response data as JSON (field ID -> user answer)
+  submittedAt DateTime @default(now())
+  ipAddress   String?
+  userAgent   String?  // New: For analytics and debugging
+  
+  form Form @relation(fields: [formId], references: [id], onDelete: Cascade)
+  
+  @@map("responses")
+}

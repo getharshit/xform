@@ -1,0 +1,440 @@
+/* src/components/public-form/themes/base.css */
+
+/* Theme CSS Custom Properties Base Styles */
+/* This file provides the foundation for theme-aware components */
+
+:root {
+    /* Default fallback values for CSS custom properties */
+    /* These will be overridden by the ThemeProvider */
+    
+    /* Colors */
+    --form-color-primary: #3B82F6;
+    --form-color-primary-hover: #2563EB;
+    --form-color-primary-active: #1D4ED8;
+    --form-color-primary-disabled: #93C5FD;
+    --form-color-secondary: #6B7280;
+    --form-color-secondary-hover: #4B5563;
+    --form-color-secondary-active: #374151;
+    --form-color-background: #FFFFFF;
+    --form-color-surface: #F9FAFB;
+    --form-color-surface-elevated: #FFFFFF;
+    --form-color-overlay: rgba(0, 0, 0, 0.5);
+    --form-color-text-primary: #111827;
+    --form-color-text-secondary: #6B7280;
+    --form-color-text-muted: #9CA3AF;
+    --form-color-text-inverse: #FFFFFF;
+    --form-color-border: #E5E7EB;
+    --form-color-border-hover: #D1D5DB;
+    --form-color-border-focus: #3B82F6;
+    --form-color-border-error: #EF4444;
+    --form-color-border-success: #10B981;
+    --form-color-error: #EF4444;
+    --form-color-error-hover: #DC2626;
+    --form-color-success: #10B981;
+    --form-color-success-hover: #059669;
+    --form-color-warning: #F59E0B;
+    --form-color-warning-hover: #D97706;
+    --form-color-info: #3B82F6;
+    --form-color-info-hover: #2563EB;
+    
+    /* Typography */
+    --form-font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --form-font-family-mono: ui-monospace, SFMono-Regular, 'SF Mono', Consolas, 'Liberation Mono', Menlo, monospace;
+    --form-font-size-xs: 0.75rem;
+    --form-font-size-sm: 0.875rem;
+    --form-font-size-base: 1rem;
+    --form-font-size-lg: 1.125rem;
+    --form-font-size-xl: 1.25rem;
+    --form-font-size-2xl: 1.5rem;
+    --form-font-size-3xl: 1.875rem;
+    --form-font-size-4xl: 2.25rem;
+    --form-font-weight-light: 300;
+    --form-font-weight-normal: 400;
+    --form-font-weight-medium: 500;
+    --form-font-weight-semibold: 600;
+    --form-font-weight-bold: 700;
+    --form-line-height-tight: 1.25;
+    --form-line-height-normal: 1.5;
+    --form-line-height-relaxed: 1.625;
+    --form-line-height-loose: 2;
+    --form-letter-spacing-tighter: -0.05em;
+    --form-letter-spacing-tight: -0.025em;
+    --form-letter-spacing-normal: 0em;
+    --form-letter-spacing-wide: 0.025em;
+    --form-letter-spacing-wider: 0.05em;
+    
+    /* Spacing */
+    --form-spacing-unit: 0.25rem;
+    --form-spacing-xs: 0.5rem;
+    --form-spacing-sm: 0.75rem;
+    --form-spacing-md: 1rem;
+    --form-spacing-lg: 1.5rem;
+    --form-spacing-xl: 2rem;
+    --form-spacing-2xl: 3rem;
+    --form-spacing-3xl: 4rem;
+    --form-spacing-4xl: 6rem;
+    --form-spacing-5xl: 8rem;
+    --form-spacing-6xl: 12rem;
+    
+    /* Border Radius */
+    --form-border-radius-none: 0px;
+    --form-border-radius-sm: 0.125rem;
+    --form-border-radius-md: 0.375rem;
+    --form-border-radius-lg: 0.5rem;
+    --form-border-radius-xl: 0.75rem;
+    --form-border-radius-full: 9999px;
+    
+    /* Shadows */
+    --form-shadow-none: none;
+    --form-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --form-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --form-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --form-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --form-shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    --form-shadow-inner: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+    
+    /* Transitions */
+    --form-transition-duration-fast: 150ms;
+    --form-transition-duration-normal: 200ms;
+    --form-transition-duration-slow: 300ms;
+    --form-transition-easing-linear: linear;
+    --form-transition-easing-ease-in: cubic-bezier(0.4, 0, 1, 1);
+    --form-transition-easing-ease-out: cubic-bezier(0, 0, 0.2, 1);
+    --form-transition-easing-ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+    --form-transition-easing-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --form-transition-easing-elastic: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    
+    /* Z-Index */
+    --form-z-index-auto: auto;
+    --form-z-index-base: 0;
+    --form-z-index-dropdown: 1000;
+    --form-z-index-modal: 1050;
+    --form-z-index-popover: 1100;
+    --form-z-index-tooltip: 1150;
+    --form-z-index-toast: 1200;
+    --form-z-index-overlay: 1250;
+  }
+  
+  /* Base form container styles */
+  .form-theme-container {
+    font-family: var(--form-font-family);
+    font-size: var(--form-font-size-base);
+    line-height: var(--form-line-height-normal);
+    color: var(--form-color-text-primary);
+    background-color: var(--form-color-background);
+  }
+  
+  /* Form surface styles */
+  .form-surface {
+    background-color: var(--form-color-surface);
+    border-radius: var(--form-border-radius-md);
+    box-shadow: var(--form-shadow-sm);
+  }
+  
+  .form-surface-elevated {
+    background-color: var(--form-color-surface-elevated);
+    box-shadow: var(--form-shadow-md);
+  }
+  
+  /* Typography classes */
+  .form-text-primary {
+    color: var(--form-color-text-primary);
+  }
+  
+  .form-text-secondary {
+    color: var(--form-color-text-secondary);
+  }
+  
+  .form-text-muted {
+    color: var(--form-color-text-muted);
+  }
+  
+  .form-text-inverse {
+    color: var(--form-color-text-inverse);
+  }
+  
+  /* Font size classes */
+  .form-text-xs {
+    font-size: var(--form-font-size-xs);
+  }
+  
+  .form-text-sm {
+    font-size: var(--form-font-size-sm);
+  }
+  
+  .form-text-base {
+    font-size: var(--form-font-size-base);
+  }
+  
+  .form-text-lg {
+    font-size: var(--form-font-size-lg);
+  }
+  
+  .form-text-xl {
+    font-size: var(--form-font-size-xl);
+  }
+  
+  .form-text-2xl {
+    font-size: var(--form-font-size-2xl);
+  }
+  
+  .form-text-3xl {
+    font-size: var(--form-font-size-3xl);
+  }
+  
+  .form-text-4xl {
+    font-size: var(--form-font-size-4xl);
+  }
+  
+  /* Font weight classes */
+  .form-font-light {
+    font-weight: var(--form-font-weight-light);
+  }
+  
+  .form-font-normal {
+    font-weight: var(--form-font-weight-normal);
+  }
+  
+  .form-font-medium {
+    font-weight: var(--form-font-weight-medium);
+  }
+  
+  .form-font-semibold {
+    font-weight: var(--form-font-weight-semibold);
+  }
+  
+  .form-font-bold {
+    font-weight: var(--form-font-weight-bold);
+  }
+  
+  /* Button styles */
+  .form-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--form-spacing-sm) var(--form-spacing-md);
+    font-family: var(--form-font-family);
+    font-size: var(--form-font-size-sm);
+    font-weight: var(--form-font-weight-medium);
+    line-height: var(--form-line-height-tight);
+    border-radius: var(--form-border-radius-md);
+    border: 1px solid transparent;
+    cursor: pointer;
+    transition: all var(--form-transition-duration-normal) var(--form-transition-easing-ease-in-out);
+    text-decoration: none;
+  }
+  
+  .form-button:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--form-color-border-focus);
+  }
+  
+  .form-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  
+  /* Primary button */
+  .form-button-primary {
+    background-color: var(--form-color-primary);
+    color: var(--form-color-text-inverse);
+    border-color: var(--form-color-primary);
+  }
+  
+  .form-button-primary:hover:not(:disabled) {
+    background-color: var(--form-color-primary-hover);
+    border-color: var(--form-color-primary-hover);
+  }
+  
+  .form-button-primary:active:not(:disabled) {
+    background-color: var(--form-color-primary-active);
+    border-color: var(--form-color-primary-active);
+  }
+  
+  /* Secondary button */
+  .form-button-secondary {
+    background-color: transparent;
+    color: var(--form-color-text-primary);
+    border-color: var(--form-color-border);
+  }
+  
+  .form-button-secondary:hover:not(:disabled) {
+    background-color: var(--form-color-surface);
+    border-color: var(--form-color-border-hover);
+  }
+  
+  /* Input styles */
+  .form-input {
+    display: block;
+    width: 100%;
+    padding: var(--form-spacing-sm) var(--form-spacing-md);
+    font-family: var(--form-font-family);
+    font-size: var(--form-font-size-base);
+    line-height: var(--form-line-height-normal);
+    color: var(--form-color-text-primary);
+    background-color: var(--form-color-background);
+    border: 1px solid var(--form-color-border);
+    border-radius: var(--form-border-radius-md);
+    transition: all var(--form-transition-duration-normal) var(--form-transition-easing-ease-in-out);
+  }
+  
+  .form-input::placeholder {
+    color: var(--form-color-text-muted);
+  }
+  
+  .form-input:focus {
+    outline: none;
+    border-color: var(--form-color-border-focus);
+    box-shadow: 0 0 0 1px var(--form-color-border-focus);
+  }
+  
+  .form-input:hover:not(:focus) {
+    border-color: var(--form-color-border-hover);
+  }
+  
+  /* Input error state */
+  .form-input-error {
+    border-color: var(--form-color-border-error);
+  }
+  
+  .form-input-error:focus {
+    border-color: var(--form-color-border-error);
+    box-shadow: 0 0 0 1px var(--form-color-border-error);
+  }
+  
+  /* Input success state */
+  .form-input-success {
+    border-color: var(--form-color-border-success);
+  }
+  
+  .form-input-success:focus {
+    border-color: var(--form-color-border-success);
+    box-shadow: 0 0 0 1px var(--form-color-border-success);
+  }
+  
+  /* Label styles */
+  .form-label {
+    display: block;
+    font-size: var(--form-font-size-sm);
+    font-weight: var(--form-font-weight-medium);
+    color: var(--form-color-text-primary);
+    margin-bottom: var(--form-spacing-xs);
+  }
+  
+  .form-label-required::after {
+    content: ' *';
+    color: var(--form-color-error);
+  }
+  
+  /* Help text styles */
+  .form-help-text {
+    margin-top: var(--form-spacing-xs);
+    font-size: var(--form-font-size-xs);
+    color: var(--form-color-text-muted);
+  }
+  
+  /* Error message styles */
+  .form-error-message {
+    margin-top: var(--form-spacing-xs);
+    font-size: var(--form-font-size-xs);
+    color: var(--form-color-error);
+    display: flex;
+    align-items: center;
+    gap: var(--form-spacing-xs);
+  }
+  
+  /* Success message styles */
+  .form-success-message {
+    margin-top: var(--form-spacing-xs);
+    font-size: var(--form-font-size-xs);
+    color: var(--form-color-success);
+    display: flex;
+    align-items: center;
+    gap: var(--form-spacing-xs);
+  }
+  
+  /* Form field container */
+  .form-field {
+    margin-bottom: var(--form-spacing-lg);
+  }
+  
+  /* Form section styles */
+  .form-section {
+    margin-bottom: var(--form-spacing-2xl);
+  }
+  
+  .form-section-title {
+    font-size: var(--form-font-size-lg);
+    font-weight: var(--form-font-weight-semibold);
+    color: var(--form-color-text-primary);
+    margin-bottom: var(--form-spacing-md);
+  }
+  
+  .form-section-description {
+    font-size: var(--form-font-size-sm);
+    color: var(--form-color-text-secondary);
+    margin-bottom: var(--form-spacing-lg);
+  }
+  
+  /* Animation classes */
+  .form-animate-in {
+    animation: formSlideUp var(--form-transition-duration-normal) var(--form-transition-easing-ease-out);
+  }
+  
+  @keyframes formSlideUp {
+    from {
+      opacity: 0;
+      transform: translateY(0.5rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .form-animate-fade-in {
+    animation: formFadeIn var(--form-transition-duration-normal) var(--form-transition-easing-ease-out);
+  }
+  
+  @keyframes formFadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  
+  /* Responsive utilities */
+  @media (max-width: 640px) {
+    .form-responsive-stack {
+      flex-direction: column;
+    }
+    
+    .form-responsive-full {
+      width: 100%;
+    }
+  }
+  
+  /* Dark theme support */
+  @media (prefers-color-scheme: dark) {
+    .form-theme-auto {
+      /* This will be overridden by the ThemeProvider for automatic dark mode */
+      --form-color-background: #111827;
+      --form-color-surface: #1F2937;
+      --form-color-text-primary: #F9FAFB;
+      --form-color-text-secondary: #D1D5DB;
+      --form-color-border: #374151;
+    }
+  }
+  
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .form-animate-in,
+    .form-animate-fade-in,
+    .form-button,
+    .form-input {
+      animation: none;
+      transition: none;
+    }
+  }
