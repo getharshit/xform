@@ -2,20 +2,19 @@
 
 import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import Link from "next/link";
 
-// Import your existing form builder components
-import {
-  FormBuilderLayout,
-  FormBuilderProvider,
-} from "@/components/form-builder";
+// Import the existing form builder components
+import { FormBuilderLayout, BuilderProvider } from "@/components/form-builder";
 
-// Types based on your API
-interface Form {
+import type { Form as BuilderForm } from "@/types/form";
+
+// API Form type (what comes from your API)
+interface APIForm {
   id: string;
   title: string;
-  description: string | null;
+  description: string | null | undefined;
   fields: any[];
   theme: any;
   prompt: string | null;
@@ -27,16 +26,33 @@ interface Form {
   updatedAt: string;
 }
 
+// Function to convert API form to Builder form
+const convertAPIFormToBuilderForm = (apiForm: APIForm): BuilderForm => {
+  return {
+    ...apiForm,
+    description: apiForm.description ?? null, // Convert undefined to null
+    createdAt: new Date(apiForm.createdAt),
+    updatedAt: new Date(apiForm.updatedAt),
+  } as BuilderForm;
+};
+
+// Function to convert Builder form to API form
+const convertBuilderFormToAPIForm = (builderForm: BuilderForm): APIForm => {
+  return {
+    ...builderForm,
+    createdAt: builderForm.createdAt.toString(),
+    updatedAt: new Date().toISOString(), // Always update the timestamp
+  };
+};
+
 export default function FormBuilderPage() {
   const params = useParams();
   const router = useRouter();
   const formId = params.id as string;
 
-  const [form, setForm] = useState<Form | null>(null);
+  const [form, setForm] = useState<BuilderForm | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
-  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   // Load form data
   useEffect(() => {
@@ -59,8 +75,9 @@ export default function FormBuilderPage() {
         throw new Error("Failed to load form");
       }
 
-      const formData = await response.json();
-      setForm(formData);
+      const apiFormData: APIForm = await response.json();
+      const builderForm = convertAPIFormToBuilderForm(apiFormData);
+      setForm(builderForm);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load form");
     } finally {
@@ -68,16 +85,16 @@ export default function FormBuilderPage() {
     }
   };
 
-  const handleSave = async (formData: Form): Promise<boolean> => {
+  const handleSave = async (formData: BuilderForm): Promise<boolean> => {
     try {
-      setSaving(true);
+      const apiFormData = convertBuilderFormToAPIForm(formData);
 
       const response = await fetch(`/api/forms/${formId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(apiFormData),
       });
 
       if (!response.ok) {
@@ -85,24 +102,18 @@ export default function FormBuilderPage() {
         throw new Error(errorData.error || "Failed to save form");
       }
 
-      const updatedForm = await response.json();
-      setForm(updatedForm);
-      setLastSaved(new Date());
+      const updatedAPIForm: APIForm = await response.json();
+      const updatedBuilderForm = convertAPIFormToBuilderForm(updatedAPIForm);
+      setForm(updatedBuilderForm);
 
       return true;
     } catch (err) {
       console.error("Save error:", err);
-      alert(
-        "Failed to save form: " +
-          (err instanceof Error ? err.message : "Unknown error")
-      );
       return false;
-    } finally {
-      setSaving(false);
     }
   };
 
-  const handlePublish = async (formData: Form): Promise<boolean> => {
+  const handlePublish = async (formData: BuilderForm): Promise<boolean> => {
     try {
       // First save the form to ensure it's up to date
       const saveSuccess = await handleSave(formData);
@@ -112,17 +123,9 @@ export default function FormBuilderPage() {
 
       // For now, publishing is just saving the form since we don't have a separate publish endpoint
       // You can add additional publish logic here if needed
-      alert(
-        "Form published successfully! Share link: " +
-          `${window.location.origin}/form/${formId}`
-      );
       return true;
     } catch (err) {
       console.error("Publish error:", err);
-      alert(
-        "Failed to publish form: " +
-          (err instanceof Error ? err.message : "Unknown error")
-      );
       return false;
     }
   };
@@ -133,7 +136,8 @@ export default function FormBuilderPage() {
   };
 
   const handleError = (error: string) => {
-    alert("Error: " + error);
+    setError(error);
+    console.error("Form Builder Error:", error);
   };
 
   // Loading state
@@ -206,73 +210,28 @@ export default function FormBuilderPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link
-                href="/forms"
-                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-md"
-              >
-                <ArrowLeft className="w-4 h-4" />
-              </Link>
-              <div>
-                <h1 className="text-xl font-semibold text-gray-900">
-                  {form.title}
-                </h1>
-                {form.description && (
-                  <p className="text-gray-600 text-sm mt-1">
-                    {form.description}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            <div className="flex items-center gap-3">
-              {/* Save Status */}
-              <div className="text-sm text-gray-600">
-                {saving ? (
-                  <span className="flex items-center gap-1">
-                    <Loader2 className="w-3 h-3 animate-spin" />
-                    Saving...
-                  </span>
-                ) : lastSaved ? (
-                  <span>Saved {lastSaved.toLocaleTimeString()}</span>
-                ) : (
-                  <span>Unsaved changes</span>
-                )}
-              </div>
-
-              {/* Preview Button */}
-              <button
-                onClick={handlePreview}
-                className="px-4 py-2 border border-gray-300 text-gray-700 rounded-md hover:bg-gray-50"
-              >
-                Preview
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Form Builder */}
-      <div className="h-[calc(100vh-80px)]">
-        {/* Your actual FormBuilderLayout component */}
-        <FormBuilderProvider initialForm={form}>
-          <FormBuilderLayout
-            initialForm={form}
-            formId={formId}
-            onSave={handleSave}
-            onPreview={handlePreview}
-            onPublish={handlePublish}
-            onError={handleError}
-            autoSaveInterval={30000}
-            enablePersistence={true}
-          />
-        </FormBuilderProvider>
-      </div>
+    <div className="h-screen">
+      {/* Use BuilderProvider to manage form state */}
+      <BuilderProvider
+        initialForm={form}
+        formId={formId}
+        onFormSave={handleSave}
+        onFormPublish={handlePublish}
+        onError={handleError}
+        enablePersistence={true}
+        autoSaveInterval={30000} // 30 seconds
+      >
+        <FormBuilderLayout
+          initialForm={form}
+          formId={formId}
+          onSave={handleSave}
+          onPreview={handlePreview}
+          onPublish={handlePublish}
+          onError={handleError}
+          autoSaveInterval={30000}
+          enablePersistence={true}
+        />
+      </BuilderProvider>
     </div>
   );
 }

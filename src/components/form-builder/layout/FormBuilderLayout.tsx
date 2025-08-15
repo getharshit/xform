@@ -39,6 +39,8 @@ export interface FormBuilderLayoutProps {
   onPreview?: () => void;
   onPublish?: (form: Form) => Promise<boolean>;
   onError?: (error: string) => void;
+  autoSaveInterval?: number; // in milliseconds
+  enablePersistence?: boolean;
   className?: string;
 }
 

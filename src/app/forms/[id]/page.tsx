@@ -11,6 +11,7 @@ import {
   Copy,
 } from "lucide-react";
 import Link from "next/link";
+import { AICreateFormModal } from "@/components/form-builder/steps/AI/AICreateFormModal";
 
 // Types based on your API response
 interface Form {
