@@ -34,6 +34,16 @@ const navigationItems = [
     href: "/settings",
     icon: Settings,
   },
+  // Add test page for development
+  ...(process.env.NODE_ENV === "development"
+    ? [
+        {
+          name: "Test Integration",
+          href: "/test-integration",
+          icon: Settings,
+        },
+      ]
+    : []),
 ];
 
 export default function Navigation() {

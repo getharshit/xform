@@ -6,8 +6,10 @@ import { ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 // Import your existing form builder components
-// Note: Adjust these imports based on your actual file structure
-// import { FormBuilderLayout } from '@/components/form-builder/FormBuilderLayout';
+import {
+  FormBuilderLayout,
+  FormBuilderProvider,
+} from "@/components/form-builder";
 
 // Types based on your API
 interface Form {
@@ -102,16 +104,17 @@ export default function FormBuilderPage() {
 
   const handlePublish = async (formData: Form): Promise<boolean> => {
     try {
-      // First save the form
+      // First save the form to ensure it's up to date
       const saveSuccess = await handleSave(formData);
       if (!saveSuccess) {
         return false;
       }
 
-      // For now, publishing is just saving the form
-      // In the future, you might have a separate publish endpoint
+      // For now, publishing is just saving the form since we don't have a separate publish endpoint
+      // You can add additional publish logic here if needed
       alert(
-        "Form published successfully! Share your form using its unique link."
+        "Form published successfully! Share link: " +
+          `${window.location.origin}/form/${formId}`
       );
       return true;
     } catch (err) {
@@ -256,67 +259,19 @@ export default function FormBuilderPage() {
 
       {/* Form Builder */}
       <div className="h-[calc(100vh-80px)]">
-        {/* 
-          Replace this placeholder with your actual FormBuilderLayout component
-          Uncomment and adjust the import path above
-        */}
-
-        {/* Placeholder for now - replace with actual FormBuilderLayout */}
-        <div className="h-full flex items-center justify-center bg-white">
-          <div className="text-center max-w-md">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
-              Form Builder Component
-            </h2>
-            <p className="text-gray-600 mb-6">
-              This is where your FormBuilderLayout component will be rendered.
-              The form data is loaded and ready to be passed to the builder.
-            </p>
-
-            {/* Form Info Display */}
-            <div className="bg-gray-50 rounded-lg p-4 text-left">
-              <h3 className="font-medium text-gray-900 mb-2">
-                Form Data Ready:
-              </h3>
-              <ul className="text-sm text-gray-600 space-y-1">
-                <li>• ID: {form.id}</li>
-                <li>• Title: {form.title}</li>
-                <li>• Fields: {form.fields.length}</li>
-                <li>• Theme: {JSON.stringify(form.theme)}</li>
-              </ul>
-            </div>
-
-            <div className="mt-6">
-              <button
-                onClick={() => handleSave(form)}
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 mr-3"
-                disabled={saving}
-              >
-                Test Save
-              </button>
-              <button
-                onClick={() => handlePublish(form)}
-                className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                disabled={saving}
-              >
-                Test Publish
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* 
-          Uncomment this when you're ready to integrate with your FormBuilderLayout:
-          
+        {/* Your actual FormBuilderLayout component */}
+        <FormBuilderProvider initialForm={form}>
           <FormBuilderLayout
             initialForm={form}
+            formId={formId}
             onSave={handleSave}
-            onPublish={handlePublish}
             onPreview={handlePreview}
+            onPublish={handlePublish}
             onError={handleError}
             autoSaveInterval={30000}
             enablePersistence={true}
           />
-        */}
+        </FormBuilderProvider>
       </div>
     </div>
   );

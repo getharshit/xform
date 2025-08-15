@@ -1,152 +1,167 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
-import { Loader2, CheckCircle, AlertCircle } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Calendar,
+  Users,
+  Edit,
+  Trash2,
+  Copy,
+} from "lucide-react";
+import Link from "next/link";
 
-// Import your existing form renderer component
-// import { PublicFormRenderer } from '@/components/public-form/PublicFormRenderer';
-
+// Types based on your API response
 interface Form {
   id: string;
   title: string;
   description: string | null;
-  fields: any[];
-  theme: any;
-  settings?: any;
+  createdAt: string;
+  updatedAt: string;
+  responseCount: number;
+  theme: {
+    primaryColor?: string;
+    fontFamily?: string;
+  };
 }
 
-export default function FormViewPage() {
-  const params = useParams();
-  const formId = params.id as string;
-
-  const [form, setForm] = useState<Form | null>(null);
+export default function FormsPage() {
+  const [forms, setForms] = useState<Form[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [submitted, setSubmitted] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [showAICreateModal, setShowAICreateModal] = useState(false);
 
-  // Load form data
+  // Fetch forms from API
   useEffect(() => {
-    if (formId) {
-      loadForm();
-    }
-  }, [formId]);
+    fetchForms();
+  }, []);
 
-  const loadForm = async () => {
+  const fetchForms = async () => {
     try {
       setLoading(true);
-      setError(null);
-
-      const response = await fetch(`/api/forms/${formId}`);
-
+      const response = await fetch("/api/forms");
       if (!response.ok) {
-        if (response.status === 404) {
-          throw new Error("Form not found");
-        }
-        throw new Error("Failed to load form");
+        throw new Error("Failed to fetch forms");
       }
-
-      const formData = await response.json();
-      setForm(formData);
+      const data = await response.json();
+      setForms(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load form");
+      setError(err instanceof Error ? err.message : "Failed to fetch forms");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleSubmit = async (data: Record<string, any>) => {
-    try {
-      setSubmitting(true);
-      setSubmitError(null);
+  // Filter forms based on search term
+  const filteredForms = forms.filter(
+    (form) =>
+      form.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (form.description?.toLowerCase().includes(searchTerm.toLowerCase()) ??
+        false)
+  );
 
-      const response = await fetch(`/api/forms/${formId}/submit`, {
+  const handleDeleteForm = async (formId: string) => {
+    if (
+      !confirm(
+        "Are you sure you want to delete this form? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/forms/${formId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete form");
+      }
+
+      // Remove from local state
+      setForms(forms.filter((form) => form.id !== formId));
+    } catch (err) {
+      alert(
+        "Failed to delete form: " +
+          (err instanceof Error ? err.message : "Unknown error")
+      );
+    }
+  };
+
+  const handleDuplicateForm = async (form: Form) => {
+    try {
+      const response = await fetch(`/api/forms/${form.id}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch form details");
+      }
+
+      const fullForm = await response.json();
+
+      // Create duplicate with modified title
+      const duplicateData = {
+        title: `${form.title} (Copy)`,
+        description: form.description,
+        fields: fullForm.fields,
+        theme: fullForm.theme,
+        prompt: fullForm.prompt,
+      };
+
+      const createResponse = await fetch("/api/forms", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ data }),
+        body: JSON.stringify(duplicateData),
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to submit form");
+      if (!createResponse.ok) {
+        throw new Error("Failed to duplicate form");
       }
 
-      setSubmitted(true);
+      // Refresh forms list
+      fetchForms();
     } catch (err) {
-      setSubmitError(
-        err instanceof Error ? err.message : "Failed to submit form"
+      alert(
+        "Failed to duplicate form: " +
+          (err instanceof Error ? err.message : "Unknown error")
       );
-    } finally {
-      setSubmitting(false);
     }
   };
 
-  // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-blue-600" />
-          <h2 className="text-lg font-medium text-gray-900 mb-2">
-            Loading Form
-          </h2>
-          <p className="text-gray-600">Please wait while we load the form...</p>
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-1/4 mb-6"></div>
+            <div className="grid gap-4">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="h-24 bg-gray-200 rounded"></div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );
   }
 
-  // Error state
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center max-w-md">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-            <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-            <h2 className="text-lg font-medium text-red-800 mb-2">
-              Form Not Available
-            </h2>
-            <p className="text-red-700">{error}</p>
+      <div className="min-h-screen bg-gray-50 p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-red-50 border border-red-200 rounded-md p-4">
+            <h3 className="text-red-800 font-medium">Error Loading Forms</h3>
+            <p className="text-red-700 mt-1">{error}</p>
+            <button
+              onClick={fetchForms}
+              className="mt-3 bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
+            >
+              Try Again
+            </button>
           </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Success state
-  if (submitted) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center max-w-md">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-6">
-            <CheckCircle className="w-12 h-12 text-green-500 mx-auto mb-4" />
-            <h2 className="text-lg font-medium text-green-800 mb-2">
-              Thank You!
-            </h2>
-            <p className="text-green-700">
-              Your response has been submitted successfully.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Form not found
-  if (!form) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-lg font-medium text-gray-900 mb-2">
-            Form Not Found
-          </h2>
-          <p className="text-gray-600">
-            The form you're looking for doesn't exist.
-          </p>
         </div>
       </div>
     );
@@ -154,117 +169,281 @@ export default function FormViewPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Apply theme styles */}
-      <style jsx>{`
-        :root {
-          --primary-color: ${form.theme?.primaryColor || "#3B82F6"};
-          --font-family: ${form.theme?.fontFamily ||
-          "Inter, system-ui, sans-serif"};
-        }
-      `}</style>
-
-      <div className="max-w-2xl mx-auto px-4 py-8">
-        {/* Form Header */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            {form.title}
-          </h1>
-          {form.description && (
-            <p className="text-gray-600">{form.description}</p>
-          )}
-        </div>
-
-        {/* Submit Error */}
-        {submitError && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-              <div>
-                <h3 className="text-red-800 font-medium">Submission Error</h3>
-                <p className="text-red-700 mt-1">{submitError}</p>
-              </div>
+      {/* Header */}
+      <div className="bg-white border-b border-gray-200">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Forms</h1>
+              <p className="text-gray-600 mt-1">
+                Create and manage your forms ({forms.length} total)
+              </p>
             </div>
-          </div>
-        )}
-
-        {/* Form Content */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-          {/* 
-            Replace this placeholder with your actual PublicFormRenderer component
-            Uncomment and adjust the import path above
-          */}
-
-          {/* Placeholder for now - replace with actual PublicFormRenderer */}
-          <div className="p-6">
-            <h2 className="text-xl font-bold text-gray-900 mb-4">
-              Form Renderer Component
-            </h2>
-            <p className="text-gray-600 mb-6">
-              This is where your PublicFormRenderer component will be rendered.
-              The form data is loaded and ready to be passed to the renderer.
-            </p>
-
-            {/* Form Info Display */}
-            <div className="bg-gray-50 rounded-lg p-4 mb-6">
-              <h3 className="font-medium text-gray-900 mb-2">
-                Form Data Ready:
-              </h3>
-              <ul className="text-sm text-gray-600 space-y-1">
-                <li>• ID: {form.id}</li>
-                <li>• Title: {form.title}</li>
-                <li>• Fields: {form.fields.length}</li>
-                <li>• Theme: {form.theme?.primaryColor || "Default"}</li>
-              </ul>
-            </div>
-
-            {/* Test Form Fields */}
-            <div className="space-y-4">
-              <h3 className="font-medium text-gray-900">Fields Preview:</h3>
-              {form.fields.map((field, index) => (
-                <div
-                  key={field.id || index}
-                  className="border rounded-lg p-4 bg-gray-50"
-                >
-                  <div className="font-medium text-gray-900">{field.label}</div>
-                  <div className="text-sm text-gray-600">
-                    Type: {field.type}
-                  </div>
-                  {field.required && (
-                    <div className="text-sm text-red-600">Required</div>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-6">
+            {/* Create Buttons */}
+            <div className="flex items-center gap-2">
               <button
-                onClick={() => handleSubmit({ test: "data" })}
-                className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
-                disabled={submitting}
+                onClick={() => setShowAICreateModal(true)}
+                className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 flex items-center gap-2"
               >
-                {submitting ? (
-                  <span className="flex items-center gap-2">
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Submitting...
-                  </span>
-                ) : (
-                  "Test Submit"
-                )}
+                <Plus className="w-4 h-4" />
+                Create with AI
+              </button>
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" />
+                Create Form
               </button>
             </div>
           </div>
 
-          {/* 
-            Uncomment this when you're ready to integrate with your PublicFormRenderer:
-            
-            <PublicFormRenderer
-              form={form}
-              onSubmit={handleSubmit}
-              readonly={false}
-              showValidation={true}
+          {/* Search Bar */}
+          <div className="mt-4 relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <input
+              type="text"
+              placeholder="Search forms..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-          */}
+          </div>
         </div>
+      </div>
+
+      {/* Forms List */}
+      <div className="max-w-7xl mx-auto px-6 py-6">
+        {filteredForms.length === 0 ? (
+          <div className="text-center py-12">
+            <div className="text-gray-400 mb-4">
+              <Plus className="w-16 h-16 mx-auto" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              {searchTerm ? "No forms found" : "No forms yet"}
+            </h3>
+            <p className="text-gray-600 mb-4">
+              {searchTerm
+                ? "Try adjusting your search terms"
+                : "Get started by creating your first form"}
+            </p>
+            {!searchTerm && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setShowAICreateModal(true)}
+                  className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700"
+                >
+                  Create with AI
+                </button>
+                <button
+                  onClick={() => setShowCreateModal(true)}
+                  className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                >
+                  Create Your First Form
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="grid gap-4">
+            {filteredForms.map((form) => (
+              <div
+                key={form.id}
+                className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition-shadow"
+              >
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      {form.title}
+                    </h3>
+                    {form.description && (
+                      <p className="text-gray-600 mb-3 line-clamp-2">
+                        {form.description}
+                      </p>
+                    )}
+
+                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <div className="flex items-center gap-1">
+                        <Users className="w-4 h-4" />
+                        <span>{form.responseCount} responses</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Calendar className="w-4 h-4" />
+                        <span>
+                          Created{" "}
+                          {new Date(form.createdAt).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 ml-4">
+                    <Link
+                      href={`/forms/${form.id}/builder`}
+                      className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                      title="Edit Form"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </Link>
+
+                    <button
+                      onClick={() => handleDuplicateForm(form)}
+                      className="p-2 text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-md transition-colors"
+                      title="Duplicate Form"
+                    >
+                      <Copy className="w-4 h-4" />
+                    </button>
+
+                    <button
+                      onClick={() => handleDeleteForm(form.id)}
+                      className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors"
+                      title="Delete Form"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Create Modals */}
+      {showCreateModal && (
+        <CreateFormModal
+          onClose={() => setShowCreateModal(false)}
+          onSuccess={() => {
+            setShowCreateModal(false);
+            fetchForms();
+          }}
+        />
+      )}
+
+      {showAICreateModal && (
+        <AICreateFormModal
+          onClose={() => setShowAICreateModal(false)}
+          onSuccess={() => {
+            setShowAICreateModal(false);
+            fetchForms();
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+// Create Form Modal Component
+function CreateFormModal({
+  onClose,
+  onSuccess,
+}: {
+  onClose: () => void;
+  onSuccess: () => void;
+}) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!title.trim()) {
+      alert("Please enter a form title");
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      const response = await fetch("/api/forms", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          title: title.trim(),
+          description: description.trim() || null,
+          fields: [], // Start with empty fields
+          theme: {
+            primaryColor: "#3B82F6",
+            fontFamily: "Inter",
+          },
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to create form");
+      }
+
+      const newForm = await response.json();
+
+      // Redirect to form builder
+      window.location.href = `/forms/${newForm.id}/builder`;
+    } catch (err) {
+      alert(
+        "Failed to create form: " +
+          (err instanceof Error ? err.message : "Unknown error")
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="bg-white rounded-lg max-w-md w-full p-6">
+        <h2 className="text-xl font-semibold mb-4">Create New Form</h2>
+
+        <form onSubmit={handleSubmit}>
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Form Title *
+            </label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="e.g., Customer Feedback Form"
+              maxLength={100}
+              required
+            />
+          </div>
+
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Description (Optional)
+            </label>
+            <textarea
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Brief description of your form"
+              rows={3}
+              maxLength={500}
+            />
+          </div>
+
+          <div className="flex gap-3 justify-end">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50"
+              disabled={loading}
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+              disabled={loading}
+            >
+              {loading ? "Creating..." : "Create Form"}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
