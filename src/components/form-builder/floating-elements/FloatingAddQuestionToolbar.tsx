@@ -34,7 +34,6 @@ import {
   Layout,
 } from "lucide-react";
 import { useBuilder } from "../providers/BuilderProvider";
-import { FIELD_CATEGORIES } from "../utils/field-templates";
 
 export interface FloatingAddQuestionToolbarProps {
   onFieldAdd?: (fieldType: string) => void;
