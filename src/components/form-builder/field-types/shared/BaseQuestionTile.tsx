@@ -28,6 +28,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { FormField } from "@/types/form";
+import { toast } from "sonner";
 
 // Field type icon mapping
 const getFieldIcon = (fieldType: FormField["type"]) => {

@@ -3,6 +3,24 @@
 import { Form, FormField } from '@/types/form'
 import { BuilderState, BuilderAction, defaultHistoryState } from './types'
 import { generateFieldId } from '../utils/field-templates'
+import { toast } from "sonner"
+
+/**
+ * Ensures starting page field is always at index 0
+ * @param fields - Array of form fields
+ * @returns Reordered fields with starting page first
+ */
+const ensureStartingPageAtIndex0 = (fields: FormField[]): FormField[] => {
+  const startingPages = fields.filter(field => field.type === 'startingPage')
+  const otherFields = fields.filter(field => field.type !== 'startingPage')
+  
+  // If we have starting pages, put the first one at index 0
+  if (startingPages.length > 0) {
+    return [startingPages[0], ...otherFields]
+  }
+  
+  return otherFields
+}
 
 // Helper function to update history
 const updateHistory = (
@@ -117,44 +135,55 @@ export const builderReducer = (state: BuilderState, action: BuilderAction): Buil
       }
     }
 
-    // Field actions
-    case 'ADD_FIELD': {
-      if (!state.form) return state
-      
-      const { field, index } = action.payload
-      const fields = [...state.form.fields]
-      
-      // Ensure unique field ID
-      const fieldWithUniqueId = {
-        ...field,
-        id: field.id || generateFieldId(field.type, fields)
-      }
-      
-      const insertIndex = index !== undefined ? index : fields.length
-      fields.splice(insertIndex, 0, fieldWithUniqueId)
-      
-      const updatedForm = {
-        ...state.form,
-        fields,
-        updatedAt: new Date()
-      }
-      
-      const history = updateHistory(state, updatedForm)
-      
-      return {
-        ...state,
-        form: updatedForm,
-        history,
-        selectedFieldId: fieldWithUniqueId.id,
-        lastModified: Date.now(),
-        autoSave: {
-          ...state.autoSave,
-          hasUnsavedChanges: hasUnsavedChanges(updatedForm, state.originalForm)
-        }
-      }
+  case 'ADD_FIELD': {
+  if (!state.form) return state
+  
+  const { field, index } = action.payload
+  const fields = [...state.form.fields]
+  
+  // Check if trying to add a second starting page
+  if (field.type === 'startingPage') {
+    const existingStartingPage = fields.find(f => f.type === 'startingPage')
+    if (existingStartingPage) {
+      toast.error("Only one starting page is allowed per form")
+      return state
     }
+  }
+  
+  // Ensure unique field ID
+  const fieldWithUniqueId = {
+    ...field,
+    id: field.id || generateFieldId(field.type, fields)
+  }
+  
+  const insertIndex = index !== undefined ? index : fields.length
+  fields.splice(insertIndex, 0, fieldWithUniqueId)
+  
+  // Ensure starting page is always at index 0
+  const orderedFields = ensureStartingPageAtIndex0(fields)
+  
+  const updatedForm = {
+    ...state.form,
+    fields: orderedFields,
+    updatedAt: new Date()
+  }
+  
+  const history = updateHistory(state, updatedForm)
+  
+  return {
+    ...state,
+    form: updatedForm,
+    history,
+    selectedFieldId: fieldWithUniqueId.id,
+    lastModified: Date.now(),
+    autoSave: {
+      ...state.autoSave,
+      hasUnsavedChanges: hasUnsavedChanges(updatedForm, state.originalForm)
+    }
+  }
+}
 
-    case 'UPDATE_FIELD': {
+   case 'UPDATE_FIELD': {
       if (!state.form) return state
       
       const { fieldId, updates } = action.payload
@@ -162,9 +191,12 @@ export const builderReducer = (state: BuilderState, action: BuilderAction): Buil
         field.id === fieldId ? { ...field, ...updates } : field
       )
       
+      // Ensure starting page is always at index 0
+      const orderedFields = ensureStartingPageAtIndex0(fields)
+      
       const updatedForm = {
         ...state.form,
-        fields,
+        fields: orderedFields,
         updatedAt: new Date()
       }
       
@@ -188,9 +220,12 @@ export const builderReducer = (state: BuilderState, action: BuilderAction): Buil
       const { fieldId } = action.payload
       const fields = state.form.fields.filter(field => field.id !== fieldId)
       
+      // Ensure starting page is always at index 0
+      const orderedFields = ensureStartingPageAtIndex0(fields)
+      
       const updatedForm = {
         ...state.form,
-        fields,
+        fields: orderedFields,
         updatedAt: new Date()
       }
       
@@ -209,17 +244,37 @@ export const builderReducer = (state: BuilderState, action: BuilderAction): Buil
       }
     }
 
-    case 'REORDER_FIELDS': {
+   case 'REORDER_FIELDS': {
       if (!state.form) return state
       
       const { fromIndex, toIndex } = action.payload
       const fields = [...state.form.fields]
+      
+      // Check if trying to move starting page
+      const movingField = fields[fromIndex]
+      if (movingField?.type === 'startingPage') {
+        // Show toast message and prevent the operation
+        toast.error("Starting page can only be added once and always stays in front")
+        return state
+      }
+      
+      // Check if trying to move any field to index 0 when starting page exists
+      const hasStartingPage = fields.some(field => field.type === 'startingPage')
+      if (hasStartingPage && toIndex === 0) {
+        // Show toast message and prevent the operation
+        toast.error("Starting page must remain at the front of the form")
+        return state
+      }
+      
       const [movedField] = fields.splice(fromIndex, 1)
       fields.splice(toIndex, 0, movedField)
       
+      // Ensure starting page is always at index 0 (double safety)
+      const orderedFields = ensureStartingPageAtIndex0(fields)
+      
       const updatedForm = {
         ...state.form,
-        fields,
+        fields: orderedFields,
         updatedAt: new Date()
       }
       
@@ -237,12 +292,17 @@ export const builderReducer = (state: BuilderState, action: BuilderAction): Buil
       }
     }
 
-    case 'DUPLICATE_FIELD': {
+   case 'DUPLICATE_FIELD': {
       if (!state.form) return state
       
       const { fieldId, newIndex } = action.payload
       const field = state.form.fields.find(f => f.id === fieldId)
       if (!field) return state
+      // Prevent duplicating starting page
+      if (field.type === 'startingPage') {
+        toast.error("Starting page cannot be duplicated. Only one starting page is allowed per form")
+        return state
+      }
       
       const fields = [...state.form.fields]
       const duplicatedField = {
@@ -254,9 +314,12 @@ export const builderReducer = (state: BuilderState, action: BuilderAction): Buil
       const insertIndex = newIndex !== undefined ? newIndex : fields.length
       fields.splice(insertIndex, 0, duplicatedField)
       
+      // Ensure starting page is always at index 0
+      const orderedFields = ensureStartingPageAtIndex0(fields)
+      
       const updatedForm = {
         ...state.form,
-        fields,
+        fields: orderedFields,
         updatedAt: new Date()
       }
       
@@ -274,7 +337,6 @@ export const builderReducer = (state: BuilderState, action: BuilderAction): Buil
         }
       }
     }
-
     // Selection actions
     case 'SELECT_FIELD': {
       return {

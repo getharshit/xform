@@ -10,7 +10,7 @@ import {
   LongText,
 } from "./text-fields";
 import { NumberRating } from "./rating-fields";
-import { PageBreak } from "./structure-fields";
+import { PageBreak, StartingPage } from "./structure-fields";
 
 export const QuestionTileDispatcher: React.FC<BaseQuestionTileProps> = (
   props
@@ -59,7 +59,10 @@ export const QuestionTileDispatcher: React.FC<BaseQuestionTileProps> = (
       return <FileUpload {...props} />;
 
     case "pageBreak":
-      return <PageBreak {...props} />; // Page breaks don't need a special tile
+      return <PageBreak {...props} />;
+
+    case "startingPage":
+      return <StartingPage {...props} />;
 
     // For now, fallback to BaseQuestionTile for unimplemented types
     default:

@@ -860,6 +860,58 @@ export const FIELD_TYPE_REGISTRY: Record<string, FieldTypeConfig> = {
   },
 
   // ========== STRUCTURE FIELDS ==========
+
+// Starting Page Field
+  startingPage: {
+    displayName: "Starting Page",
+    description: "Welcome screen with form introduction",
+    category: "structure-fields",
+    defaultValues: {
+      type: "startingPage",
+      label: "Welcome to Our Form",
+      description: "Thank you for taking the time to fill out this form. Your responses are important to us.",
+      required: false, // Starting pages are not "required" in the traditional sense
+      displayOptions: {
+        estimatedTime: "",
+        participantCount: undefined,
+      },
+    },
+    propertySchema: [
+      {
+        id: "label",
+        section: "basic",
+        component: "input",
+        label: "Welcome Title",
+        description: "Main title shown on the welcome screen",
+        placeholder: "Welcome to Our Form",
+      },
+      {
+        id: "description",
+        section: "basic",
+        component: "textarea",
+        label: "Welcome Message",
+        description: "Detailed description and instructions for users",
+        placeholder: "Thank you for taking the time to fill out this form...",
+      },
+      {
+        id: "displayOptions.estimatedTime",
+        section: "basic",
+        component: "input",
+        label: "Estimated Time",
+        description: "How long the form takes to complete",
+        placeholder: "5-7 minutes",
+      },
+      {
+        id: "displayOptions.participantCount",
+        section: "basic",
+        component: "number",
+        label: "Participant Count",
+        description: "Number of people who have completed this form",
+        placeholder: "0",
+      },
+    ],
+  },
+
   // Page Break Field
 // Page Break Field
   pageBreak: {

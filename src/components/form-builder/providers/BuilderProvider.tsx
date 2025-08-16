@@ -25,6 +25,8 @@ import {
   getTemplateByType,
 } from "../utils/field-templates";
 
+import { getFieldDefaultValues } from "../field-types/registry/fieldRegistry";
+
 const BuilderContext = createContext<BuilderContextValue | null>(null);
 
 export interface BuilderProviderProps {
@@ -51,6 +53,8 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
   const [state, dispatch] = useReducer(builderReducer, initialBuilderState);
   const autoSaveRef = useRef<NodeJS.Timeout | null>(null);
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isSavingRef = useRef(false); // Prevent concurrent saves
+  const lastSaveVersionRef = useRef<string | null>(null); // Track save conflicts
 
   // Initialize form on mount
   useEffect(() => {
@@ -64,12 +68,14 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
     }
   }, [initialForm, enablePersistence]);
 
-  // Auto-save setup
+  // Enhanced auto-save setup with proper debouncing
   useEffect(() => {
+    // Only set up auto-save if conditions are met and not already saving
     if (
       state.autoSave.enabled &&
       state.autoSave.hasUnsavedChanges &&
-      state.form
+      state.form &&
+      !isSavingRef.current // Prevent overlapping saves
     ) {
       // Clear existing timeout
       if (autoSaveRef.current) {
@@ -91,20 +97,22 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
     state.autoSave.enabled,
     state.autoSave.hasUnsavedChanges,
     state.autoSave.interval,
-    state.form,
+    state.form?.id, // Only track form ID, not entire form object
+    state.form?.fields?.length, // Track field count changes
   ]);
 
-  // Persistence - save to localStorage when state changes
+  // Enhanced storage with better debouncing
   useEffect(() => {
-    if (enablePersistence && state.form) {
-      // Debounce storage saves
+    if (enablePersistence && state.form && !isSavingRef.current) {
+      // Clear existing timeout
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
       }
 
+      // Debounce storage saves more aggressively
       saveTimeoutRef.current = setTimeout(() => {
         saveToStorage();
-      }, 1000); // Save to storage 1 second after last change
+      }, 2000); // Increased to 2 seconds to reduce conflicts
     }
 
     return () => {
@@ -112,39 +120,59 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
         clearTimeout(saveTimeoutRef.current);
       }
     };
-  }, [state, enablePersistence]);
+  }, [
+    state.form?.id,
+    state.form?.fields?.length, // Only save when significant changes occur
+    state.selectedFieldId,
+    enablePersistence,
+  ]);
 
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      if (autoSaveRef.current) clearTimeout(autoSaveRef.current);
-      if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
-    };
-  }, []);
-
-  // Auto-save function
+  // Enhanced auto-save function with conflict detection
   const performAutoSave = useCallback(async () => {
-    if (!state.form || !onFormSave) return;
+    if (!state.form || !onFormSave || isSavingRef.current) return;
 
+    // Set saving flag to prevent concurrent saves
+    isSavingRef.current = true;
     dispatch({ type: "START_AUTO_SAVE" });
 
     try {
+      // Create a version hash for conflict detection
+      const currentVersion = JSON.stringify({
+        fields: state.form.fields,
+        title: state.form.title,
+        updatedAt: state.form.updatedAt,
+      });
+
+      // Check if this version was already saved
+      if (lastSaveVersionRef.current === currentVersion) {
+        console.log("Auto-save skipped: no changes detected");
+        dispatch({
+          type: "COMPLETE_AUTO_SAVE",
+          payload: { timestamp: Date.now() },
+        });
+        return;
+      }
+
+      console.log("Auto-save starting for form:", state.form.id);
       const success = await onFormSave(state.form);
+
       if (success) {
+        // Update the last saved version
+        lastSaveVersionRef.current = currentVersion;
+
+        console.log("Auto-save completed successfully");
         dispatch({
           type: "COMPLETE_AUTO_SAVE",
           payload: { timestamp: Date.now() },
         });
 
-        // Update original form to match saved form
-        dispatch({
-          type: "SET_FORM",
-          payload: { form: state.form, saveToHistory: false },
-        });
+        // Don't update the form state here - it causes loops!
+        // The form is already saved, just mark it as clean
       } else {
         throw new Error("Auto-save failed");
       }
     } catch (error) {
+      console.error("Auto-save error:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Auto-save failed";
       dispatch({
@@ -152,6 +180,9 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
         payload: { error: errorMessage },
       });
       onError?.(errorMessage);
+    } finally {
+      // Always clear the saving flag
+      isSavingRef.current = false;
     }
   }, [state.form, onFormSave, onError]);
 
@@ -231,7 +262,14 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
 
   // Helper functions
   const addField = useCallback((field: FormField, index?: number) => {
-    dispatch({ type: "ADD_FIELD", payload: { field, index } });
+    dispatch({
+      type: "ADD_FIELD",
+      payload: {
+        field,
+        index:
+          field.type === "startingPage" ? 0 : index ? index + 1 : undefined, // Always put starting page at 0, shift others
+      },
+    });
   }, []);
 
   const updateField = useCallback(
@@ -261,15 +299,30 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
     dispatch({ type: "REORDER_FIELDS", payload: { fromIndex, toIndex } });
   }, []);
 
-  // Form operations
+  // Enhanced form save with conflict prevention
   const saveForm = useCallback(async (): Promise<boolean> => {
-    if (!state.form || !onFormSave) return false;
+    if (!state.form || !onFormSave || isSavingRef.current) return false;
 
+    // Prevent concurrent saves
+    isSavingRef.current = true;
     dispatch({ type: "SET_SAVING", payload: { isSaving: true } });
 
     try {
+      console.log("Manual save starting for form:", state.form.id);
       const success = await onFormSave(state.form);
+
       if (success) {
+        // Update version tracking
+        const currentVersion = JSON.stringify({
+          fields: state.form.fields,
+          title: state.form.title,
+          updatedAt: state.form.updatedAt,
+        });
+        lastSaveVersionRef.current = currentVersion;
+
+        console.log("Manual save completed successfully");
+
+        // Update original form state to mark as clean
         dispatch({
           type: "SET_FORM",
           payload: { form: state.form, saveToHistory: false },
@@ -277,12 +330,14 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
       }
       return success;
     } catch (error) {
+      console.error("Manual save error:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Save failed";
       dispatch({ type: "SET_ERROR", payload: { error: errorMessage } });
       onError?.(errorMessage);
       return false;
     } finally {
+      isSavingRef.current = false;
       dispatch({ type: "SET_SAVING", payload: { isSaving: false } });
     }
   }, [state.form, onFormSave, onError]);
