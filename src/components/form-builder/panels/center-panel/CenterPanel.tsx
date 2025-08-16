@@ -55,11 +55,11 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({
   const getViewportClass = () => {
     switch (localViewportMode) {
       case "mobile":
-        return "max-w-sm mx-auto";
+        return "max-w-sm mx-auto"; // ~384px - Portrait mobile
       case "tablet":
-        return "max-w-2xl mx-auto";
+        return "max-w-2xl mx-auto"; // ~672px - Tablet
       default:
-        return "max-w-4xl mx-auto";
+        return "max-w-5xl mx-auto w-full"; // ~896px - Desktop landscape, full width
     }
   };
 
@@ -76,6 +76,14 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({
     await saveForm();
   };
 
+  // Debug log
+  console.log("CenterPanel Debug:", {
+    previewMode,
+    hasForm: !!form,
+    fieldCount,
+    formTitle: form?.title,
+  });
+
   return (
     <div className={`flex flex-col h-full bg-muted/30 ${className}`}>
       {/* Toolbar */}
@@ -87,6 +95,11 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({
               <Badge variant="outline">
                 {fieldCount} field{fieldCount !== 1 ? "s" : ""}
               </Badge>
+              {form?.title && (
+                <Badge variant="secondary" className="max-w-[200px] truncate">
+                  {form.title}
+                </Badge>
+              )}
             </div>
           </div>
 
@@ -118,7 +131,7 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({
 
             <Separator orientation="vertical" className="h-6" />
 
-            {/* Preview Toggle */}
+            {/* Preview Toggle - Optional, can be removed if not needed */}
             <Button
               variant={previewMode ? "default" : "outline"}
               size="sm"
@@ -127,12 +140,12 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({
               {previewMode ? (
                 <>
                   <EyeOff className="w-4 h-4 mr-2" />
-                  Edit
+                  Builder
                 </>
               ) : (
                 <>
                   <Eye className="w-4 h-4 mr-2" />
-                  Preview
+                  Interactive
                 </>
               )}
             </Button>
@@ -144,28 +157,24 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({
         </div>
       </div>
 
-      {/* Canvas Area */}
+      {/* Canvas Area - Always show live preview */}
       <ScrollArea className="flex-1">
-        <div className="p-8">
+        <div className="p-8 pb-24">
+          {" "}
+          {/* Added bottom padding to account for toolbar */}
           <div className={getViewportClass()}>
-            {previewMode ? (
+            {fieldCount > 0 ? (
+              /* Always show FormPreview instead of FormCanvas */
               <FormPreview form={form} viewportMode={localViewportMode} />
-            ) : fieldCount > 0 ? (
-              <FormCanvas
-                form={form}
-                selectedFieldId={selectedFieldId}
-                onFieldSelect={selectField}
-                onFieldAdd={addFieldByType}
-                viewportMode={localViewportMode}
-              />
             ) : (
+              /* Show empty state when no fields */
               <EmptyState onAddField={handleAddField} />
             )}
           </div>
         </div>
       </ScrollArea>
 
-      {/* Canvas Toolbar - Always visible when form exists (hidden only in preview mode) */}
+      {/* Canvas Toolbar - Always visible when form exists */}
       <CanvasToolbar
         onSave={handleSave}
         onPreview={handlePreviewToggle}
@@ -175,7 +184,7 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({
         canUndo={canUndo}
         canRedo={canRedo}
         isDirty={hasUnsavedChanges}
-        isPreviewMode={previewMode}
+        isPreviewMode={false} // Always show toolbar since we're always in "edit" mode
       />
     </div>
   );
