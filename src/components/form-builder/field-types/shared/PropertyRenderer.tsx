@@ -35,7 +35,9 @@ const CUSTOM_COMPONENTS = {
 
 // Helper function to get nested property value
 const getNestedValue = (obj: any, path: string): any => {
-  return path.split(".").reduce((current, key) => current?.[key], obj);
+  return path.split(".").reduce((current, key) => {
+    return current?.[key];
+  }, obj);
 };
 
 // Helper function to set nested property value
@@ -46,10 +48,14 @@ const setNestedValue = (obj: any, path: string, value: any): any => {
 
   for (let i = 0; i < keys.length - 1; i++) {
     const key = keys[i];
-    if (!(key in current) || typeof current[key] !== "object") {
+    if (
+      !(key in current) ||
+      typeof current[key] !== "object" ||
+      current[key] === null
+    ) {
       current[key] = {};
     } else {
-      current[key] = { ...current[key] };
+      current[key] = { ...current[key] }; // PRESERVE existing nested properties
     }
     current = current[key];
   }
@@ -57,17 +63,42 @@ const setNestedValue = (obj: any, path: string, value: any): any => {
   current[keys[keys.length - 1]] = value;
   return result;
 };
-
 export const PropertyRenderer: React.FC<PropertyRendererProps> = ({
   property,
   field,
   onFieldUpdate,
 }) => {
+  console.log("PropertyRenderer - Field:", field);
+  console.log("PropertyRenderer - Property ID:", property.id);
+  console.log(
+    "PropertyRenderer - Current Value:",
+    getNestedValue(field, property.id)
+  );
   const currentValue = getNestedValue(field, property.id);
 
   const handleValueChange = (value: any) => {
-    const updates = setNestedValue({}, property.id, value);
-    onFieldUpdate(updates);
+    // For nested properties like displayOptions.ratingStyle
+    if (property.id.includes(".")) {
+      const [parentKey, childKey] = property.id.split(".");
+
+      // Type-safe access to field properties
+      const currentParentValue = (field as any)[parentKey] || {};
+
+      // Preserve existing properties in the parent object
+      const updatedParentValue = {
+        ...currentParentValue,
+        [childKey]: value,
+      };
+
+      onFieldUpdate({
+        [parentKey]: updatedParentValue,
+      } as Partial<FormField>);
+    } else {
+      // For direct properties
+      onFieldUpdate({
+        [property.id]: value,
+      } as Partial<FormField>);
+    }
   };
 
   const renderPropertyControl = () => {
@@ -124,11 +155,54 @@ export const PropertyRenderer: React.FC<PropertyRendererProps> = ({
         );
 
       case "select":
-        const options = property.props?.options || [];
+        let options = property.props?.options || [];
+
+        // Special case: if this is defaultValue for dropdown/multipleChoice, use field options
+        if (
+          property.id === "defaultValue" &&
+          (field.type === "dropdown" || field.type === "multipleChoice")
+        ) {
+          const fieldOptions = field.options || [];
+
+          // Check if current default value still exists in options
+          const currentDefault = currentValue?.toString() || "";
+          const defaultStillExists =
+            currentDefault === "" || fieldOptions.includes(currentDefault);
+
+          // If current default no longer exists, reset it
+          if (!defaultStillExists && currentDefault !== "") {
+            handleValueChange("");
+          }
+
+          options = [
+            { value: "__none__", label: "No default selection" },
+            ...fieldOptions.map((option) => ({ value: option, label: option })),
+          ];
+        }
+
         return (
           <Select
-            value={currentValue?.toString() || ""}
+            value={(() => {
+              const val = currentValue?.toString() || "";
+              // For dynamic options, check if current value exists
+              if (
+                property.id === "defaultValue" &&
+                (field.type === "dropdown" || field.type === "multipleChoice")
+              ) {
+                const fieldOptions = field.options || [];
+                return val === "" || fieldOptions.includes(val)
+                  ? val || "__none__"
+                  : "__none__";
+              }
+              return val || "__none__";
+            })()}
             onValueChange={(value) => {
+              // Handle special "no selection" case
+              if (value === "__none__") {
+                handleValueChange("");
+                return;
+              }
+
               // Handle boolean values for inline layout
               if (value === "true") handleValueChange(true);
               else if (value === "false") handleValueChange(false);
@@ -147,8 +221,12 @@ export const PropertyRenderer: React.FC<PropertyRendererProps> = ({
                   const optionValue = option?.value;
                   const optionLabel = option?.label;
 
-                  // Skip invalid options
-                  if (optionValue === undefined || optionValue === null) {
+                  // Skip invalid options or empty string values
+                  if (
+                    optionValue === undefined ||
+                    optionValue === null ||
+                    optionValue === ""
+                  ) {
                     console.warn(`Invalid option at index ${index}:`, option);
                     return null;
                   }

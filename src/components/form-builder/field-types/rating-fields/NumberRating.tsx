@@ -118,26 +118,6 @@ const NumberRatingConfig: React.FC<NumberRatingConfigProps> = ({
 
   return (
     <div className="space-y-4" onClick={(e) => e.stopPropagation()}>
-      {/* Rating Style Selector */}
-      <div className="space-y-2">
-        <Label className="text-xs font-medium">Rating Style</Label>
-        <Select value={ratingStyle} onValueChange={handleStyleChange}>
-          <SelectTrigger className="h-8 text-sm">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {ratingStyles.map((style) => (
-              <SelectItem key={style.value} value={style.value}>
-                <span className="flex items-center gap-2">
-                  <span>{style.emoji}</span>
-                  <span>{style.label}</span>
-                </span>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
       {/* Rating Range Configuration */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">

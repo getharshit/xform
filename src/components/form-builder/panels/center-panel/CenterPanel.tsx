@@ -55,7 +55,7 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({
   const getViewportClass = () => {
     switch (localViewportMode) {
       case "mobile":
-        return "max-w-sm mx-auto"; // ~384px - Portrait mobile
+        return "max-w-md mx-auto"; // ~384px - Portrait mobile
       case "tablet":
         return "max-w-2xl mx-auto"; // ~672px - Tablet
       default:

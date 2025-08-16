@@ -35,6 +35,16 @@ export interface FormField {
     max?: number;
     customMessage?: string;
     requireScrollToAccept?: boolean;
+
+    blockedDomains?: string[];
+    allowedProtocols?: string[];
+    autoAddProtocol?: boolean;
+    autoFormat?: boolean;
+    allowedCountries?: string[];
+    autoDetectCountry?: boolean;
+     minSelections?: number;
+  maxSelections?: number;
+    
   };
   
   // Display options
@@ -46,6 +56,9 @@ export interface FormField {
     variant?: string;
     imageUrl?: string;
     imageAlt?: string;
+    showCountryCode?: boolean;
+  defaultCountry?: string;
+  enableRichText?: boolean;
     links?: Array<{
       text: string;
       url: string;
@@ -62,6 +75,16 @@ export interface FormField {
     customActions?: any[];
     termsTitle?: string;
     ratingStyle?: 'stars' | 'hearts' | 'thumbs' | 'smiley' | 'fire' | 'numbers';
+     layout?: "vertical" | "horizontal";
+  randomizeOrder?: boolean;
+  otherLabel?: string;
+  requireOtherText?: boolean;
+  externalLinks?: string[];
+  enableMultipleCheckboxes?: boolean;
+  additionalAgreements?: string[];
+    sectionTitle?: string;
+  sectionDescription?: string;
+  continueButtonText?: string;
   };
   
   // Default value

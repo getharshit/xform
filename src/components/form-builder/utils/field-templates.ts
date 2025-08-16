@@ -2,6 +2,9 @@
 
 import { FieldTemplate } from '../types/builder'
 import { FormField } from '@/types/form'
+// Create field from template
+// Import getFieldDefaultValues at the top of the file
+import { getFieldDefaultValues } from '../field-types/registry/fieldRegistry'
 
 // All 16 field types organized by category
 export const FIELD_TEMPLATES: FieldTemplate[] = [
@@ -324,6 +327,8 @@ export const generateFieldId = (type: FormField['type'], existingFields: FormFie
   return fieldId
 }
 
+
+
 // Create field from template
 export const createFieldFromTemplate = (
   template: FieldTemplate, 
@@ -331,10 +336,20 @@ export const createFieldFromTemplate = (
 ): FormField => {
   const fieldId = generateFieldId(template.type, existingFields)
   
+  // Get registry default values if available
+  let registryDefaults = {};
+  try {
+    registryDefaults = getFieldDefaultValues(template.type) || {};
+  } catch (error) {
+    console.warn('Could not load registry defaults for', template.type);
+  }
+  
+  // Merge registry defaults with template defaults
   return {
     id: fieldId,
-    ...template.defaultField,
-    type: template.type,
+    ...registryDefaults,        // Registry defaults first
+    ...template.defaultField,   // Template overrides registry
+    type: template.type,        // Ensure type is correct
     label: template.defaultField.label || template.label,
     required: template.defaultField.required || false
   } as FormField
