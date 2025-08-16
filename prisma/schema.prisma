@@ -11,7 +11,7 @@ datasource db {
 }
 
 model Form {
-  id            String   @id @default(cuid())
+  id            String   @id 
   title         String
   description   String?
   prompt        String?  // Original AI prompt
@@ -30,7 +30,7 @@ model Form {
 }
 
 model Response {
-  id          String   @id @default(cuid())
+  id          String   @id 
   formId      String
   data        Json     // Response data as JSON (field ID -> user answer)
   submittedAt DateTime @default(now())

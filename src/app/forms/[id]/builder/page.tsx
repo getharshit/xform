@@ -10,14 +10,14 @@ import { FormBuilderLayout, BuilderProvider } from "@/components/form-builder";
 
 import type { Form as BuilderForm } from "@/types/form";
 
-// API Form type (what comes from your API)
+// API Form type (what comes from your API) - Fixed to handle all possible types
 interface APIForm {
   id: string;
   title: string;
-  description: string | null | undefined;
+  description: string | null | undefined; // Allow undefined
   fields: any[];
   theme: any;
-  prompt: string | null;
+  prompt: string | null | undefined; // Allow undefined here too
   customization?: any;
   layout?: any;
   settings?: any;
@@ -31,6 +31,7 @@ const convertAPIFormToBuilderForm = (apiForm: APIForm): BuilderForm => {
   return {
     ...apiForm,
     description: apiForm.description ?? null, // Convert undefined to null
+    prompt: apiForm.prompt ?? null, // Convert undefined to null
     createdAt: new Date(apiForm.createdAt),
     updatedAt: new Date(apiForm.updatedAt),
   } as BuilderForm;
@@ -40,6 +41,8 @@ const convertAPIFormToBuilderForm = (apiForm: APIForm): BuilderForm => {
 const convertBuilderFormToAPIForm = (builderForm: BuilderForm): APIForm => {
   return {
     ...builderForm,
+    description: builderForm.description ?? null, // Ensure consistency
+    prompt: builderForm.prompt ?? null, // Ensure consistency
     createdAt: builderForm.createdAt.toString(),
     updatedAt: new Date().toISOString(), // Always update the timestamp
   };
@@ -47,7 +50,6 @@ const convertBuilderFormToAPIForm = (builderForm: BuilderForm): APIForm => {
 
 export default function FormBuilderPage() {
   const params = useParams();
-  const router = useRouter();
   const formId = params.id as string;
 
   const [form, setForm] = useState<BuilderForm | null>(null);
