@@ -1,38 +1,11 @@
 ```
 └── 📁xform
-        └── 📁types
-            └── 📁app
-                └── 📁api
-                    └── 📁ai
-                        └── 📁generate-form
-                            ├── route.ts
-                    └── 📁forms
-                        └── 📁[id]
-                            ├── route.ts
-                        ├── route.ts
-                └── 📁forms
-                    └── 📁[id]
-                        └── 📁builder
-                            ├── page.ts
-                        ├── page.ts
-                    ├── layout.ts
-                    ├── page.ts
-                └── 📁test-builder
-                    ├── page.ts
-                └── 📁text-integration
-                    ├── page.ts
-                ├── layout.ts
-                ├── page.ts
-            ├── cache-life.d.ts
-            ├── package.json
-        ├── app-build-manifest.json
-        ├── build-manifest.json
-        ├── package.json
-        ├── prerender-manifest.json
-        ├── react-loadable-manifest.json
-        ├── routes-manifest.json
-        ├── trace
+        
     └── 📁prisma
+        └── 📁migrations
+            └── 📁20250816063948_create_tables_with_manual_ids
+                ├── migration.sql
+            ├── migration_lock.toml
         ├── schema.prisma
     └── 📁public
         ├── file.svg
@@ -89,12 +62,19 @@
                 └── 📁field-types
                     └── 📁choice-fields
                         ├── index.ts
+                        ├── MultipleChoice.tsx
                         ├── MultipleChoiceEditor.tsx
+                        ├── OptionsManager.tsx
                     └── 📁rating-fields
                         ├── index.ts
                         ├── NumberRatingEditor.tsx
-                    └── 📁shared
+                    └── 📁registry
+                        ├── fieldRegistry.ts
                         ├── index.ts
+                    └── 📁shared
+                        ├── BaseQuestionTile.tsx
+                        ├── index.ts
+                        ├── PropertyRenderer.tsx
                     └── 📁special-fields
                         ├── index.ts
                     └── 📁structure-fields
@@ -103,6 +83,7 @@
                         ├── index.ts
                         ├── ShortTextEditor.tsx
                     ├── index.ts
+                    ├── QuestionTileDispatcher.tsx
                 └── 📁floating-elements
                     └── 📁notifications
                         ├── index.ts
@@ -131,7 +112,7 @@
                             ├── index.ts
                         └── 📁tabs
                             ├── index.ts
-                        ├── FieldProperties.tsx
+                        ├── DynamicFieldProperties.tsx
                         ├── FormSettings.tsx
                         ├── index.ts
                         ├── RightPanel.tsx
@@ -320,6 +301,7 @@
                 ├── index.ts
             └── 📁defaults
                 ├── defaults.ts
+            ├── id-generator.ts
             ├── test-api.ts
             ├── utils.ts
             ├── validations.ts
@@ -329,7 +311,8 @@
     ├── .gitignore
     ├── components.json
     ├── eslint.config.mjs
-    ├── form-builder-docs.md
+    ├── Folder structure.md
+    ├── form-builder-documentation.md
     ├── integration-summary.md
     ├── next-env.d.ts
     ├── next.config.ts

@@ -11,7 +11,7 @@ import {
 import { MultipleChoice } from "./choice-fields/MultipleChoice";
 
 // Import other field-specific tiles as they're created
-// import { ShortText } from "./text-fields/ShortText";
+import { ShortText } from "./text-fields/ShortText";
 // import { NumberRating } from "./rating-fields/NumberRating";
 // ... etc
 
@@ -29,8 +29,8 @@ export const QuestionTileDispatcher: React.FC<BaseQuestionTileProps> = (
       return <MultipleChoice {...props} />; // Dropdown uses same logic as MCQ
 
     // Add more field types as they're implemented
-    // case 'shortText':
-    //   return <ShortText {...props} />;
+    case "shortText":
+      return <ShortText {...props} />;
 
     // case 'numberRating':
     //   return <NumberRating {...props} />;

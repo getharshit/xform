@@ -137,19 +137,27 @@ export const FIELD_TYPE_REGISTRY: Record<string, FieldTypeConfig> = {
   },
 
   // Short Text Field
+  // Short Text Field
   shortText: {
     displayName: "Short Text",
-    description: "Single-line text input",
+    description: "Single-line text input with character limits",
     category: "text-fields",
     defaultValues: {
       type: "shortText",
       label: "Untitled Question",
       required: false,
       placeholder: "",
+      maxLength: undefined,
+      minLength: undefined,
+      defaultValue: "",
       displayOptions: {
         width: "full",
         showLabel: true,
         showDescription: true,
+      },
+      validationRules: {
+        pattern: "",
+        customMessage: "",
       },
     },
     propertySchema: [
@@ -166,6 +174,7 @@ export const FIELD_TYPE_REGISTRY: Record<string, FieldTypeConfig> = {
         section: "basic",
         component: "textarea",
         label: "Description",
+        description: "Optional description to help users",
         placeholder: "Add helpful description",
       },
       {
@@ -173,13 +182,23 @@ export const FIELD_TYPE_REGISTRY: Record<string, FieldTypeConfig> = {
         section: "basic",
         component: "input",
         label: "Placeholder Text",
+        description: "Placeholder text shown in the input field",
         placeholder: "Enter placeholder text",
+      },
+      {
+        id: "defaultValue",
+        section: "basic",
+        component: "input",
+        label: "Default Value",
+        description: "Pre-filled value for the field",
+        placeholder: "Enter default value",
       },
       {
         id: "helpText",
         section: "basic",
         component: "input",
         label: "Help Text",
+        description: "Additional help text",
         placeholder: "Additional help for users",
       },
       {
@@ -187,21 +206,24 @@ export const FIELD_TYPE_REGISTRY: Record<string, FieldTypeConfig> = {
         section: "basic",
         component: "switch",
         label: "Required Field",
+        description: "Make this field required",
       },
 
-      // Validation
+      // Validation Properties
       {
         id: "minLength",
         section: "validation",
         component: "number",
         label: "Minimum Length",
+        description: "Minimum number of characters required",
         placeholder: "0",
       },
       {
         id: "maxLength",
         section: "validation",
         component: "number",
-        label: "Maximum Length",
+        label: "Maximum Length", 
+        description: "Maximum number of characters allowed",
         placeholder: "100",
       },
       {
@@ -209,6 +231,7 @@ export const FIELD_TYPE_REGISTRY: Record<string, FieldTypeConfig> = {
         section: "validation",
         component: "input",
         label: "Validation Pattern (Regex)",
+        description: "Regular expression pattern for validation",
         placeholder: "^[a-zA-Z\\s]+$",
       },
       {
@@ -216,6 +239,7 @@ export const FIELD_TYPE_REGISTRY: Record<string, FieldTypeConfig> = {
         section: "validation",
         component: "input",
         label: "Custom Error Message",
+        description: "Custom error message for validation failures",
         placeholder: "Please enter a valid value",
       },
 
@@ -225,6 +249,7 @@ export const FIELD_TYPE_REGISTRY: Record<string, FieldTypeConfig> = {
         section: "display",
         component: "select",
         label: "Field Width",
+        description: "Width of the field in the form",
         props: {
           options: [
             { value: "full", label: "Full Width" },
@@ -238,12 +263,14 @@ export const FIELD_TYPE_REGISTRY: Record<string, FieldTypeConfig> = {
         section: "display",
         component: "switch",
         label: "Show Label",
+        description: "Display the field label",
       },
       {
         id: "displayOptions.showDescription",
         section: "display",
         component: "switch",
         label: "Show Description",
+        description: "Display the field description",
       },
     ],
   },
