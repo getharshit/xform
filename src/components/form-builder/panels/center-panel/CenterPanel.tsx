@@ -36,7 +36,6 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({
       form,
       ui: { viewportMode },
       selectedFieldId,
-      autoSave,
     },
     addFieldByType,
     selectField,
@@ -83,26 +82,11 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({
       <div className="border-b bg-card p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <h3 className="font-semibold">
-              {previewMode ? "Form Preview" : "Form Builder"}
-            </h3>
+            <h3 className="font-semibold">Live Form Preview</h3>
             <div className="flex items-center gap-2">
               <Badge variant="outline">
                 {fieldCount} field{fieldCount !== 1 ? "s" : ""}
               </Badge>
-
-              {form?.title && (
-                <Badge variant="secondary" className="max-w-[200px] truncate">
-                  {form.title}
-                </Badge>
-              )}
-
-              {/* Auto-save indicator */}
-              {autoSave.enabled && hasUnsavedChanges && (
-                <Badge variant="destructive" className="text-xs">
-                  Unsaved changes
-                </Badge>
-              )}
             </div>
           </div>
 
@@ -181,19 +165,18 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({
         </div>
       </ScrollArea>
 
-      {/* Canvas Toolbar - appears when editing and has fields */}
-      {!previewMode && fieldCount > 0 && (
-        <CanvasToolbar
-          onSave={handleSave}
-          onPreview={handlePreviewToggle}
-          onUndo={undo}
-          onRedo={redo}
-          onAddField={handleAddField}
-          canUndo={canUndo}
-          canRedo={canRedo}
-          isDirty={hasUnsavedChanges}
-        />
-      )}
+      {/* Canvas Toolbar - Always visible when form exists (hidden only in preview mode) */}
+      <CanvasToolbar
+        onSave={handleSave}
+        onPreview={handlePreviewToggle}
+        onUndo={undo}
+        onRedo={redo}
+        onFieldAdd={handleAddField}
+        canUndo={canUndo}
+        canRedo={canRedo}
+        isDirty={hasUnsavedChanges}
+        isPreviewMode={previewMode}
+      />
     </div>
   );
 };

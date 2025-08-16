@@ -42,7 +42,7 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
   children,
   initialForm,
   formId,
-  autoSaveInterval = 60000,
+  autoSaveInterval = 30000,
   enablePersistence = true,
   onFormSave,
   onFormPublish,

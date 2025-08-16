@@ -127,7 +127,7 @@ export const DynamicFieldProperties: React.FC<DynamicFieldPropertiesProps> = ({
             <AccordionItem key={section} value={section}>
               <AccordionTrigger>
                 {sectionDisplayNames[section] || section}
-                <Badge variant="secondary" className="ml-2">
+                <Badge variant="secondary" className="ml-40">
                   {properties.length}
                 </Badge>
               </AccordionTrigger>
@@ -153,7 +153,7 @@ export const DynamicFieldProperties: React.FC<DynamicFieldPropertiesProps> = ({
       )}
 
       {/* Field Actions */}
-      <div className="pt-4 border-t">
+      <div className="pt-4">
         <div className="grid grid-cols-2 gap-2">
           <Button
             variant="outline"
@@ -179,7 +179,7 @@ export const DynamicFieldProperties: React.FC<DynamicFieldPropertiesProps> = ({
 
       {/* Debug Info (Development Only) */}
       {process.env.NODE_ENV === "development" && (
-        <div className="pt-4 border-t">
+        <div className="pt-4 ">
           <details className="text-xs">
             <summary className="cursor-pointer text-muted-foreground">
               Debug Info

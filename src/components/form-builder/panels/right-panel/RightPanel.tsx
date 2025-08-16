@@ -158,69 +158,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
           </TabsContent>
         </Tabs>
       </ScrollArea>
-
-      {/* Footer with Quick Actions */}
-      <div className="p-4 border-t bg-muted/30">
-        <div className="space-y-2">
-          {activeTab === "field" && selectedField && (
-            <div className="flex gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 text-xs"
-                onClick={() => handleFieldDuplicate(selectedField.id)}
-              >
-                Duplicate
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 text-xs text-destructive hover:text-destructive"
-                onClick={() => {
-                  if (window.confirm("Delete this field?")) {
-                    handleFieldDelete(selectedField.id);
-                  }
-                }}
-              >
-                Delete
-              </Button>
-            </div>
-          )}
-
-          {activeTab === "form" && (
-            <div className="text-xs text-muted-foreground text-center">
-              Form settings auto-save
-            </div>
-          )}
-
-          {activeTab === "theme" && (
-            <div className="flex gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 text-xs"
-                onClick={() => {
-                  // Reset theme functionality
-                  console.log("Reset theme to default");
-                }}
-              >
-                Reset
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1 text-xs"
-                onClick={() => {
-                  // Preview theme functionality
-                  console.log("Preview theme changes");
-                }}
-              >
-                Preview
-              </Button>
-            </div>
-          )}
-        </div>
-      </div>
     </div>
   );
 };

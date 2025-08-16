@@ -61,6 +61,7 @@ export interface FormField {
     redirectDelay?: number;
     customActions?: any[];
     termsTitle?: string;
+    ratingStyle?: 'stars' | 'hearts' | 'thumbs' | 'smiley' | 'fire' | 'numbers';
   };
   
   // Default value

@@ -141,11 +141,29 @@ export const PropertyRenderer: React.FC<PropertyRendererProps> = ({
               />
             </SelectTrigger>
             <SelectContent>
-              {options.map((option: any) => (
-                <SelectItem key={option.value} value={option.value.toString()}>
-                  {option.label}
-                </SelectItem>
-              ))}
+              {options
+                .map((option: any, index: number) => {
+                  // Add null checks for option properties
+                  const optionValue = option?.value;
+                  const optionLabel = option?.label;
+
+                  // Skip invalid options
+                  if (optionValue === undefined || optionValue === null) {
+                    console.warn(`Invalid option at index ${index}:`, option);
+                    return null;
+                  }
+
+                  return (
+                    <SelectItem
+                      key={optionValue.toString()}
+                      value={optionValue.toString()}
+                    >
+                      {optionLabel || optionValue.toString()}
+                    </SelectItem>
+                  );
+                })
+                .filter(Boolean)}{" "}
+              {/* Remove null items */}
             </SelectContent>
           </Select>
         );

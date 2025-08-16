@@ -1,4 +1,4 @@
-// src/components/form-builder/field-types/text-fields/ShortText.tsx
+// src/components/form-builder/field-types/text-fields/LongText.tsx
 
 "use client";
 
@@ -10,15 +10,15 @@ import {
   BaseQuestionTileProps,
 } from "../shared/BaseQuestionTile";
 
-type ShortTextProps = Omit<
+type LongTextProps = Omit<
   BaseQuestionTileProps,
   "children" | "fieldInfo" | "expandable"
 >;
 
-export const ShortText: React.FC<ShortTextProps> = (props) => {
+export const LongText: React.FC<LongTextProps> = (props) => {
   const { field } = props;
 
-  // Generate field info badge - show character limits if set
+  // Generate field info badge - show character limits and rich text support
   const fieldInfo = () => {
     const badges = [];
 
@@ -38,14 +38,6 @@ export const ShortText: React.FC<ShortTextProps> = (props) => {
       );
     }
 
-    if (field.validationRules?.pattern) {
-      badges.push(
-        <Badge key="pattern" variant="outline" className="text-xs">
-          Pattern
-        </Badge>
-      );
-    }
-
     if (badges.length === 0 && field.placeholder) {
       badges.push(
         <Badge key="placeholder" variant="secondary" className="text-xs">
@@ -61,7 +53,7 @@ export const ShortText: React.FC<ShortTextProps> = (props) => {
 
   return (
     <BaseQuestionTile {...props} expandable={true} fieldInfo={fieldInfo()}>
-      {/* Short text fields don't need expandable content - all configuration in properties panel */}
+      {/* Long text fields don't need expandable content */}
     </BaseQuestionTile>
   );
 };

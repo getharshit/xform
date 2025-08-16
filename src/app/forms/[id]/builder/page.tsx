@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 
@@ -221,7 +221,7 @@ export default function FormBuilderPage() {
         onFormPublish={handlePublish}
         onError={handleError}
         enablePersistence={true}
-        autoSaveInterval={60000} // 30 seconds
+        autoSaveInterval={30000} // 30 seconds
       >
         <FormBuilderLayout
           initialForm={form}
@@ -230,7 +230,7 @@ export default function FormBuilderPage() {
           onPreview={handlePreview}
           onPublish={handlePublish}
           onError={handleError}
-          autoSaveInterval={60000}
+          autoSaveInterval={30000}
           enablePersistence={true}
         />
       </BuilderProvider>

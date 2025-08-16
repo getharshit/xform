@@ -1,19 +1,16 @@
-// src/components/form-builder/field-types/QuestionTileDispatcher.tsx
-
-"use client";
-
-import React from "react";
-import { FormField } from "@/types/form";
-import {
-  BaseQuestionTile,
-  BaseQuestionTileProps,
-} from "./shared/BaseQuestionTile";
-import { MultipleChoice } from "./choice-fields/MultipleChoice";
-
 // Import other field-specific tiles as they're created
-import { ShortText } from "./text-fields/ShortText";
-// import { NumberRating } from "./rating-fields/NumberRating";
-// ... etc
+import { BaseQuestionTileProps, BaseQuestionTile } from "./shared";
+import { MultipleChoice, Dropdown, YesNo, OpinionScale } from "./choice-fields";
+import { Statement, Legal, FileUpload } from "./special-fields";
+import {
+  ShortText,
+  Website,
+  Email,
+  PhoneNumber,
+  LongText,
+} from "./text-fields";
+import { NumberRating } from "./rating-fields";
+import { PageBreak } from "./structure-fields";
 
 export const QuestionTileDispatcher: React.FC<BaseQuestionTileProps> = (
   props
@@ -26,17 +23,43 @@ export const QuestionTileDispatcher: React.FC<BaseQuestionTileProps> = (
       return <MultipleChoice {...props} />;
 
     case "dropdown":
-      return <MultipleChoice {...props} />; // Dropdown uses same logic as MCQ
+      return <Dropdown {...props} />; // Now uses dedicated dropdown component
 
-    // Add more field types as they're implemented
+    case "yesNo":
+      return <YesNo {...props} />; // Dropdown uses same logic as MCQ
+
+    case "opinionScale":
+      return <OpinionScale {...props} />;
+
     case "shortText":
       return <ShortText {...props} />;
 
-    // case 'numberRating':
-    //   return <NumberRating {...props} />;
+    case "email":
+      return <Email {...props} />;
 
-    // case 'email':
-    //   return <EmailField {...props} />;
+    case "website":
+      return <Website {...props} />;
+
+    case "phoneNumber":
+      return <PhoneNumber {...props} />;
+
+    case "longText":
+      return <LongText {...props} />;
+
+    case "numberRating":
+      return <NumberRating {...props} />;
+
+    case "statement":
+      return <Statement {...props} />;
+
+    case "legal":
+      return <Legal {...props} />;
+
+    case "fileUpload":
+      return <FileUpload {...props} />;
+
+    case "pageBreak":
+      return <PageBreak {...props} />; // Page breaks don't need a special tile
 
     // For now, fallback to BaseQuestionTile for unimplemented types
     default:

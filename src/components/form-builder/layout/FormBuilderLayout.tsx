@@ -30,7 +30,6 @@ import { BuilderProvider, useBuilder } from "../providers/BuilderProvider";
 import { LeftPanel } from "../panels/left-panel/LeftPanel";
 import { CenterPanel } from "../panels/center-panel/CenterPanel";
 import { RightPanel } from "../panels/right-panel/RightPanel";
-import { FloatingAddQuestionToolbar } from "../floating-elements/FloatingAddQuestionToolbar";
 
 export interface FormBuilderLayoutProps {
   initialForm?: Form;
@@ -116,10 +115,6 @@ const FormBuilderLayoutInner: React.FC<{
 
   const handlePreview = () => {
     onPreview?.();
-  };
-
-  const handleFieldAdd = (fieldType: string) => {
-    addFieldByType(fieldType);
   };
 
   return (
@@ -255,11 +250,6 @@ const FormBuilderLayoutInner: React.FC<{
                 </>
               )}
             </ResizablePanelGroup>
-
-            {/* Floating Add Question Toolbar - Only show in build step */}
-            {builderStep === "build" && !previewMode && (
-              <FloatingAddQuestionToolbar onFieldAdd={handleFieldAdd} />
-            )}
           </TabsContent>
 
           {/* Design Step */}
@@ -348,7 +338,7 @@ export const FormBuilderLayout: React.FC<FormBuilderLayoutProps> = ({
         onFormPublish={onPublish}
         onError={onError}
         enablePersistence={true}
-        autoSaveInterval={60000} // 30 seconds
+        autoSaveInterval={30000} // 30 seconds
       >
         <FormBuilderLayoutInner
           onSave={onSave}

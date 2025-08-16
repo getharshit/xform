@@ -1,2 +1,2 @@
 // TODO: Add exports
-export { NumberRatingEditor } from './NumberRatingEditor'
+export { NumberRating } from './NumberRating'
