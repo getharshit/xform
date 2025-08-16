@@ -1,4 +1,4 @@
-// src/components/form-builder/field-types/shared/QuestionTile.tsx
+// src/components/form-builder/field-types/shared/BaseQuestionTile.tsx
 
 "use client";
 
@@ -52,7 +52,7 @@ const getFieldIcon = (fieldType: FormField["type"]) => {
   return iconMap[fieldType] || Type;
 };
 
-export interface QuestionTileProps {
+export interface BaseQuestionTileProps {
   field: FormField;
   index: number;
   isSelected: boolean;
@@ -62,9 +62,18 @@ export interface QuestionTileProps {
   onDelete: (fieldId: string, event: React.MouseEvent) => void;
   onUpdateField: (fieldId: string, updates: Partial<FormField>) => void;
   dragHandleProps?: any;
+
+  // Field-specific content area
+  children?: React.ReactNode;
+
+  // Optional field-specific info to display
+  fieldInfo?: React.ReactNode;
+
+  // Whether this field type should be expandable
+  expandable?: boolean;
 }
 
-export const QuestionTile: React.FC<QuestionTileProps> = ({
+export const BaseQuestionTile: React.FC<BaseQuestionTileProps> = ({
   field,
   index,
   isSelected,
@@ -74,6 +83,9 @@ export const QuestionTile: React.FC<QuestionTileProps> = ({
   onDelete,
   onUpdateField,
   dragHandleProps,
+  children,
+  fieldInfo,
+  expandable = false,
 }) => {
   const [isEditingLabel, setIsEditingLabel] = useState(false);
   const [isEditingDescription, setIsEditingDescription] = useState(false);
@@ -81,6 +93,7 @@ export const QuestionTile: React.FC<QuestionTileProps> = ({
   const [localDescription, setLocalDescription] = useState(
     field.description || ""
   );
+  const [isExpanded, setIsExpanded] = useState(isSelected);
 
   const labelInputRef = useRef<HTMLInputElement>(null);
   const descriptionInputRef = useRef<HTMLTextAreaElement>(null);
@@ -110,6 +123,13 @@ export const QuestionTile: React.FC<QuestionTileProps> = ({
   useEffect(() => {
     setLocalDescription(field.description || "");
   }, [field.description]);
+
+  // Sync expansion with selection
+  useEffect(() => {
+    if (expandable) {
+      setIsExpanded(isSelected);
+    }
+  }, [isSelected, expandable]);
 
   const handleSelect = () => {
     if (!isEditingLabel && !isEditingDescription) {
@@ -174,6 +194,16 @@ export const QuestionTile: React.FC<QuestionTileProps> = ({
     }
   };
 
+  const toggleExpansion = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (expandable) {
+      setIsExpanded(!isExpanded);
+      if (!isExpanded) {
+        onSelect(field.id);
+      }
+    }
+  };
+
   return (
     <Card
       className={`cursor-pointer transition-all duration-200 group relative ${
@@ -204,7 +234,7 @@ export const QuestionTile: React.FC<QuestionTileProps> = ({
             {index + 1}.
           </div>
 
-          {/* Content Column: Question + Description + Controls */}
+          {/* Content Column: Question + Description + Field-Specific + Controls */}
           <div className="flex-1 min-w-0 space-y-3">
             {/* Question Input */}
             <div>
@@ -254,9 +284,22 @@ export const QuestionTile: React.FC<QuestionTileProps> = ({
               )}
             </div>
 
-            {/* Controls Row: Required Toggle + Action Buttons */}
+            {/* Field-Specific Content Area */}
+            {children && (expandable ? isExpanded : true) && (
+              <div
+                className={
+                  expandable
+                    ? "border border-primary/20 rounded-lg p-3 bg-primary/5"
+                    : ""
+                }
+              >
+                {children}
+              </div>
+            )}
+
+            {/* Controls Row: Required Toggle + Field Info + Action Buttons */}
             <div className="flex items-center justify-between">
-              {/* Required Toggle with Label */}
+              {/* Left: Required Toggle */}
               <div className="flex items-center gap-2">
                 <Switch
                   checked={field.required || false}
@@ -266,7 +309,27 @@ export const QuestionTile: React.FC<QuestionTileProps> = ({
                 <span className="text-xs text-muted-foreground">Required</span>
               </div>
 
-              {/* Action Buttons */}
+              {/* Center: Field-Specific Info */}
+              <div className="flex items-center gap-2">
+                {fieldInfo}
+                {expandable && children && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0"
+                    onClick={toggleExpansion}
+                    title={isExpanded ? "Collapse" : "Expand"}
+                  >
+                    <ChevronDown
+                      className={`w-3 h-3 transition-transform ${
+                        isExpanded ? "rotate-180" : ""
+                      }`}
+                    />
+                  </Button>
+                )}
+              </div>
+
+              {/* Right: Action Buttons */}
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <Button
                   variant="ghost"

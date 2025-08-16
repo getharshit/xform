@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { generateUniqueResponseId } from '@/lib/id-generator';
 
 // Helper function to validate field responses based on field type
 function validateFieldResponse(field: any, value: any): { isValid: boolean; error?: string } {
@@ -293,9 +294,13 @@ export async function POST(
     const userAgent = formSettings?.collectUserAgent !== false ?
       request.headers.get('user-agent') : null;
 
+    const responseId = await generateUniqueResponseId();
+
+
     // Create response record
     const response = await prisma.response.create({
       data: {
+        id: responseId,
         formId: id,
         data: cleanedData,
         ipAddress: clientIP,

@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Type } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useBuilder } from "../../providers/BuilderProvider";
-import { QuestionTile } from "../../field-types/shared/QuestionTile";
+import { QuestionTileDispatcher } from "@/components/form-builder/field-types/QuestionTIleDispatcher";
 
 export interface LeftPanelProps {
   collapsed?: boolean;
@@ -65,9 +65,22 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
     <div className={`border-r bg-card flex flex-col h-full ${className}`}>
       {/* Header */}
       <div className="p-4 border-b">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="font-semibold">Form Questions</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="font-semibold">Added Questions</h3>
         </div>
+
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
+          <span>
+            {fieldCount} question{fieldCount !== 1 ? "s" : ""}
+          </span>
+          <Badge variant="outline">{fieldCount}</Badge>
+        </div>
+
+        {form?.title && (
+          <div className="mt-2 text-xs text-muted-foreground truncate">
+            {form.title}
+          </div>
+        )}
       </div>
 
       {/* Form Fields List */}
@@ -112,7 +125,7 @@ export const LeftPanel: React.FC<LeftPanelProps> = ({
                               ...provided.draggableProps.style,
                             }}
                           >
-                            <QuestionTile
+                            <QuestionTileDispatcher
                               field={field}
                               index={index}
                               isSelected={field.id === selectedFieldId}

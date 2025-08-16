@@ -1,2 +1,2 @@
-// TODO: Add exports
-export { MultipleChoiceEditor } from './MultipleChoiceEditor'
+export { MultipleChoiceEditor } from './MultipleChoiceEditor';
+export { MultipleChoice } from './MultipleChoice';

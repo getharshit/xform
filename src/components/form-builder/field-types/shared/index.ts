@@ -1,3 +1,3 @@
-// TODO: Add exports
-export { QuestionTile } from './QuestionTile';
-export type { QuestionTileProps } from './QuestionTile';
+
+export { BaseQuestionTile } from './BaseQuestionTile';
+export type { BaseQuestionTileProps } from './BaseQuestionTile';

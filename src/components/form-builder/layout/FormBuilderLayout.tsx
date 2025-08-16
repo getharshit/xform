@@ -348,7 +348,7 @@ export const FormBuilderLayout: React.FC<FormBuilderLayoutProps> = ({
         onFormPublish={onPublish}
         onError={onError}
         enablePersistence={true}
-        autoSaveInterval={30000} // 30 seconds
+        autoSaveInterval={60000} // 30 seconds
       >
         <FormBuilderLayoutInner
           onSave={onSave}

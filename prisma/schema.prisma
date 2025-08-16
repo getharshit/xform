@@ -11,7 +11,7 @@ datasource db {
 }
 
 model Form {
-  id            String   @id 
+  id            String   @id //doing manually from lib/id generator
   title         String
   description   String?
   prompt        String?  // Original AI prompt
@@ -30,7 +30,7 @@ model Form {
 }
 
 model Response {
-  id          String   @id 
+  id          String   @id //using manually from lib/id generator
   formId      String
   data        Json     // Response data as JSON (field ID -> user answer)
   submittedAt DateTime @default(now())

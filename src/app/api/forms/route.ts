@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
+import { generateUniqueFormId } from '@/lib/id-generator';
 
 // Helper function to validate new field types
 function validateFieldType(field: any): boolean {
@@ -54,6 +55,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  const formId = await generateUniqueFormId();
+  
   try {
     const { 
       title, 
@@ -106,7 +109,10 @@ export async function POST(request: NextRequest) {
 
     // Create form with enhanced database structure
     const form = await prisma.form.create({
+
+
       data: {
+        id: formId,
         title,
         description: description || '',
         fields,

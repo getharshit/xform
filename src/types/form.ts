@@ -12,6 +12,8 @@ export interface FormField {
   
   // Choice field properties
   options?: string[];
+  allowOther?: boolean; // NEW: Allow "Other" option with text input
+  maxSelections?: number; // NEW: For future multi-select support (1 = single select)
   
   // Rating field properties
   maxRating?: number;
@@ -39,7 +41,7 @@ export interface FormField {
     width?: 'full' | 'half' | 'third';
     showLabel?: boolean;
     showDescription?: boolean;
-    inline?: boolean;
+    inline?: boolean; // For choice fields: vertical vs horizontal layout
     variant?: string;
     imageUrl?: string;
     imageAlt?: string;
