@@ -18,6 +18,7 @@ export interface FormField {
   // Rating field properties
   maxRating?: number;
   minRating?: number;
+  displayStyle?: 'numbers' | 'stars';
   
   // Text field properties
   maxLength?: number;

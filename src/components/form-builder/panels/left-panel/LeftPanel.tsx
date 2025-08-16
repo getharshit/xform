@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Type } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { useBuilder } from "../../providers/BuilderProvider";
-import { QuestionTileDispatcher } from "@/components/form-builder/field-types/QuestionTIleDispatcher";
+import { QuestionTileDispatcher } from "@/components/form-builder/field-types/QuestionTileDispatcher";
 
 export interface LeftPanelProps {
   collapsed?: boolean;

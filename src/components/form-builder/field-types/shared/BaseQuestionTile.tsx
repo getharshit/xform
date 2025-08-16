@@ -93,7 +93,7 @@ export const BaseQuestionTile: React.FC<BaseQuestionTileProps> = ({
   const [localDescription, setLocalDescription] = useState(
     field.description || ""
   );
-  const [isExpanded, setIsExpanded] = useState(isSelected);
+  const [isExpanded, setIsExpanded] = useState(true); // Default to expanded
 
   const labelInputRef = useRef<HTMLInputElement>(null);
   const descriptionInputRef = useRef<HTMLTextAreaElement>(null);
@@ -123,13 +123,6 @@ export const BaseQuestionTile: React.FC<BaseQuestionTileProps> = ({
   useEffect(() => {
     setLocalDescription(field.description || "");
   }, [field.description]);
-
-  // Sync expansion with selection
-  useEffect(() => {
-    if (expandable) {
-      setIsExpanded(isSelected);
-    }
-  }, [isSelected, expandable]);
 
   const handleSelect = () => {
     if (!isEditingLabel && !isEditingDescription) {
@@ -198,9 +191,6 @@ export const BaseQuestionTile: React.FC<BaseQuestionTileProps> = ({
     e.stopPropagation();
     if (expandable) {
       setIsExpanded(!isExpanded);
-      if (!isExpanded) {
-        onSelect(field.id);
-      }
     }
   };
 
@@ -236,63 +226,61 @@ export const BaseQuestionTile: React.FC<BaseQuestionTileProps> = ({
 
           {/* Content Column: Question + Description + Field-Specific + Controls */}
           <div className="flex-1 min-w-0 space-y-3">
-            {/* Question Input */}
-            <div>
-              {isEditingLabel ? (
-                <input
-                  ref={labelInputRef}
-                  type="text"
-                  value={localLabel}
-                  onChange={(e) => setLocalLabel(e.target.value)}
-                  onBlur={handleLabelSave}
-                  onKeyDown={handleLabelKeyDown}
-                  className="w-full px-3 py-2 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                  placeholder="Question"
-                  onClick={(e) => e.stopPropagation()}
-                />
-              ) : (
-                <div
-                  className="px-3 py-2 text-sm bg-muted/30 border border-dashed border-muted-foreground/30 rounded-md hover:bg-muted/50 hover:border-primary/30 transition-colors cursor-text"
-                  onClick={handleLabelClick}
-                >
-                  {field.label || "Question"}
-                </div>
-              )}
+            {/* Question Input Row with Collapse Button */}
+            <div className="flex items-center gap-2">
+              <div className="flex-1">
+                {isEditingLabel ? (
+                  <input
+                    ref={labelInputRef}
+                    type="text"
+                    value={localLabel}
+                    onChange={(e) => setLocalLabel(e.target.value)}
+                    onBlur={handleLabelSave}
+                    onKeyDown={handleLabelKeyDown}
+                    className="w-full px-3 py-2 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    placeholder="Question"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                ) : (
+                  <div
+                    className="px-3 py-2 text-sm bg-muted/30 border border-dashed border-muted-foreground/30 rounded-md hover:bg-muted/50 hover:border-primary/30 transition-colors cursor-text"
+                    onClick={handleLabelClick}
+                  >
+                    {field.label || "Question"}
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Description Textarea */}
-            <div>
-              {isEditingDescription ? (
-                <textarea
-                  ref={descriptionInputRef}
-                  value={localDescription}
-                  onChange={(e) => setLocalDescription(e.target.value)}
-                  onBlur={handleDescriptionSave}
-                  onKeyDown={handleDescriptionKeyDown}
-                  className="w-full px-3 py-2 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
-                  placeholder="Description"
-                  rows={2}
-                  onClick={(e) => e.stopPropagation()}
-                />
-              ) : (
-                <div
-                  className="px-3 py-2 text-sm bg-muted/30 border border-dashed border-muted-foreground/30 rounded-md hover:bg-muted/50 hover:border-primary/30 transition-colors cursor-text min-h-[60px] flex items-start pt-3"
-                  onClick={handleDescriptionClick}
-                >
-                  {field.description || "Description"}
-                </div>
-              )}
-            </div>
+            {/* Description Textarea - Hidden when collapsed */}
+            {isExpanded && (
+              <div>
+                {isEditingDescription ? (
+                  <textarea
+                    ref={descriptionInputRef}
+                    value={localDescription}
+                    onChange={(e) => setLocalDescription(e.target.value)}
+                    onBlur={handleDescriptionSave}
+                    onKeyDown={handleDescriptionKeyDown}
+                    className="w-full px-3 py-2 text-sm bg-background border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none"
+                    placeholder="Description"
+                    rows={2}
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                ) : (
+                  <div
+                    className="px-3 py-2 text-sm bg-muted/30 border border-dashed border-muted-foreground/30 rounded-md hover:bg-muted/50 hover:border-primary/30 transition-colors cursor-text min-h-[60px] flex items-start pt-3"
+                    onClick={handleDescriptionClick}
+                  >
+                    {field.description || "Description"}
+                  </div>
+                )}
+              </div>
+            )}
 
-            {/* Field-Specific Content Area */}
-            {children && (expandable ? isExpanded : true) && (
-              <div
-                className={
-                  expandable
-                    ? "border border-primary/20 rounded-lg p-3 bg-primary/5"
-                    : ""
-                }
-              >
+            {/* Field-Specific Content Area - Hidden when collapsed */}
+            {children && isExpanded && (
+              <div className="border border-primary/20 rounded-lg p-3 bg-primary/5">
                 {children}
               </div>
             )}
@@ -310,24 +298,7 @@ export const BaseQuestionTile: React.FC<BaseQuestionTileProps> = ({
               </div>
 
               {/* Center: Field-Specific Info */}
-              <div className="flex items-center gap-2">
-                {fieldInfo}
-                {expandable && children && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 w-6 p-0"
-                    onClick={toggleExpansion}
-                    title={isExpanded ? "Collapse" : "Expand"}
-                  >
-                    <ChevronDown
-                      className={`w-3 h-3 transition-transform ${
-                        isExpanded ? "rotate-180" : ""
-                      }`}
-                    />
-                  </Button>
-                )}
-              </div>
+              <div className="flex items-center gap-2">{fieldInfo}</div>
 
               {/* Right: Action Buttons */}
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -357,6 +328,24 @@ export const BaseQuestionTile: React.FC<BaseQuestionTileProps> = ({
                 </Button>
               </div>
             </div>
+          </div>
+          <div>
+            {/* Collapse/Expand Button */}
+            {expandable && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-8 w-8 p-0 opacity-60 hover:opacity-100"
+                onClick={toggleExpansion}
+                title={isExpanded ? "Collapse" : "Expand"}
+              >
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform ${
+                    isExpanded ? "rotate-180" : ""
+                  }`}
+                />
+              </Button>
+            )}
           </div>
         </div>
 

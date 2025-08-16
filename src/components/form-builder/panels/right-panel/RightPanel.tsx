@@ -1,12 +1,14 @@
+// src/components/form-builder/panels/right-panel/RightPanel.tsx
+
 "use client";
 
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Settings, ChevronRight, FileText, Palette, Zap } from "lucide-react";
+import { Settings, ChevronRight, FileText, Palette } from "lucide-react";
 
-import { FieldProperties } from "./FieldProperties";
+import { DynamicFieldProperties } from "./DynamicFieldProperties";
 import { FormSettings } from "./FormSettings";
 import { ThemeCustomizer } from "./ThemeCustomizer";
 import { useBuilder } from "../../providers/BuilderProvider";
@@ -31,6 +33,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({
     selectedField,
     updateField,
     updateForm,
+    duplicateField,
+    deleteField,
     fieldCount,
   } = useBuilder();
 
@@ -56,6 +60,14 @@ export const RightPanel: React.FC<RightPanelProps> = ({
     if (form) {
       updateForm(updates);
     }
+  };
+
+  const handleFieldDuplicate = (fieldId: string) => {
+    duplicateField(fieldId);
+  };
+
+  const handleFieldDelete = (fieldId: string) => {
+    deleteField(fieldId);
   };
 
   return (
@@ -121,14 +133,19 @@ export const RightPanel: React.FC<RightPanelProps> = ({
       <ScrollArea className="flex-1">
         <Tabs value={activeTab} className="h-full">
           <TabsContent value="field" className="m-0 h-full">
-            <FieldProperties
+            <DynamicFieldProperties
               selectedField={selectedField}
               onFieldUpdate={handleFieldUpdate}
+              onFieldDuplicate={handleFieldDuplicate}
+              onFieldDelete={handleFieldDelete}
             />
           </TabsContent>
 
           <TabsContent value="form" className="m-0 h-full">
-            <FormSettings form={form} onFormUpdate={handleFormUpdate} />
+            <FormSettings
+              form={form || undefined}
+              onFormUpdate={handleFormUpdate}
+            />
           </TabsContent>
 
           <TabsContent value="theme" className="m-0 h-full">
@@ -151,10 +168,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                 variant="outline"
                 size="sm"
                 className="flex-1 text-xs"
-                onClick={() => {
-                  // Duplicate field functionality
-                  console.log("Duplicate field:", selectedField.id);
-                }}
+                onClick={() => handleFieldDuplicate(selectedField.id)}
               >
                 Duplicate
               </Button>
@@ -163,9 +177,8 @@ export const RightPanel: React.FC<RightPanelProps> = ({
                 size="sm"
                 className="flex-1 text-xs text-destructive hover:text-destructive"
                 onClick={() => {
-                  // Delete field functionality
                   if (window.confirm("Delete this field?")) {
-                    console.log("Delete field:", selectedField.id);
+                    handleFieldDelete(selectedField.id);
                   }
                 }}
               >
