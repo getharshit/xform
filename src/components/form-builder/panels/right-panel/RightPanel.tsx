@@ -10,14 +10,13 @@ import { Settings, ChevronRight, FileText, Palette } from "lucide-react";
 
 import { DynamicFieldProperties } from "./DynamicFieldProperties";
 import { FormSettings } from "./FormSettings";
-import { ThemeCustomizer } from "./ThemeCustomizer";
 import { useBuilder } from "../../providers/BuilderProvider";
 
 export interface RightPanelProps {
   collapsed?: boolean;
   onToggleCollapse?: () => void;
-  activeTab: "field" | "form" | "theme";
-  onTabChange: (tab: "field" | "form" | "theme") => void;
+  activeTab: "field" | "form";
+  onTabChange: (tab: "field" | "form") => void;
   className?: string;
 }
 
@@ -85,7 +84,7 @@ export const RightPanel: React.FC<RightPanelProps> = ({
         <Tabs
           value={activeTab}
           onValueChange={(tab) => {
-            if (tab === "field" || tab === "form" || tab === "theme") {
+            if (tab === "field" || tab === "form") {
               onTabChange(tab);
             }
           }}
@@ -98,10 +97,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
             <TabsTrigger value="form" className="text-xs">
               <Settings className="w-3 h-3 mr-1" />
               Form
-            </TabsTrigger>
-            <TabsTrigger value="theme" className="text-xs">
-              <Palette className="w-3 h-3 mr-1" />
-              Theme
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -125,7 +120,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
               </div>
             </div>
           )}
-          {activeTab === "theme" && <div>Customize form appearance</div>}
         </div>
       </div>
 
@@ -145,15 +139,6 @@ export const RightPanel: React.FC<RightPanelProps> = ({
             <FormSettings
               form={form || undefined}
               onFormUpdate={handleFormUpdate}
-            />
-          </TabsContent>
-
-          <TabsContent value="theme" className="m-0 h-full">
-            <ThemeCustomizer
-              theme={form?.theme}
-              onThemeUpdate={(themeUpdates) =>
-                handleFormUpdate({ theme: { ...form?.theme, ...themeUpdates } })
-              }
             />
           </TabsContent>
         </Tabs>

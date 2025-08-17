@@ -10,7 +10,6 @@ import React, {
   useCallback,
   useRef,
 } from "react";
-import { Form, FormField } from "@/types/form";
 import {
   BuilderState,
   BuilderAction,
@@ -20,6 +19,7 @@ import {
 } from "./types";
 import { builderReducer } from "./builderReducer";
 import { storage } from "../utils/storage";
+import { Form, FormField, FormTheme, FormCustomization } from "@/types/form";
 import {
   createFieldFromTemplate,
   getTemplateByType,
@@ -55,6 +55,9 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
   const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isSavingRef = useRef(false); // Prevent concurrent saves
   const lastSaveVersionRef = useRef<string | null>(null); // Track save conflicts
+  const customizationSaveRef = useRef<NodeJS.Timeout | null>(null);
+  const themeSaveRef = useRef<NodeJS.Timeout | null>(null);
+  const lastCustomizationSave = useRef<string>("");
 
   // Initialize form on mount
   useEffect(() => {
@@ -119,6 +122,13 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
       if (saveTimeoutRef.current) {
         clearTimeout(saveTimeoutRef.current);
       }
+      // ADD THESE NEW CLEANUP LINES:
+      if (customizationSaveRef.current) {
+        clearTimeout(customizationSaveRef.current);
+      }
+      if (themeSaveRef.current) {
+        clearTimeout(themeSaveRef.current);
+      }
     };
   }, [
     state.form?.id,
@@ -126,7 +136,6 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
     state.selectedFieldId,
     enablePersistence,
   ]);
-
   // Enhanced auto-save function with conflict detection
   const performAutoSave = useCallback(async () => {
     if (!state.form || !onFormSave || isSavingRef.current) return;
@@ -185,6 +194,184 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
       isSavingRef.current = false;
     }
   }, [state.form, onFormSave, onError]);
+
+  // ADD ALL THE CUSTOMIZATION FUNCTIONS HERE (after performAutoSave)
+
+  // Save intervals for different change types
+  const SAVE_INTERVALS = {
+    customization: 1500, // 1.5s for theme/customization changes
+    structure: 5000, // 5s for field/form structure
+    ui: 500, // 0.5s for UI preferences (localStorage only)
+  };
+
+  // Enhanced customization save with heavy debouncing
+  const saveCustomizationChanges = useCallback(() => {
+    if (!state.form || !onFormSave) return;
+
+    // Clear existing timeout
+    if (customizationSaveRef.current) {
+      clearTimeout(customizationSaveRef.current);
+    }
+
+    // Set debounced save
+    customizationSaveRef.current = setTimeout(async () => {
+      if (isSavingRef.current || !state.form) return; // Add null check
+
+      try {
+        // Create hash of customization data to avoid duplicate saves
+        const customizationHash = JSON.stringify({
+          theme: state.form.theme,
+          customization: state.form.customization,
+        });
+
+        // Skip if no changes
+        if (lastCustomizationSave.current === customizationHash) {
+          console.log("Customization save skipped: no changes");
+          return;
+        }
+
+        isSavingRef.current = true;
+        console.log("Saving customization changes...");
+
+        const success = await onFormSave(state.form);
+        if (success) {
+          lastCustomizationSave.current = customizationHash;
+          console.log("Customization changes saved successfully");
+        }
+      } catch (error) {
+        console.error("Customization save failed:", error);
+        onError?.("Failed to save customization changes");
+      } finally {
+        isSavingRef.current = false;
+      }
+    }, SAVE_INTERVALS.customization);
+  }, [state.form, onFormSave, onError]);
+
+  // Enhanced theme update functions with proper typing
+  const updateTheme = useCallback(
+    (themeUpdates: Partial<FormTheme>) => {
+      if (!state.form) return; // Add null check
+
+      dispatch({
+        type: "UPDATE_FORM",
+        payload: {
+          updates: {
+            theme: { ...state.form.theme, ...themeUpdates } as FormTheme,
+          },
+          saveToHistory: false, // Don't save theme changes to history
+        },
+      });
+
+      // Immediate localStorage save for UI feedback
+      saveToStorage();
+
+      // Debounced database save
+      saveCustomizationChanges();
+    },
+    [state.form, saveCustomizationChanges]
+  );
+
+  const updateCustomization = useCallback(
+    (customizationUpdates: Partial<FormCustomization>) => {
+      if (!state.form) return; // Add null check
+
+      dispatch({
+        type: "UPDATE_FORM",
+        payload: {
+          updates: {
+            customization: {
+              ...state.form.customization,
+              ...customizationUpdates,
+            } as FormCustomization,
+          },
+          saveToHistory: false,
+        },
+      });
+
+      // Immediate localStorage save
+      saveToStorage();
+
+      // Debounced database save
+      saveCustomizationChanges();
+    },
+    [state.form, saveCustomizationChanges]
+  );
+
+  // Enhanced color update (most frequent changes)
+  const updateColors = useCallback(
+    (colorUpdates: Record<string, string>) => {
+      if (!state.form) return; // Add null check
+
+      const currentColors = state.form.customization?.colors || {};
+      const updatedColors = { ...currentColors, ...colorUpdates };
+
+      updateCustomization({ colors: updatedColors });
+    },
+    [state.form, updateCustomization]
+  );
+
+  // Typography updates
+  const updateTypography = useCallback(
+    (typographyUpdates: Record<string, any>) => {
+      if (!state.form) return; // Add null check
+
+      const currentTypography = state.form.customization?.typography || {};
+      const updatedTypography = { ...currentTypography, ...typographyUpdates };
+
+      updateCustomization({ typography: updatedTypography });
+    },
+    [state.form, updateCustomization]
+  );
+
+  // Spacing updates
+  const updateSpacing = useCallback(
+    (spacingUpdates: Record<string, number>) => {
+      if (!state.form) return; // Add null check
+
+      const currentSpacing = state.form.customization?.spacing || {};
+      const updatedSpacing = { ...currentSpacing, ...spacingUpdates };
+
+      updateCustomization({ spacing: updatedSpacing });
+    },
+    [state.form, updateCustomization]
+  );
+
+  // Apply complete theme preset (immediate save)
+  const applyThemePreset = useCallback(
+    async (themePreset: Partial<FormTheme & FormCustomization>) => {
+      if (!state.form) return; // Add null check
+
+      // Apply theme immediately
+      dispatch({
+        type: "UPDATE_FORM",
+        payload: {
+          updates: {
+            theme: { ...state.form.theme, ...themePreset } as FormTheme,
+            customization: {
+              ...state.form.customization,
+              ...themePreset,
+            } as FormCustomization,
+          },
+        },
+      });
+
+      // Save immediately for theme presets (user expects instant application)
+      if (onFormSave && !isSavingRef.current) {
+        try {
+          isSavingRef.current = true;
+          console.log("Applying theme preset...");
+          await onFormSave(state.form);
+          console.log("Theme preset applied successfully");
+        } catch (error) {
+          console.error("Theme preset save failed:", error);
+          onError?.("Failed to apply theme preset");
+        } finally {
+          isSavingRef.current = false;
+        }
+      }
+    },
+    [state.form, onFormSave, onError]
+  );
 
   // Storage functions
   const saveToStorage = useCallback(() => {
@@ -461,10 +648,28 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
     loadFromStorage,
     clearStorage,
 
+    // Customization operations (NEW)
+    updateTheme,
+    updateCustomization,
+    updateColors,
+    updateTypography,
+    updateSpacing,
+    applyThemePreset,
+
     // Extended functionality
     addFieldByType,
   } as BuilderContextValue & {
     addFieldByType: (fieldType: string, index?: number) => void;
+    updateTheme: (themeUpdates: Partial<FormTheme>) => void;
+    updateCustomization: (
+      customizationUpdates: Partial<FormCustomization>
+    ) => void;
+    updateColors: (colorUpdates: Record<string, string>) => void;
+    updateTypography: (typographyUpdates: Record<string, any>) => void;
+    updateSpacing: (spacingUpdates: Record<string, number>) => void;
+    applyThemePreset: (
+      themePreset: FormTheme & FormCustomization
+    ) => Promise<void>;
   };
 
   return (
@@ -477,6 +682,16 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
 // Hook to use the builder context
 export const useBuilder = (): BuilderContextValue & {
   addFieldByType: (fieldType: string, index?: number) => void;
+  updateTheme: (themeUpdates: Partial<FormTheme>) => void;
+  updateCustomization: (
+    customizationUpdates: Partial<FormCustomization>
+  ) => void;
+  updateColors: (colorUpdates: Record<string, string>) => void;
+  updateTypography: (typographyUpdates: Record<string, any>) => void;
+  updateSpacing: (spacingUpdates: Record<string, number>) => void;
+  applyThemePreset: (
+    themePreset: FormTheme & FormCustomization
+  ) => Promise<void>;
 } => {
   const context = useContext(BuilderContext);
   if (!context) {
@@ -484,5 +699,15 @@ export const useBuilder = (): BuilderContextValue & {
   }
   return context as BuilderContextValue & {
     addFieldByType: (fieldType: string, index?: number) => void;
+    updateTheme: (themeUpdates: Partial<FormTheme>) => void;
+    updateCustomization: (
+      customizationUpdates: Partial<FormCustomization>
+    ) => void;
+    updateColors: (colorUpdates: Record<string, string>) => void;
+    updateTypography: (typographyUpdates: Record<string, any>) => void;
+    updateSpacing: (spacingUpdates: Record<string, number>) => void;
+    applyThemePreset: (
+      themePreset: FormTheme & FormCustomization
+    ) => Promise<void>;
   };
 };
