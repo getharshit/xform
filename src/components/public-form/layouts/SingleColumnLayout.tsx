@@ -200,9 +200,9 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
       } else {
         return {
           ...baseStyle,
-          backgroundColor: "var(--form-color-surface, #ffffff)",
-          color: "var(--form-color-text-primary, #374151)",
-          border: "1px solid var(--form-color-border, #d1d5db)",
+          backgroundColor: "var(--form-color-background, #ffffff)",
+          color: "var(--form-color-secondary, #374151)",
+          border: "1px solid var(--form-color-secondary, #d1d5db)",
         };
       }
     }
@@ -423,9 +423,7 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
       <div
         className="sticky top-0 z-40 shadow-sm"
         style={{
-          backgroundColor: "var(--form-color-surface, #ffffff)",
-          borderBottom: "1px solid var(--form-color-border, #e5e7eb)",
-          boxShadow: "var(--form-shadow-sm, 0 1px 2px 0 rgb(0 0 0 / 0.05))",
+          backgroundColor: "var(--form-color-background, #ffffff)",
           zIndex: 40,
         }}
       >
@@ -444,7 +442,8 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
               <p
                 style={{
                   fontSize: "var(--form-font-size-small, 0.875rem)",
-                  color: "var(--form-color-text-secondary, #6b7280)",
+                  color: "var(--form-color-secondary, #6b7280)",
+                  opacity: 0.8,
                 }}
               >
                 Question {currentQuestionIndex + 1} of {totalQuestions}
@@ -615,9 +614,8 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
                 }}
                 className="shadow-sm p-8"
                 style={{
-                  backgroundColor: "var(--form-color-surface, #ffffff)",
+                  backgroundColor: "var(--form-color-background, #ffffff)",
                   borderRadius: "var(--form-border-radius, 1rem)",
-                  border: "1px solid var(--form-color-border, #e5e7eb)",
                   boxShadow:
                     "var(--form-shadow-sm, 0 1px 2px 0 rgb(0 0 0 / 0.05))",
                   padding: "var(--form-spacing-xl, 2rem)",
@@ -770,14 +768,15 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
         {/* Navigation Hints */}
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          animate={{ opacity: 0.4 }}
           transition={{ delay: 0.5 }}
           className="flex items-center justify-center text-xs"
           style={{
             marginTop: "var(--form-spacing-lg, 1.5rem)",
             gap: "var(--form-spacing-lg, 1.5rem)",
             fontSize: "var(--form-font-size-small, 0.75rem)",
-            color: "var(--form-color-text-secondary, #9ca3af)",
+            color: "var(--form-color-secondary, #9ca3af)",
+            opacity: 0.4,
           }}
         >
           {[

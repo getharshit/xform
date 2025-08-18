@@ -5,7 +5,6 @@
 import React from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   ChevronRight,
   Palette,
@@ -97,8 +96,8 @@ export const DesignRightPanel: React.FC<DesignRightPanelProps> = ({
 
   return (
     <div className={`border-l bg-card flex flex-col h-full ${className}`}>
-      {/* Header */}
-      <div className="p-4 border-b">
+      {/* Header - Fixed */}
+      <div className="flex-shrink-0 p-4 border-b">
         <div className="flex items-center justify-between mb-4">
           <div>
             <h3 className="font-semibold">Design Customization</h3>
@@ -142,34 +141,40 @@ export const DesignRightPanel: React.FC<DesignRightPanelProps> = ({
         </Tabs>
       </div>
 
-      {/* Content */}
-      <ScrollArea className="flex-1">
+      {/* Content - NO ScrollArea wrapper, let individual tabs handle their own scrolling */}
+      <div className="flex-1 overflow-hidden">
         <Tabs value={activeTab} className="h-full">
           <TabsContent value="colors" className="m-0 h-full">
             <ColorsTab />
           </TabsContent>
 
-          <TabsContent value="typography" className="m-0 h-full">
+          <TabsContent
+            value="typography"
+            className="m-0 h-full overflow-y-auto"
+          >
             <PlaceholderTab title="Typography" />
           </TabsContent>
 
-          <TabsContent value="spacing" className="m-0 h-full">
+          <TabsContent value="spacing" className="m-0 h-full overflow-y-auto">
             <PlaceholderTab title="Spacing" />
           </TabsContent>
 
-          <TabsContent value="borders" className="m-0 h-full">
+          <TabsContent value="borders" className="m-0 h-full overflow-y-auto">
             <PlaceholderTab title="Borders" />
           </TabsContent>
 
-          <TabsContent value="shadows" className="m-0 h-full">
+          <TabsContent value="shadows" className="m-0 h-full overflow-y-auto">
             <PlaceholderTab title="Shadows" />
           </TabsContent>
 
-          <TabsContent value="animations" className="m-0 h-full">
+          <TabsContent
+            value="animations"
+            className="m-0 h-full overflow-y-auto"
+          >
             <PlaceholderTab title="Animations" />
           </TabsContent>
         </Tabs>
-      </ScrollArea>
+      </div>
     </div>
   );
 };

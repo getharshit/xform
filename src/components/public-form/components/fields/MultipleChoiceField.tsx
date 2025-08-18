@@ -149,7 +149,7 @@ export const MultipleChoiceField: React.FC<MultipleChoiceFieldProps> = ({
                         ? "var(--form-color-primary, #3b82f6)10" // 10% opacity
                         : hasError
                         ? "var(--form-color-error, #ef4444)05" // 5% opacity
-                        : "var(--form-color-surface, #ffffff)",
+                        : "var(--form-color-background, #ffffff)",
                       borderRadius: "var(--form-border-radius, 8px)",
                       "--tw-ring-color": "var(--form-color-primary, #3b82f6)",
                     } as React.CSSProperties

@@ -120,3 +120,25 @@
     @apply bg-background text-foreground;
   }
 }
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+  border: none;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 0.5rem; /* match your rounded-md/lg */
+}
+
+/* Ensure patterns repeat correctly */
+[data-background-pattern="true"] {
+  background-repeat: repeat;
+}
+
+/* Override any conflicting background styles */
+.form-background-override {
+  background: var(--form-background-value) !important;
+  background-image: var(--form-background-pattern) !important;
+  background-size: var(--form-background-pattern-size) !important;
+}
