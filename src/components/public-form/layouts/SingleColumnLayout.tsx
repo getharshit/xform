@@ -53,7 +53,7 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
         .trim()
         .replace(/['"]/g, "");
       const backgroundValue = computedStyle
-        .getPropertyValue("--form-background-value")
+        .getPropertyValue("--form-color-background")
         .trim()
         .replace(/['"]/g, "");
       const backgroundPattern = computedStyle
@@ -92,7 +92,7 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
           backgroundColor: backgroundColor || "#ffffff",
           backgroundImage:
             backgroundPattern !== "none" ? backgroundPattern : "none",
-          backgroundSize: "var(--form-background-pattern-size, 20px)",
+          backgroundSize: "var(--form-background-pattern-size, 30px)",
           backgroundRepeat: "repeat",
           backgroundAttachment: "scroll",
           backgroundPosition: "center",
@@ -590,6 +590,7 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
           padding: "var(--form-spacing-xl, 2rem) var(--form-spacing-md, 1rem)",
           maxWidth: "var(--form-max-width, 42rem)",
           minHeight: "100vh",
+          backgroundColor: "var(--form-color-background, #ffffff)",
         }}
       >
         {/* Question Container */}

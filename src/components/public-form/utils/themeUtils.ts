@@ -306,5 +306,5 @@ export function getContainerClasses(customization?: FormCustomization): string {
     right: 'ml-auto mr-0'
   };
 
-  return `max-w-[var(--form-max-width,600px)] ${alignmentClasses[alignment]}`;
+  return `max-w-[100vw] ${alignmentClasses[alignment]}`;
 }

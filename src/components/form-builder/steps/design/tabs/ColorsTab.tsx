@@ -107,122 +107,207 @@ const getAccessibleTextColor = (backgroundColor: string): string => {
   return contrastWithWhite >= 4.5 ? "#ffffff" : "#000000";
 };
 
-// Color harmony generators
+// Enhanced color harmony generators with light AND dark themes
 const generateColorHarmonies = (primaryHex: string) => {
   const [h, s, l] = hexToHsl(primaryHex);
 
   const harmonies = [
+    // LIGHT THEME VARIATIONS
     {
-      name: "Monochromatic",
-      type: "monochromatic",
+      name: "Vibrant Light",
+      type: "monochromatic-light",
+      isDark: false,
       colors: {
         primary: primaryHex,
-        secondary: hslToHex(h, Math.max(s - 30, 20), Math.min(l + 20, 80)),
-        background: hslToHex(h, Math.max(s - 60, 5), 96),
-        text: getAccessibleTextColor(hslToHex(h, Math.max(s - 60, 5), 96)),
-        accent: hslToHex(h, Math.min(s + 20, 80), Math.max(l - 30, 30)),
-        border: hslToHex(h, Math.max(s - 40, 10), 85),
+        secondary: hslToHex(h, Math.max(s - 40, 15), Math.min(l + 25, 85)),
+        background: hslToHex(h, Math.max(s - 70, 3), 97),
+        text: hslToHex(h, Math.min(s + 10, 60), 15),
+        accent: hslToHex(h, Math.min(s + 30, 90), Math.max(l - 35, 25)),
+        border: hslToHex(h, Math.max(s - 50, 8), 88),
       },
     },
     {
-      name: "Analogous Warm",
-      type: "analogous",
+      name: "Warm Analogous Light",
+      type: "analogous-light",
+      isDark: false,
       colors: {
         primary: primaryHex,
-        secondary: hslToHex((h + 30) % 360, s, l),
-        background: "#ffffff",
-        text: "#1a1a1a",
-        accent: hslToHex(
-          (h - 30 + 360) % 360,
-          Math.min(s + 20, 80),
-          Math.max(l - 10, 40)
+        secondary: hslToHex(
+          (h + 45) % 360,
+          Math.max(s - 15, 40),
+          Math.min(l + 10, 80)
         ),
-        border: hslToHex(h, Math.max(s - 50, 5), 90),
-      },
-    },
-    {
-      name: "Analogous Cool",
-      type: "analogous",
-      colors: {
-        primary: primaryHex,
-        secondary: hslToHex((h - 30 + 360) % 360, s, l),
-        background: "#ffffff",
-        text: "#1a1a1a",
+        background: "#FFFBF7",
+        text: "#2D1B0E",
         accent: hslToHex(
-          (h + 30) % 360,
-          Math.min(s + 20, 80),
-          Math.max(l - 10, 40)
+          (h - 20 + 360) % 360,
+          Math.min(s + 25, 85),
+          Math.max(l - 15, 35)
         ),
-        border: hslToHex(h, Math.max(s - 50, 5), 90),
+        border: hslToHex((h + 30) % 360, Math.max(s - 60, 5), 92),
       },
     },
     {
-      name: "Complementary",
-      type: "complementary",
+      name: "Bold Complementary Light",
+      type: "complementary-light",
+      isDark: false,
       colors: {
         primary: primaryHex,
         secondary: hslToHex(
           (h + 180) % 360,
-          Math.max(s - 20, 30),
-          Math.min(l + 15, 75)
+          Math.max(s - 10, 45),
+          Math.min(l + 20, 75)
         ),
-        background: "#ffffff",
-        text: "#1a1a1a",
-        accent: hslToHex((h + 180) % 360, s, l),
-        border: hslToHex(h, Math.max(s - 50, 5), 90),
+        background: "#FFFFFF",
+        text: "#1A1A1A",
+        accent: hslToHex(
+          (h + 180) % 360,
+          Math.min(s + 20, 90),
+          Math.max(l - 20, 30)
+        ),
+        border: hslToHex(h, Math.max(s - 55, 5), 90),
       },
     },
     {
-      name: "Split Complementary 1",
-      type: "split-complementary",
-      colors: {
-        primary: primaryHex,
-        secondary: hslToHex(
-          (h + 150) % 360,
-          Math.max(s - 20, 30),
-          Math.min(l + 15, 75)
-        ),
-        background: "#ffffff",
-        text: "#1a1a1a",
-        accent: hslToHex((h + 210) % 360, s, Math.max(l - 10, 30)),
-        border: hslToHex(h, Math.max(s - 50, 5), 90),
-      },
-    },
-    {
-      name: "Split Complementary 2",
-      type: "split-complementary",
-      colors: {
-        primary: primaryHex,
-        secondary: hslToHex(
-          (h + 210) % 360,
-          Math.max(s - 20, 30),
-          Math.min(l + 15, 75)
-        ),
-        background: "#ffffff",
-        text: "#1a1a1a",
-        accent: hslToHex((h + 150) % 360, s, Math.max(l - 10, 30)),
-        border: hslToHex(h, Math.max(s - 50, 5), 90),
-      },
-    },
-    {
-      name: "Triadic Cool",
-      type: "triadic",
+      name: "Dynamic Triadic Light",
+      type: "triadic-light",
+      isDark: false,
       colors: {
         primary: primaryHex,
         secondary: hslToHex(
           (h + 120) % 360,
-          Math.max(s - 20, 30),
-          Math.min(l + 15, 75)
+          Math.max(s - 10, 45),
+          Math.min(l + 15, 80)
         ),
-        background: "#ffffff",
-        text: "#1a1a1a",
-        accent: hslToHex((h + 240) % 360, s, Math.max(l - 10, 30)),
-        border: hslToHex(h, Math.max(s - 50, 5), 90),
+        background: "#FEFEFE",
+        text: "#212121",
+        accent: hslToHex(
+          (h + 240) % 360,
+          Math.min(s + 15, 85),
+          Math.max(l - 10, 35)
+        ),
+        border: hslToHex((h + 60) % 360, Math.max(s - 50, 10), 90),
+      },
+    },
+
+    // DARK THEME VARIATIONS
+    {
+      name: "Dark Monochromatic",
+      type: "monochromatic-dark",
+      isDark: true,
+      colors: {
+        primary: hslToHex(h, Math.min(s + 20, 90), Math.max(l + 30, 60)), // Brighter primary for dark bg
+        secondary: hslToHex(h, Math.max(s - 10, 30), Math.min(l + 40, 70)),
+        background: hslToHex(h, Math.max(s - 50, 8), 8), // Very dark background
+        text: hslToHex(h, Math.max(s - 40, 10), 92), // Light text
+        accent: hslToHex(h, Math.min(s + 40, 95), Math.max(l + 35, 65)),
+        border: hslToHex(h, Math.max(s - 30, 15), 25),
+      },
+    },
+    {
+      name: "Dark Analogous Warm",
+      type: "analogous-dark",
+      isDark: true,
+      colors: {
+        primary: hslToHex(
+          (h + 30) % 360,
+          Math.min(s + 25, 85),
+          Math.max(l + 25, 65)
+        ),
+        secondary: hslToHex(
+          (h + 60) % 360,
+          Math.max(s - 5, 40),
+          Math.min(l + 30, 70)
+        ),
+        background: "#1A1611", // Dark warm background
+        text: "#F5F3F0", // Warm light text
+        accent: hslToHex(
+          (h - 15 + 360) % 360,
+          Math.min(s + 35, 90),
+          Math.max(l + 40, 70)
+        ),
+        border: hslToHex((h + 45) % 360, Math.max(s - 20, 20), 30),
+      },
+    },
+    {
+      name: "Dark Complementary",
+      type: "complementary-dark",
+      isDark: true,
+      colors: {
+        primary: hslToHex(h, Math.min(s + 30, 90), Math.max(l + 35, 65)),
+        secondary: hslToHex(
+          (h + 180) % 360,
+          Math.min(s + 20, 80),
+          Math.max(l + 25, 60)
+        ),
+        background: "#0F0F0F", // Pure dark
+        text: "#F0F0F0", // Pure light text
+        accent: hslToHex(
+          (h + 180) % 360,
+          Math.min(s + 40, 95),
+          Math.max(l + 45, 75)
+        ),
+        border: hslToHex(h, Math.max(s - 10, 25), 35),
+      },
+    },
+    {
+      name: "Dark Triadic",
+      type: "triadic-dark",
+      isDark: true,
+      colors: {
+        primary: hslToHex(h, Math.min(s + 25, 90), Math.max(l + 30, 65)),
+        secondary: hslToHex(
+          (h + 120) % 360,
+          Math.min(s + 15, 80),
+          Math.max(l + 20, 60)
+        ),
+        background: hslToHex((h + 240) % 360, Math.max(s - 40, 10), 10), // Tinted dark background
+        text: "#EEEEEE",
+        accent: hslToHex(
+          (h + 240) % 360,
+          Math.min(s + 30, 85),
+          Math.max(l + 35, 70)
+        ),
+        border: hslToHex((h + 180) % 360, Math.max(s - 20, 20), 28),
+      },
+    },
+    {
+      name: "Dark Split Complement",
+      type: "split-complementary-dark",
+      isDark: true,
+      colors: {
+        primary: hslToHex(h, Math.min(s + 20, 85), Math.max(l + 25, 60)),
+        secondary: hslToHex(
+          (h + 150) % 360,
+          Math.min(s + 10, 75),
+          Math.max(l + 15, 55)
+        ),
+        background: hslToHex((h + 210) % 360, Math.max(s - 45, 8), 12), // Subtle tinted dark
+        text: "#F2F2F2",
+        accent: hslToHex(
+          (h + 210) % 360,
+          Math.min(s + 25, 80),
+          Math.max(l + 30, 65)
+        ),
+        border: hslToHex((h + 180) % 360, Math.max(s - 25, 18), 32),
+      },
+    },
+    {
+      name: "Midnight Professional",
+      type: "professional-dark",
+      isDark: true,
+      colors: {
+        primary: hslToHex(h, Math.min(s + 15, 75), Math.max(l + 20, 55)),
+        secondary: hslToHex(h, Math.max(s - 20, 25), Math.min(l + 35, 65)),
+        background: "#111827", // Professional dark blue-gray
+        text: "#F9FAFB",
+        accent: hslToHex(h, Math.min(s + 30, 85), Math.max(l + 25, 60)),
+        border: "#374151", // Matching gray border
       },
     },
   ];
 
-  // Filter harmonies to ensure WCAG AA compliance
+  // Enhanced filtering for both light and dark themes
   return harmonies
     .filter((harmony) => {
       const bgContrast = getContrastRatio(
@@ -230,12 +315,19 @@ const generateColorHarmonies = (primaryHex: string) => {
         harmony.colors.background
       );
       const primaryContrast = getContrastRatio(
-        "#ffffff",
+        harmony.isDark ? harmony.colors.text : "#ffffff",
         harmony.colors.primary
       );
-      return bgContrast >= 4.5 && primaryContrast >= 3.0; // Slightly relaxed for buttons
+      const accentContrast = getContrastRatio(
+        harmony.isDark ? harmony.colors.text : "#ffffff",
+        harmony.colors.accent
+      );
+
+      return (
+        bgContrast >= 4.5 && primaryContrast >= 3.0 && accentContrast >= 3.0
+      );
     })
-    .slice(0, 6); // Return top 6 accessible harmonies
+    .slice(0, 10); // Return more variety including both light and dark
 };
 
 interface CustomColor {
@@ -245,25 +337,58 @@ interface CustomColor {
 }
 
 const defaultColorValues = {
-  primary: "#030213",
-  secondary: "#ececf0",
+  primary: "#3B82F6",
+  secondary: "#6B7280",
   background: "#ffffff",
-  text: "#0a0a0a",
+  text: "#1F2937",
   accent: "#10b981",
   border: "#e5e7eb",
 } as const;
 
 const customColors: CustomColor[] = [
-  { name: "Primary", key: "primary", default: "#030213" },
-  { name: "Secondary", key: "secondary", default: "#ececf0" },
+  { name: "Primary", key: "primary", default: "#3B82F6" },
+  { name: "Secondary", key: "secondary", default: "#6B7280" },
   { name: "Background", key: "background", default: "#ffffff" },
-  { name: "Text", key: "text", default: "#0a0a0a" },
+  { name: "Text", key: "text", default: "#1F2937" },
   { name: "Accent", key: "accent", default: "#10b981" },
   { name: "Border", key: "border", default: "#e5e7eb" },
 ];
 
+// Tooltip component for color circles
+const ColorTooltip: React.FC<{
+  color: string;
+  label: string;
+  usage: string;
+  children: React.ReactNode;
+}> = ({ color, label, usage, children }) => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  return (
+    <div
+      className="relative"
+      onMouseEnter={() => setIsVisible(true)}
+      onMouseLeave={() => setIsVisible(false)}
+    >
+      {children}
+      {isVisible && (
+        <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 z-10">
+          <div className="bg-gray-900 text-white text-xs rounded-lg px-3 py-2 shadow-lg min-w-max">
+            <div className="font-medium">{label}</div>
+            <div className="text-gray-300">{color}</div>
+            <div className="text-gray-400 text-xs mt-1">{usage}</div>
+            {/* Arrow */}
+            <div className="absolute top-full left-1/2 transform -translate-x-1/2">
+              <div className="w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const ColorsTab: React.FC = () => {
-  const { updateColors, applyThemePreset, state } = useBuilder();
+  const { updateColors, state } = useBuilder();
   const currentColors = state.form?.customization?.colors || {};
   const [harmonySuggestions, setHarmonySuggestions] = useState<any[]>([]);
 
@@ -276,7 +401,7 @@ export const ColorsTab: React.FC = () => {
 
   // Generate harmony suggestions when primary color changes
   useEffect(() => {
-    if (currentPrimary && currentPrimary !== "#030213") {
+    if (currentPrimary && currentPrimary !== "#3B82F6") {
       const suggestions = generateColorHarmonies(currentPrimary);
       setHarmonySuggestions(suggestions);
     } else {
@@ -285,26 +410,53 @@ export const ColorsTab: React.FC = () => {
   }, [currentPrimary]);
 
   const handleColorChange = (colorKey: string, value: string) => {
+    console.log("🎨 Color change:", { colorKey, value });
     updateColors({ [colorKey]: value });
   };
 
   const resetColors = () => {
+    console.log("🔄 Resetting colors to defaults");
     updateColors(defaultColorValues);
     setHarmonySuggestions([]);
   };
 
-  const applyHarmony = async (harmony: any) => {
+  const applyHarmony = (harmony: any) => {
+    console.log("🎨 Applying harmony preset:", harmony.name);
+    console.log("🎨 Harmony colors:", harmony.colors);
+
     try {
-      await applyThemePreset({
-        primaryColor: harmony.colors.primary,
-        secondaryColor: harmony.colors.secondary,
-        backgroundColor: harmony.colors.background,
-        textColor: harmony.colors.text,
-        ...harmony.colors,
-      } as any);
+      // Map harmony colors to our customization structure
+      const mappedColors = {
+        primary: harmony.colors.primary,
+        secondary: harmony.colors.secondary,
+        background: harmony.colors.background,
+        text: harmony.colors.text,
+        accent: harmony.colors.accent,
+        border: harmony.colors.border,
+      };
+
+      console.log("🎨 Mapped colors for updateColors:", mappedColors);
+
+      // Use updateColors which properly integrates with the form builder state
+      updateColors(mappedColors);
+
+      console.log("✅ Harmony applied successfully");
     } catch (error) {
-      console.error("Failed to apply harmony:", error);
+      console.error("❌ Failed to apply harmony:", error);
     }
+  };
+
+  // Color usage descriptions for tooltips
+  const getColorUsage = (colorKey: string): string => {
+    const usageMap: Record<string, string> = {
+      primary: "Primary buttons, links, main brand color",
+      secondary: "Secondary buttons, subtle accents",
+      background: "Form background, page background",
+      text: "Main text color, headings",
+      accent: "Highlights, success states, call-to-action",
+      border: "Input borders, dividers, separators",
+    };
+    return usageMap[colorKey] || "Color usage";
   };
 
   // Validate hex color input
@@ -383,17 +535,19 @@ export const ColorsTab: React.FC = () => {
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Palette className="w-4 h-4" />
-            <h4 className="font-medium">Color Harmony Suggestions</h4>
+            <div>
+              <h4 className="font-medium">Smart Color Harmonies</h4>
+              <p className="text-xs text-muted-foreground">
+                AI-generated color combinations • WCAG AA compliant
+              </p>
+            </div>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Based on your primary color • WCAG AA compliant
-          </p>
 
           <div className="grid grid-cols-2 gap-3">
             {harmonySuggestions.map((harmony, index) => (
               <Card
                 key={index}
-                className="cursor-pointer transition-all hover:shadow-md hover:ring-1 hover:ring-gray-300"
+                className="cursor-pointer transition-all hover:shadow-md hover:ring-2 hover:ring-blue-200"
                 onClick={() => applyHarmony(harmony)}
               >
                 <CardContent className="p-3">
@@ -406,23 +560,48 @@ export const ColorsTab: React.FC = () => {
                         {Object.entries(harmony.colors)
                           .slice(0, 4)
                           .map(([key, color]) => (
-                            <div
+                            <ColorTooltip
                               key={key}
-                              className="w-3 h-3 rounded-full border"
-                              style={{ backgroundColor: color as string }}
-                              title={`${key}: ${color}`}
-                            />
+                              color={color as string}
+                              label={key.charAt(0).toUpperCase() + key.slice(1)}
+                              usage={getColorUsage(key)}
+                            >
+                              <div
+                                className="w-4 h-4 rounded-full border-2 border-white shadow-sm"
+                                style={{ backgroundColor: color as string }}
+                              />
+                            </ColorTooltip>
                           ))}
                       </div>
                     </div>
                     <div className="text-xs text-muted-foreground">
                       {harmony.type.charAt(0).toUpperCase() +
-                        harmony.type.slice(1).replace("-", " ")}
+                        harmony.type.slice(1).replace("-", " ")}{" "}
+                      •
+                      <span
+                        className={`ml-1 ${
+                          harmony.isDark ? "text-purple-600" : "text-green-600"
+                        }`}
+                      >
+                        {harmony.isDark ? "🌙 Dark" : "☀️ Light"} • ✓ Accessible
+                      </span>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             ))}
+          </div>
+        </div>
+      )}
+
+      {/* Debug Information */}
+      {process.env.NODE_ENV === "development" && (
+        <div className="mt-8 p-4 bg-gray-50 rounded-lg">
+          <h4 className="text-sm font-medium mb-2">Debug Info</h4>
+          <div className="text-xs space-y-1">
+            <div>Current Primary: {currentPrimary}</div>
+            <div>Current Colors: {JSON.stringify(currentColors, null, 2)}</div>
+            <div>Harmony Suggestions: {harmonySuggestions.length}</div>
           </div>
         </div>
       )}
