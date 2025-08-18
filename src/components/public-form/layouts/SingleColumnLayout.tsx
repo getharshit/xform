@@ -42,7 +42,7 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
     {}
   );
 
-  // Background update system - FIXED to avoid CSS property conflicts
+  // SIMPLIFIED: Remove problematic dependencies, keep it simple
   useEffect(() => {
     const updateBackground = () => {
       const root = document.documentElement;
@@ -61,20 +61,18 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
         .trim()
         .replace(/['"]/g, "");
 
-      console.log("🎨 Background update:", {
+      console.log("🎨 Background update triggered:", {
         backgroundType,
         backgroundValue,
         backgroundPattern,
       });
 
-      // FIXED: Use only specific properties, avoid mixing shorthand with non-shorthand
       let newStyle: React.CSSProperties = {};
 
       if (
         backgroundType === "gradient" &&
         backgroundValue.includes("linear-gradient")
       ) {
-        // For gradients, use backgroundImage and reset other properties
         newStyle = {
           backgroundColor: "transparent",
           backgroundImage: backgroundValue,
@@ -90,7 +88,6 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
           .trim()
           .replace(/['"]/g, "");
 
-        // For patterns, use backgroundImage for pattern and backgroundColor for base
         newStyle = {
           backgroundColor: backgroundColor || "#ffffff",
           backgroundImage:
@@ -105,7 +102,6 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
           backgroundPattern,
         });
       } else {
-        // For solid colors, use backgroundColor and reset backgroundImage
         newStyle = {
           backgroundColor: backgroundValue || "#ffffff",
           backgroundImage: "none",
@@ -123,11 +119,12 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
     // Update immediately
     updateBackground();
 
-    // Poll for changes every 500ms
-    const interval = setInterval(updateBackground, 500);
-
-    return () => clearInterval(interval);
-  }, []);
+    // SIMPLIFIED: Only depend on properties we know exist and matter
+  }, [
+    form?.customization?.colors, // Watch the entire colors object
+    form?.theme, // Watch the entire theme object
+    form?.id, // Watch form ID changes
+  ]); // This will trigger when any theme/customization changes occur
 
   // Dynamic button styles using CSS properties
   const getButtonStyle = (

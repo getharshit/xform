@@ -138,10 +138,21 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
   ]);
   // Enhanced auto-save function with conflict detection
   const performAutoSave = useCallback(async () => {
-    if (!state.form || !onFormSave || isSavingRef.current) return;
+    console.log("🔍 AUTO-SAVE: Starting check", {
+      hasForm: !!state.form,
+      hasOnFormSave: !!onFormSave,
+      isSaving: isSavingRef.current,
+      timestamp: Date.now(),
+    });
+
+    if (!state.form || !onFormSave || isSavingRef.current) {
+      console.log("🚫 AUTO-SAVE: Blocked", { isSaving: isSavingRef.current });
+      return;
+    }
 
     // Set saving flag to prevent concurrent saves
     isSavingRef.current = true;
+    console.log("🚀 AUTO-SAVE: Starting save operation", Date.now());
     dispatch({ type: "START_AUTO_SAVE" });
 
     try {

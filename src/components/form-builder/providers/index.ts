@@ -10,9 +10,6 @@ export type {
   LoadingState
 } from './types'
 
-// Legacy provider (backward compatibility)
-export { FormBuilderProvider, useFormBuilder } from './FormBuilderProvider'
-export type { FormBuilderState, FormBuilderAction } from './FormBuilderProvider'
 
 // Reducer and utilities
 export { builderReducer } from './builderReducer'

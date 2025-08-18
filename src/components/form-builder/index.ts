@@ -5,9 +5,6 @@ export { FormBuilderLayout } from './layout/FormBuilderLayout'
 export { BuilderProvider, useBuilder } from './providers/BuilderProvider'
 export type { BuilderState, BuilderAction, BuilderContextValue } from './providers/types'
 
-// Legacy Provider (for backward compatibility)
-export { FormBuilderProvider, useFormBuilder } from './providers/FormBuilderProvider'
-export type { FormBuilderState, FormBuilderAction } from './providers/FormBuilderProvider'
 
 // Panel exports
 export { LeftPanel } from './panels/left-panel/LeftPanel'

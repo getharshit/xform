@@ -221,18 +221,9 @@ export default function FormBuilderPage() {
         onFormPublish={handlePublish}
         onError={handleError}
         enablePersistence={true}
-        autoSaveInterval={30000} // 30 seconds
+        autoSaveInterval={20000} // 20 seconds
       >
-        <FormBuilderLayout
-          initialForm={form}
-          formId={formId}
-          onSave={handleSave}
-          onPreview={handlePreview}
-          onPublish={handlePublish}
-          onError={handleError}
-          autoSaveInterval={30000}
-          enablePersistence={true}
-        />
+        <FormBuilderLayout onPreview={handlePreview} />
       </BuilderProvider>
     </div>
   );

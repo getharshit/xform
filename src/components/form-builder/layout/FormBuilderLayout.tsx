@@ -30,6 +30,7 @@ import { BuilderProvider, useBuilder } from "../providers/BuilderProvider";
 import { LeftPanel } from "../panels/left-panel/LeftPanel";
 import { CenterPanel } from "../panels/center-panel/CenterPanel";
 import { RightPanel } from "../panels/right-panel/RightPanel";
+import { DesignStep } from "../steps/DesignStep";
 
 export interface FormBuilderLayoutProps {
   initialForm?: Form;
@@ -254,15 +255,7 @@ const FormBuilderLayoutInner: React.FC<{
 
           {/* Design Step */}
           <TabsContent value="design" className="h-full m-0">
-            <div className="h-full flex items-center justify-center">
-              <Card className="p-8 text-center">
-                <Settings className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold mb-2">Design Step</h3>
-                <p className="text-muted-foreground">
-                  Theme customization coming soon
-                </p>
-              </Card>
-            </div>
+            <DesignStep />
           </TabsContent>
 
           {/* Integrate Step */}
