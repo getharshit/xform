@@ -22,37 +22,89 @@ import {
     /**
      * Generate complete CSS for a background configuration
      */
-    static generateCSS(config: BackgroundConfig): BackgroundCSS {
-      const css: BackgroundCSS = {
-        customProperties: {},
-      };
+static generateCSS(config: BackgroundConfig): BackgroundCSS {
+  const css: BackgroundCSS = {
+    customProperties: {},
+  };
+
+  // Generate base background CSS based on type
+  switch (config.type) {
+    case 'solid':
+      this.generateSolidCSS(css, config);
+      break;
+    case 'gradient':
+      this.generateGradientCSS(css, config);
+      break;
+    case 'pattern':
+      this.generatePatternCSS(css, config);
+      break;
+    case 'image':
+      this.generateImageCSS(css, config);
+      break;
+    case 'animated':
+      this.generateAnimatedCSS(css, config);  // This should call the private method
+      break;
+  }
+
+  // Add overlay if configured
+  if (config.overlay?.enabled) {
+    this.generateOverlayCSS(css, config.overlay);
+  }
+
+  // Generate CSS custom properties
+  css.customProperties = this.generateCustomProperties(config);
+
+  return css;
+}
+
+/**
+ * Generate CSS for animated background
+ */
+private static generateAnimatedCSS(css: BackgroundCSS, config: BackgroundConfig): void {
+  if (!config.animated) return;
+
+  // Set a base background color for animated backgrounds
+  css.backgroundColor = 'transparent';
   
-      // Generate base background CSS based on type
-      switch (config.type) {
-        case 'solid':
-          this.generateSolidCSS(css, config);
-          break;
-        case 'gradient':
-          this.generateGradientCSS(css, config);
-          break;
-        case 'pattern':
-          this.generatePatternCSS(css, config);
-          break;
-        case 'image':
-          this.generateImageCSS(css, config);
-          break;
+  // Add animated background identifier
+  css.customProperties['--form-bg-animated-type'] = config.animated.type;
+  
+  // Add type-specific properties
+  switch (config.animated.type) {
+    case 'aurora':
+      if (config.animated.aurora) {
+        css.customProperties['--form-bg-aurora-colors'] = config.animated.aurora.colorStops.join(',');
+        css.customProperties['--form-bg-aurora-amplitude'] = config.animated.aurora.amplitude.toString();
+        css.customProperties['--form-bg-aurora-blend'] = config.animated.aurora.blend.toString();
+        css.customProperties['--form-bg-aurora-speed'] = config.animated.aurora.speed.toString();
       }
-  
-      // Add overlay if configured
-      if (config.overlay?.enabled) {
-        this.generateOverlayCSS(css, config.overlay);
+      break;
+      
+    case 'darkVeil':
+      if (config.animated.darkVeil) {
+        css.customProperties['--form-bg-darkveil-hue'] = config.animated.darkVeil.hueShift.toString();
+        css.customProperties['--form-bg-darkveil-noise'] = config.animated.darkVeil.noiseIntensity.toString();
+        css.customProperties['--form-bg-darkveil-scanline'] = config.animated.darkVeil.scanlineIntensity.toString();
+        css.customProperties['--form-bg-darkveil-speed'] = config.animated.darkVeil.speed.toString();
+        css.customProperties['--form-bg-darkveil-frequency'] = config.animated.darkVeil.scanlineFrequency.toString();
+        css.customProperties['--form-bg-darkveil-warp'] = config.animated.darkVeil.warpAmount.toString();
       }
-  
-      // Generate CSS custom properties
-      css.customProperties = this.generateCustomProperties(config);
-  
-      return css;
-    }
+      break;
+      
+    case 'lightRays':
+      if (config.animated.lightRays) {
+        css.customProperties['--form-bg-lightrays-origin'] = config.animated.lightRays.raysOrigin;
+        css.customProperties['--form-bg-lightrays-color'] = config.animated.lightRays.raysColor;
+        css.customProperties['--form-bg-lightrays-speed'] = config.animated.lightRays.raysSpeed.toString();
+        css.customProperties['--form-bg-lightrays-spread'] = config.animated.lightRays.lightSpread.toString();
+        css.customProperties['--form-bg-lightrays-length'] = config.animated.lightRays.rayLength.toString();
+        css.customProperties['--form-bg-lightrays-pulsating'] = config.animated.lightRays.pulsating.toString();
+        css.customProperties['--form-bg-lightrays-fade'] = config.animated.lightRays.fadeDistance.toString();
+        css.customProperties['--form-bg-lightrays-saturation'] = config.animated.lightRays.saturation.toString();
+      }
+      break;
+  }
+}
   
     /**
      * Generate CSS for solid color background
@@ -119,6 +171,8 @@ import {
         css.backgroundAttachment
       ].join(' ');
     }
+
+
   
     /**
      * Generate CSS for background overlay
@@ -177,7 +231,7 @@ import {
         .join(', ');
       
       const position = `at ${centerX}% ${centerY}%`;
-      return `linear-gradient(${shape} ${size} ${position}, ${stops})`;
+      return `radial-gradient(${shape} ${size} ${position}, ${stops})`;
     }
   
     /**
@@ -473,64 +527,70 @@ import {
       return filters.length > 0 ? filters.join(' ') : '';
     }
   
-    /**
-     * Generate CSS custom properties
-     */
-    private static generateCustomProperties(config: BackgroundConfig): Record<string, string> {
-      const properties: Record<string, string> = {
-        '--form-bg-type': config.type,
-      };
-  
-      // Add type-specific properties
-      switch (config.type) {
-        case 'solid':
-          if (config.solid) {
-            properties['--form-bg-color'] = config.solid.color;
-          }
-          break;
-  
-        case 'gradient':
-          if (config.gradient) {
-            properties['--form-bg-gradient'] = this.buildGradientString(config.gradient);
-          }
-          break;
-  
-        case 'pattern':
-          if (config.pattern) {
-            properties['--form-bg-pattern'] = this.buildPatternString(config.pattern);
-            properties['--form-bg-pattern-scale'] = config.pattern.scale.toString();
-            properties['--form-bg-pattern-opacity'] = config.pattern.opacity.toString();
-          }
-          break;
-  
-        case 'image':
-          if (config.image) {
-            properties['--form-bg-image'] = `url(${config.image.url})`;
-            properties['--form-bg-size'] = this.mapImageSize(config.image.size);
-            properties['--form-bg-position'] = this.mapImagePosition(config.image.position, config.image.focalPoint);
-            properties['--form-bg-repeat'] = config.image.repeat;
-            
-            const filters = this.buildImageFilters(config.image);
-            if (filters) {
-              properties['--form-bg-image-filter'] = filters;
-            }
-          }
-          break;
+   /**
+ * Generate CSS custom properties
+ */
+private static generateCustomProperties(config: BackgroundConfig): Record<string, string> {
+  const properties: Record<string, string> = {
+    '--form-bg-type': config.type,
+  };
+
+  // Add type-specific properties
+  switch (config.type) {
+    case 'solid':
+      if (config.solid) {
+        properties['--form-bg-color'] = config.solid.color;
       }
-  
-      // Add overlay properties
-      if (config.overlay?.enabled) {
-        properties['--form-bg-overlay-color'] = config.overlay.color;
-        properties['--form-bg-overlay-opacity'] = config.overlay.opacity.toString();
+      break;
+
+    case 'gradient':
+      if (config.gradient) {
+        properties['--form-bg-gradient'] = this.buildGradientString(config.gradient);
+      }
+      break;
+
+    case 'pattern':
+      if (config.pattern) {
+        properties['--form-bg-pattern'] = this.buildPatternString(config.pattern);
+        properties['--form-bg-pattern-scale'] = config.pattern.scale.toString();
+        properties['--form-bg-pattern-opacity'] = config.pattern.opacity.toString();
+      }
+      break;
+
+    case 'image':
+      if (config.image) {
+        properties['--form-bg-image'] = `url(${config.image.url})`;
+        properties['--form-bg-size'] = this.mapImageSize(config.image.size);
+        properties['--form-bg-position'] = this.mapImagePosition(config.image.position, config.image.focalPoint);
+        properties['--form-bg-repeat'] = config.image.repeat;
         
-        if (config.overlay.blendMode) {
-          properties['--form-bg-overlay-blend-mode'] = config.overlay.blendMode;
+        const filters = this.buildImageFilters(config.image);
+        if (filters) {
+          properties['--form-bg-image-filter'] = filters;
         }
       }
-  
-      return properties;
+      break;
+
+    case 'animated':
+      if (config.animated) {
+        properties['--form-bg-animated-type'] = config.animated.type;
+        // Additional animated properties are handled in generateAnimatedCSS
+      }
+      break;
+  }
+
+  // Add overlay properties
+  if (config.overlay?.enabled) {
+    properties['--form-bg-overlay-color'] = config.overlay.color;
+    properties['--form-bg-overlay-opacity'] = config.overlay.opacity.toString();
+    
+    if (config.overlay.blendMode) {
+      properties['--form-bg-overlay-blend-mode'] = config.overlay.blendMode;
     }
-  
+  }
+
+  return properties;
+}
     /**
      * Generate responsive CSS
      */
@@ -558,29 +618,7 @@ import {
       return result;
     }
   
-    /**
-     * Generate CSS with animation
-     */
-    static generateAnimatedCSS(config: BackgroundConfig, animation?: BackgroundAnimation): BackgroundCSS {
-      const css = this.generateCSS(config);
-  
-      if (animation?.enabled && animation.type !== 'none') {
-        css.customProperties['--form-bg-animation'] = this.buildAnimationCSS(animation);
-        
-        // Add animation-specific properties
-        switch (animation.type) {
-          case 'parallax':
-            css.backgroundAttachment = 'fixed';
-            break;
-          case 'floating':
-            css.customProperties['--form-bg-animation-duration'] = `${animation.duration}ms`;
-            css.customProperties['--form-bg-animation-easing'] = animation.easing;
-            break;
-        }
-      }
-  
-      return css;
-    }
+
   
     /**
      * Build animation CSS
@@ -727,23 +765,6 @@ import {
         BackgroundCSSManager.instance = new BackgroundCSSManager();
       }
       return BackgroundCSSManager.instance;
-    }
-  
-    /**
-     * Apply background configuration
-     */
-    applyConfiguration(config: BackgroundConfig, animation?: BackgroundAnimation): void {
-      const css = animation 
-        ? BackgroundCSSGenerator.generateAnimatedCSS(config, animation)
-        : BackgroundCSSGenerator.generateCSS(config);
-  
-      this.injectCSS(css);
-      this.currentConfig = config;
-  
-      // Inject animation keyframes if needed
-      if (animation?.enabled) {
-        BackgroundCSSGenerator.injectAnimationKeyframes();
-      }
     }
   
     /**

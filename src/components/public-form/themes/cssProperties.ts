@@ -116,10 +116,56 @@ export const customizationToCSSProperties = (customization?: any): CSSCustomProp
     basicProperties['--form-background-image'] = `linear-gradient(${colors.backgroundGradientDirection || '135deg'}, ${colors.backgroundGradientColor1 || '#3B82F6'}, ${colors.backgroundGradientColor2 || '#6B7280'})`;
     // For gradients, don't use the solid background color
     basicProperties['--form-color-background'] = 'transparent';
-  } else if (colors.backgroundType === 'pattern') {
-    basicProperties['--form-background-image'] = generateBackgroundPattern(colors.backgroundPattern, colors.backgroundPatternColor);
-    basicProperties['--form-color-background'] = colors.background || defaultTheme.colors.background;
-  } else {
+  } else if (colors.backgroundType === 'animated' && colors.animatedConfig) {
+  basicProperties['--form-background-image'] = 'none';
+  basicProperties['--form-background-animated'] = 'true';
+  basicProperties['--form-background-animated-type'] = colors.animatedConfig.type;
+  
+  // Add animated-specific properties
+    // Add animated-specific properties with proper null checking
+  if (colors.animatedConfig.type === 'aurora' && colors.animatedConfig.aurora) {
+    const aurora = colors.animatedConfig.aurora;
+    basicProperties['--form-aurora-colors'] = aurora.colorStops?.join(',') || '';
+    basicProperties['--form-aurora-amplitude'] = String(aurora.amplitude ?? 1.0);
+    basicProperties['--form-aurora-blend'] = String(aurora.blend ?? 0.5);
+    basicProperties['--form-aurora-speed'] = String(aurora.speed ?? 1.0);
+  }
+  
+  if (colors.animatedConfig.type === 'darkVeil' && colors.animatedConfig.darkVeil) {
+    const darkVeil = colors.animatedConfig.darkVeil;
+    basicProperties['--form-darkveil-hue'] = String(darkVeil.hueShift ?? 0);
+    basicProperties['--form-darkveil-noise'] = String(darkVeil.noiseIntensity ?? 0);
+    basicProperties['--form-darkveil-scanline'] = String(darkVeil.scanlineIntensity ?? 0);
+    basicProperties['--form-darkveil-speed'] = String(darkVeil.speed ?? 0.5);
+    basicProperties['--form-darkveil-frequency'] = String(darkVeil.scanlineFrequency ?? 0);
+    basicProperties['--form-darkveil-warp'] = String(darkVeil.warpAmount ?? 0);
+  }
+  
+  if (colors.animatedConfig.type === 'lightRays' && colors.animatedConfig.lightRays) {
+    const lightRays = colors.animatedConfig.lightRays;
+    basicProperties['--form-lightrays-origin'] = lightRays.raysOrigin ?? 'top-center';
+    basicProperties['--form-lightrays-color'] = lightRays.raysColor ?? '#ffffff';
+    basicProperties['--form-lightrays-speed'] = String(lightRays.raysSpeed ?? 1);
+    basicProperties['--form-lightrays-spread'] = String(lightRays.lightSpread ?? 1);
+    basicProperties['--form-lightrays-length'] = String(lightRays.rayLength ?? 2);
+    basicProperties['--form-lightrays-pulsating'] = String(lightRays.pulsating ?? false);
+    basicProperties['--form-lightrays-fade'] = String(lightRays.fadeDistance ?? 1.0);
+    basicProperties['--form-lightrays-saturation'] = String(lightRays.saturation ?? 1.0);
+    basicProperties['--form-lightrays-follow-mouse'] = String(lightRays.followMouse ?? true);
+    basicProperties['--form-lightrays-mouse-influence'] = String(lightRays.mouseInfluence ?? 0.1);
+    basicProperties['--form-lightrays-noise'] = String(lightRays.noiseAmount ?? 0.0);
+    basicProperties['--form-lightrays-distortion'] = String(lightRays.distortion ?? 0.0);
+  }
+  Object.entries(colors.animatedConfig).forEach(([key, value]) => {
+    if (value && typeof value === 'object') {
+  Object.entries(value).forEach(([subKey, subValue]) => {
+    basicProperties[`--form-bg-animated-${key}-${subKey}`] = String(subValue);
+  });
+} else if (value !== null && value !== undefined) {
+  basicProperties[`--form-bg-animated-${key}`] = String(value);
+} 
+  });
+} else {
     basicProperties['--form-background-image'] = 'none';
     basicProperties['--form-color-background'] = colors.background || defaultTheme.colors.background;
   }
@@ -167,7 +213,15 @@ export function createThemeWrapperStyle(customization?: any): React.CSSPropertie
     backgroundStyle.backgroundImage = generateBackgroundPattern(colors.backgroundPattern, colors.backgroundPatternColor);
     backgroundStyle.backgroundSize = colors.backgroundPatternSize || '20px';
     backgroundStyle.backgroundRepeat = 'repeat';
-  } else {
+  } else if (colors.backgroundType === 'animated') {
+  // For animated backgrounds, set transparent background and let the animated component handle it
+  backgroundStyle.backgroundColor = 'transparent';
+  backgroundStyle.backgroundImage = 'none';
+  
+  // Store animated config for the component to use
+(backgroundStyle as any)['--animated-type'] = colors.animatedConfig?.type || 'aurora';
+} 
+  else {
     backgroundStyle.backgroundColor = colors.background || '#ffffff';
     backgroundStyle.backgroundImage = 'none';
   }

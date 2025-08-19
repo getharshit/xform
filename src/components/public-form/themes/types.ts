@@ -23,7 +23,7 @@ export interface ThemeColors {
     surface: string;
     surfaceElevated: string;
     overlay: string;
-    backgroundType?: 'solid' | 'gradient' | 'pattern';
+    backgroundType?: 'solid' | 'gradient' | 'pattern' | 'image' | 'animated';
     backgroundValue?: string;
     backgroundPattern?: string;
     backgroundGradientDirection?: string;

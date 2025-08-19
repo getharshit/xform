@@ -42,6 +42,10 @@ export interface FormCustomization {
     primary: string;           // Main brand color
     secondary: string;         // Secondary color
     background: string;        // Form background
+    backgroundType?: 'solid' | 'gradient' | 'pattern' | 'animated';
+    animatedConfig?: {
+      type: 'aurora' | 'darkVeil' | 'lightRays';
+    };
     surface: string;          // Card/field backgrounds
     text: {
       primary: string;        // Main text color

@@ -112,6 +112,44 @@ export interface BackgroundOverlay {
   };
 }
 
+export interface AnimatedBackgroundConfig {
+  type: 'aurora' | 'darkVeil' | 'lightRays';
+  
+  // Aurora-specific properties
+  aurora?: {
+    colorStops: string[];     // Array of colors for the aurora
+    amplitude: number;        // Animation amplitude (0-2)
+    blend: number;           // Blend factor (0-1)
+    speed: number;           // Animation speed (0-2)
+  };
+  
+  // DarkVeil-specific properties
+  darkVeil?: {
+    hueShift: number;        // Hue shift (0-360)
+    noiseIntensity: number;  // Noise intensity (0-1)
+    scanlineIntensity: number; // Scanline intensity (0-1)
+    speed: number;           // Animation speed (0-2)
+    scanlineFrequency: number; // Scanline frequency (0-10)
+    warpAmount: number;      // Warp distortion (0-1)
+  };
+  
+  // LightRays-specific properties
+  lightRays?: {
+    raysOrigin: 'top-center' | 'top-left' | 'top-right' | 'right' | 'left' | 'bottom-center' | 'bottom-right' | 'bottom-left';
+    raysColor: string;       // Color of the rays
+    raysSpeed: number;       // Animation speed (0-2)
+    lightSpread: number;     // Light spread (0-2)
+    rayLength: number;       // Ray length (0-3)
+    pulsating: boolean;      // Whether rays pulsate
+    fadeDistance: number;    // Fade distance (0-2)
+    saturation: number;      // Color saturation (0-2)
+    followMouse: boolean;    // Whether rays follow mouse
+    mouseInfluence: number;  // Mouse influence (0-1)
+    noiseAmount: number;     // Noise amount (0-1)
+    distortion: number;      // Distortion amount (0-1)
+  };
+}
+
 // Main background configuration
 export interface BackgroundConfig {
   type: BackgroundType;
@@ -124,6 +162,7 @@ export interface BackgroundConfig {
   gradient?: GradientConfig;  // Gradient configuration
   pattern?: PatternConfig;    // Pattern configuration
   image?: ImageConfig;        // Image configuration
+  animated?: AnimatedBackgroundConfig;
   
   // Overlay for better text readability
   overlay?: BackgroundOverlay;

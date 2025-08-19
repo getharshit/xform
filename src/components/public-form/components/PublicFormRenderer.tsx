@@ -16,6 +16,7 @@ import {
   createThemeWrapperStyle,
 } from "../themes/cssProperties";
 import { defaultTheme } from "../themes/defaultTheme";
+import AnimatedBackgroundRenderer from "../themes/backgrounds/animated/AnimatedBackgroundRenderer";
 
 // Internal component that has access to FormContext
 const FormContent: React.FC = () => {
@@ -29,6 +30,21 @@ const FormContent: React.FC = () => {
     previousStep,
     submitForm,
   } = useFormContext();
+
+  const renderAnimatedBackground = () => {
+    if (
+      form.customization?.colors?.backgroundType === "animated" &&
+      form.customization?.colors?.animatedConfig
+    ) {
+      return (
+        <AnimatedBackgroundRenderer
+          config={form.customization.colors.animatedConfig}
+          className="absolute inset-0 z-0"
+        />
+      );
+    }
+    return null;
+  };
 
   // Initialize animation system with form customization
   useAnimationFromCustomization(form.customization);
@@ -69,6 +85,7 @@ const FormContent: React.FC = () => {
 
   return (
     <div className="form-theme-wrapper min-h-screen" style={themeWrapperStyle}>
+      {renderAnimatedBackground()}
       <div className={containerClasses}>
         {isMultiStep ? (
           <MultiStepLayout
