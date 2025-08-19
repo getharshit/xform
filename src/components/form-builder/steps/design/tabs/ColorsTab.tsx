@@ -22,7 +22,6 @@ const defaultColorValues = {
   secondary: "#6B7280",
   background: "#ffffff",
   text: "#1F2937",
-  accent: "#10b981",
   border: "#e5e7eb",
 };
 
@@ -77,7 +76,6 @@ export const ColorsTab: React.FC = () => {
         secondary: harmony.colors.secondary,
         background: harmony.colors.background,
         text: harmony.colors.text,
-        accent: harmony.colors.accent,
         border: harmony.colors.border,
       };
 
@@ -122,16 +120,16 @@ export const ColorsTab: React.FC = () => {
             getColorValue={getColorValue}
           />
 
-          {/* Background Options Section */}
-          <BackgroundSection
-            currentColors={currentColors}
-            onColorChange={handleColorChange}
-          />
-
           {/* Color Harmony Section */}
           <ColorHarmonySection
             harmonySuggestions={harmonySuggestions}
             onApplyHarmony={applyHarmony}
+          />
+
+          {/* Background Options Section */}
+          <BackgroundSection
+            currentColors={currentColors}
+            onColorChange={handleColorChange}
           />
 
           {/* Debug Information (Development only) */}

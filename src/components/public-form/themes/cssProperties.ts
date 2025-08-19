@@ -2,7 +2,7 @@
 
 import { Theme, CSSCustomProperties } from './types';
 import { TypographyCSSGenerator } from './typography/cssGenerator';
-
+import { defaultTheme } from './defaultTheme';
 /**
  * Enhanced CSS properties generator with typography integration
  */
@@ -15,7 +15,7 @@ const generateBackgroundPattern = (patternType?: string, patternColor?: string):
   
   switch (patternType) {
     case 'dots':
-      return `radial-gradient(circle, ${color} 1px, transparent 1px)`;
+      return `linear-gradient(circle, ${color} 1px, transparent 1px)`;
     case 'grid':
       return `linear-gradient(${color} 1px, transparent 1px), linear-gradient(90deg, ${color} 1px, transparent 1px)`;
     case 'diagonal':
@@ -27,191 +27,214 @@ const generateBackgroundPattern = (patternType?: string, patternColor?: string):
   }
 };
 
-export const themeToCSSProperties = (theme: Theme): CSSCustomProperties => {
-
-  console.log('🔧 CSS Generator received:', {
-    themeKeys: Object.keys(theme),
-    hasCustomization: !!(theme as any).customization,
-    customizationKeys: Object.keys((theme as any).customization || {}),
-    backgroundType: (theme as any).customization?.colors?.backgroundType,
-    themeColorsBackground: theme.colors?.background,
-    customizationColorsBackground: (theme as any).customization?.colors?.backgroundType
-  });
 
 
-  // Safety helper function
-  const safeString = (value: any, fallback: string = ''): string => {
-    return value !== undefined && value !== null ? value.toString() : fallback;
-  };
-  const customization = (theme as any).customization; // Cast to handle Form vs Theme difference
-  const colors = customization?.colors || theme.colors || {};
+/**
+ * Simplified CSS properties generator that works directly with customization
+ */
+export const customizationToCSSProperties = (customization?: any): CSSCustomProperties => {
+  // Import defaultTheme for fallbacks
+  
+  const colors = customization?.colors || {};
+  const typography = customization?.typography || {};
+  const spacing = customization?.spacing || {};
+  const borders = customization?.borders || {};
+  const shadows = customization?.shadows || {};
 
-  const safeNumber = (value: any, fallback: number = 0): number => {
-    return value !== undefined && value !== null && !isNaN(Number(value)) ? Number(value) : fallback;
-  };
+  console.log('🔧 CSS Generator received customization:', customization);
 
-  // Generate basic theme properties with safety checks
-  const basicProperties = {
-    // Colors
-    '--form-color-primary': theme.colors?.primary || '#3b82f6',
-    '--form-color-primary-hover': theme.colors?.primaryHover || '#2563eb',
-    '--form-color-primary-active': theme.colors?.primaryActive || '#1d4ed8',
-    '--form-color-primary-disabled': theme.colors?.primaryDisabled || '#9ca3af',
-    '--form-color-secondary': theme.colors?.secondary || '#6b7280',
-    '--form-color-secondary-hover': theme.colors?.secondaryHover || '#4b5563',
-    '--form-color-secondary-active': theme.colors?.secondaryActive || '#374151',
-    '--form-color-background': theme.colors?.background || '#ffffff',
-    '--form-color-surface': theme.colors?.surface || '#ffffff',
-    '--form-color-surface-elevated': theme.colors?.surfaceElevated || '#ffffff',
-    '--form-color-overlay': theme.colors?.overlay || 'rgba(0, 0, 0, 0.5)',
-    '--form-color-text-primary': theme.colors?.textPrimary || '#111827',
-    '--form-color-text-secondary': theme.colors?.textSecondary || '#6b7280',
-    '--form-color-text-muted': theme.colors?.textMuted || '#9ca3af',
-    '--form-color-text-inverse': theme.colors?.textInverse || '#ffffff',
-    '--form-color-border': theme.colors?.border || '#d1d5db',
-    '--form-color-border-hover': theme.colors?.borderHover || '#9ca3af',
-    '--form-color-border-focus': theme.colors?.borderFocus || '#3b82f6',
-    '--form-color-border-error': theme.colors?.borderError || '#ef4444',
-    '--form-color-border-success': theme.colors?.borderSuccess || '#10b981',
-    '--form-color-error': theme.colors?.error || '#ef4444',
-    '--form-color-error-hover': theme.colors?.errorHover || '#dc2626',
-    '--form-color-success': theme.colors?.success || '#10b981',
-    '--form-color-success-hover': theme.colors?.successHover || '#059669',
-    '--form-color-warning': theme.colors?.warning || '#f59e0b',
-    '--form-color-warning-hover': theme.colors?.warningHover || '#d97706',
-    '--form-color-info': theme.colors?.info || '#3b82f6',
-    '--form-color-info-hover': theme.colors?.infoHover || '#2563eb',
-
-// Find the background properties section and update it:
-'--form-background-type': colors.backgroundType || 'solid',
-'--form-background-value': colors.backgroundValue || colors.background || '#ffffff',
-'--form-background-pattern': generateBackgroundPattern(
-  colors.backgroundPattern, 
-  colors.backgroundPatternColor
-) || 'none',
-'--form-background-pattern-color': colors.backgroundPatternColor || 'rgba(0, 0, 0, 0.05)',
-'--form-background-pattern-size': colors.backgroundPatternSize || '20px',
-'--form-background-gradient-direction': colors.backgroundGradientDirection || '135deg',
-'--form-background-gradient-color1': colors.backgroundGradientColor1 || colors.primary || '#3b82f6',
-'--form-background-gradient-color2': colors.backgroundGradientColor2 || colors.secondary || '#6b7280',
+  // Generate basic properties with fallbacks to defaultTheme - use any type to avoid interface issues
+  const basicProperties: any = {
+    // Colors with fallbacks
+    '--form-color-primary': colors.primary || defaultTheme.colors.primary,
+    '--form-color-secondary': colors.secondary || defaultTheme.colors.secondary,
+    '--form-color-background': colors.background || defaultTheme.colors.background,
+    '--form-color-text': colors.text || defaultTheme.colors.textPrimary,
+    '--form-color-border': colors.border || defaultTheme.colors.border,
+    '--form-color-error': colors.error || defaultTheme.colors.error,
+    '--form-color-success': colors.success || defaultTheme.colors.success,
+    '--form-color-warning': colors.warning || defaultTheme.colors.warning,
     
-    // Basic Typography (for backward compatibility)
-    '--form-font-family': theme.typography?.fontFamily || 'Inter, system-ui, sans-serif',
-    '--form-font-family-mono': theme.typography?.fontFamilyMono || 'ui-monospace, SFMono-Regular, monospace',
-    '--form-font-size-xs': `${safeNumber(theme.typography?.fontSizeXs, 0.75)}rem`,
-    '--form-font-size-sm': `${safeNumber(theme.typography?.fontSizeSm, 0.875)}rem`,
-    '--form-font-size-base': `${safeNumber(theme.typography?.fontSizeBase, 1)}rem`,
-    '--form-font-size-lg': `${safeNumber(theme.typography?.fontSizeLg, 1.125)}rem`,
-    '--form-font-size-xl': `${safeNumber(theme.typography?.fontSizeXl, 1.25)}rem`,
-    '--form-font-size-2xl': `${safeNumber(theme.typography?.fontSize2xl, 1.5)}rem`,
-    '--form-font-size-3xl': `${safeNumber(theme.typography?.fontSize3xl, 1.875)}rem`,
-    '--form-font-size-4xl': `${safeNumber(theme.typography?.fontSize4xl, 2.25)}rem`,
-    '--form-font-weight-light': safeString(theme.typography?.fontWeightLight, '300'),
-    '--form-font-weight-normal': safeString(theme.typography?.fontWeightNormal, '400'),
-    '--form-font-weight-medium': safeString(theme.typography?.fontWeightMedium, '500'),
-    '--form-font-weight-semibold': safeString(theme.typography?.fontWeightSemibold, '600'),
-    '--form-font-weight-bold': safeString(theme.typography?.fontWeightBold, '700'),
-    '--form-line-height-tight': safeString(theme.typography?.lineHeightTight, '1.25'),
-    '--form-line-height-normal': safeString(theme.typography?.lineHeightNormal, '1.5'),
-    '--form-line-height-relaxed': safeString(theme.typography?.lineHeightRelaxed, '1.75'),
-    '--form-line-height-loose': safeString(theme.typography?.lineHeightLoose, '2'),
-    '--form-letter-spacing-tighter': `${safeNumber(theme.typography?.letterSpacingTighter, -0.05)}em`,
-    '--form-letter-spacing-tight': `${safeNumber(theme.typography?.letterSpacingTight, -0.025)}em`,
-    '--form-letter-spacing-normal': `${safeNumber(theme.typography?.letterSpacingNormal, 0)}em`,
-    '--form-letter-spacing-wide': `${safeNumber(theme.typography?.letterSpacingWide, 0.025)}em`,
-    '--form-letter-spacing-wider': `${safeNumber(theme.typography?.letterSpacingWider, 0.05)}em`,
+    // Add more complete color properties
+    '--form-color-primary-hover': colors.primaryHover || defaultTheme.colors.primaryHover,
+    '--form-color-primary-active': colors.primaryActive || defaultTheme.colors.primaryActive,
+    '--form-color-secondary-hover': colors.secondaryHover || defaultTheme.colors.secondaryHover,
+    '--form-color-text-primary': colors.text || defaultTheme.colors.textPrimary,
+    '--form-color-text-secondary': colors.textSecondary || defaultTheme.colors.textSecondary,
+    '--form-color-surface': colors.surface || defaultTheme.colors.surface,
+    
+    // Typography
+    '--form-font-family': typography.fontFamily || defaultTheme.typography.fontFamily,
+    '--form-font-size-base': `${typography.fontSize?.base || defaultTheme.typography.fontSizeBase}rem`,
+    '--form-font-size-lg': `${typography.fontSize?.lg || defaultTheme.typography.fontSizeLg}rem`,
+    '--form-font-size-xl': `${typography.fontSize?.xl || defaultTheme.typography.fontSizeXl}rem`,
+    '--form-font-size-xs': `${typography.fontSize?.xs || defaultTheme.typography.fontSizeXs}rem`,
+    '--form-font-size-sm': `${typography.fontSize?.sm || defaultTheme.typography.fontSizeSm}rem`,
+    '--form-font-size-2xl': `${typography.fontSize?.['2xl'] || defaultTheme.typography.fontSize2xl}rem`,
+    '--form-font-size-3xl': `${typography.fontSize?.['3xl'] || defaultTheme.typography.fontSize3xl}rem`,
+    '--form-font-size-4xl': `${typography.fontSize?.['4xl'] || defaultTheme.typography.fontSize4xl}rem`,
+    
+    // Font weights
+    '--form-font-weight-light': typography.fontWeight?.light || defaultTheme.typography.fontWeightLight,
+    '--form-font-weight-normal': typography.fontWeight?.normal || defaultTheme.typography.fontWeightNormal,
+    '--form-font-weight-medium': typography.fontWeight?.medium || defaultTheme.typography.fontWeightMedium,
+    '--form-font-weight-semibold': typography.fontWeight?.semibold || defaultTheme.typography.fontWeightSemibold,
+    '--form-font-weight-bold': typography.fontWeight?.bold || defaultTheme.typography.fontWeightBold,
     
     // Spacing
-    '--form-spacing-unit': `${safeNumber(theme.spacing?.unit, 0.25)}rem`,
-    '--form-spacing-xs': `${safeNumber(theme.spacing?.xs, 0.5)}rem`,
-    '--form-spacing-sm': `${safeNumber(theme.spacing?.sm, 0.75)}rem`,
-    '--form-spacing-md': `${safeNumber(theme.spacing?.md, 1)}rem`,
-    '--form-spacing-lg': `${safeNumber(theme.spacing?.lg, 1.5)}rem`,
-    '--form-spacing-xl': `${safeNumber(theme.spacing?.xl, 2)}rem`,
-    '--form-spacing-2xl': `${safeNumber(theme.spacing?.['2xl'], 2.5)}rem`,
-    '--form-spacing-3xl': `${safeNumber(theme.spacing?.['3xl'], 3)}rem`,
-    '--form-spacing-4xl': `${safeNumber(theme.spacing?.['4xl'], 4)}rem`,
-    '--form-spacing-5xl': `${safeNumber(theme.spacing?.['5xl'], 5)}rem`,
-    '--form-spacing-6xl': `${safeNumber(theme.spacing?.['6xl'], 6)}rem`,
+    '--form-spacing-unit': `${spacing.unit || defaultTheme.spacing.unit}rem`,
+    '--form-spacing-xs': `${spacing.xs || defaultTheme.spacing.xs}rem`,
+    '--form-spacing-sm': `${spacing.sm || defaultTheme.spacing.sm}rem`,
+    '--form-spacing-md': `${spacing.md || defaultTheme.spacing.md}rem`,
+    '--form-spacing-lg': `${spacing.lg || defaultTheme.spacing.lg}rem`,
+    '--form-spacing-xl': `${spacing.xl || defaultTheme.spacing.xl}rem`,
+    '--form-spacing-2xl': `${spacing['2xl'] || defaultTheme.spacing['2xl']}rem`,
+    '--form-spacing-3xl': `${spacing['3xl'] || defaultTheme.spacing['3xl']}rem`,
     
     // Border radius
-    '--form-border-radius-none': `${safeNumber(theme.borderRadius?.none, 0)}px`,
-    '--form-border-radius-sm': `${safeNumber(theme.borderRadius?.sm, 0.125)}rem`,
-    '--form-border-radius-md': `${safeNumber(theme.borderRadius?.md, 0.375)}rem`,
-    '--form-border-radius-lg': `${safeNumber(theme.borderRadius?.lg, 0.5)}rem`,
-    '--form-border-radius-xl': `${safeNumber(theme.borderRadius?.xl, 0.75)}rem`,
-    '--form-border-radius-full': `${safeNumber(theme.borderRadius?.full, 9999)}px`,
+    '--form-border-radius-none': `${borders.radius?.none || defaultTheme.borderRadius.none}px`,
+    '--form-border-radius-sm': `${borders.radius?.sm || defaultTheme.borderRadius.sm}rem`,
+    '--form-border-radius-md': `${borders.radius?.md || defaultTheme.borderRadius.md}rem`,
+    '--form-border-radius-lg': `${borders.radius?.lg || defaultTheme.borderRadius.lg}rem`,
+    '--form-border-radius-xl': `${borders.radius?.xl || defaultTheme.borderRadius.xl}rem`,
+    '--form-border-radius-full': `${borders.radius?.full || defaultTheme.borderRadius.full}px`,
     
     // Shadows
-    '--form-shadow-none': theme.shadows?.none || 'none',
-    '--form-shadow-sm': theme.shadows?.sm || '0 1px 2px 0 rgb(0 0 0 / 0.05)',
-    '--form-shadow-md': theme.shadows?.md || '0 4px 6px -1px rgb(0 0 0 / 0.1)',
-    '--form-shadow-lg': theme.shadows?.lg || '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-    '--form-shadow-xl': theme.shadows?.xl || '0 20px 25px -5px rgb(0 0 0 / 0.1)',
-    '--form-shadow-2xl': theme.shadows?.['2xl'] || '0 25px 50px -12px rgb(0 0 0 / 0.25)',
-    '--form-shadow-inner': theme.shadows?.inner || 'inset 0 2px 4px 0 rgb(0 0 0 / 0.05)',
-    
-    // Transitions
-    '--form-transition-duration-fast': `${safeNumber(theme.transitions?.durationFast, 150)}ms`,
-    '--form-transition-duration-normal': `${safeNumber(theme.transitions?.durationNormal, 200)}ms`,
-    '--form-transition-duration-slow': `${safeNumber(theme.transitions?.durationSlow, 300)}ms`,
-    '--form-transition-easing-linear': theme.transitions?.easingLinear || 'linear',
-    '--form-transition-easing-ease-in': theme.transitions?.easingEaseIn || 'ease-in',
-    '--form-transition-easing-ease-out': theme.transitions?.easingEaseOut || 'ease-out',
-    '--form-transition-easing-ease-in-out': theme.transitions?.easingEaseInOut || 'ease-in-out',
-    '--form-transition-easing-bounce': theme.transitions?.easingBounce || 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
-    '--form-transition-easing-elastic': theme.transitions?.easingElastic || 'cubic-bezier(0.68, -0.55, 0.265, 1.55)',
-    
-    // Z-index
-    '--form-z-index-auto': theme.zIndex?.auto || 'auto',
-    '--form-z-index-base': safeString(theme.zIndex?.base, '0'),
-    '--form-z-index-dropdown': safeString(theme.zIndex?.dropdown, '1000'),
-    '--form-z-index-modal': safeString(theme.zIndex?.modal, '1050'),
-    '--form-z-index-popover': safeString(theme.zIndex?.popover, '1030'),
-    '--form-z-index-tooltip': safeString(theme.zIndex?.tooltip, '1070'),
-    '--form-z-index-toast': safeString(theme.zIndex?.toast, '1080'),
-    '--form-z-index-overlay': safeString(theme.zIndex?.overlay, '1040'),
+    '--form-shadow-none': shadows.none || defaultTheme.shadows.none,
+    '--form-shadow-sm': shadows.sm || defaultTheme.shadows.sm,
+    '--form-shadow-md': shadows.md || defaultTheme.shadows.md,
+    '--form-shadow-lg': shadows.lg || defaultTheme.shadows.lg,
+    '--form-shadow-xl': shadows.xl || defaultTheme.shadows.xl,
+    '--form-shadow-2xl': shadows['2xl'] || defaultTheme.shadows['2xl'],
+    '--form-shadow-inner': shadows.inner || defaultTheme.shadows.inner,
   };
 
-  // Generate advanced typography properties if available
-  let advancedTypographyProperties = {};
-  if (theme.advancedTypography) {
-    try {
-      const typographyProps = TypographyCSSGenerator.generateCSSProperties(theme.advancedTypography);
-      advancedTypographyProperties = {
-        // Map typography properties to our CSS custom property interface
-        '--form-font-primary': typographyProps['--form-font-primary'] || 'Inter, system-ui, sans-serif',
-        '--form-font-secondary': typographyProps['--form-font-secondary'] || 'Inter, system-ui, sans-serif',
-        '--form-font-mono-advanced': typographyProps['--form-font-mono'] || 'ui-monospace, SFMono-Regular, monospace',
-        
-        // Element-specific typography with fallbacks
-        '--form-font-size-form-title': typographyProps['--form-font-size-form-title'] || '1.5rem',
-        '--form-font-size-form-description': typographyProps['--form-font-size-form-description'] || '1rem',
-        '--form-font-size-section-title': typographyProps['--form-font-size-section-title'] || '1.25rem',
-        '--form-font-size-question-label': typographyProps['--form-font-size-question-label'] || '1rem',
-        '--form-font-size-question-description': typographyProps['--form-font-size-question-description'] || '0.875rem',
-        '--form-font-size-input-text': typographyProps['--form-font-size-input-text'] || '1rem',
-        '--form-font-size-input-placeholder': typographyProps['--form-font-size-input-placeholder'] || '1rem',
-        '--form-font-size-button-text': typographyProps['--form-font-size-button-text'] || '0.875rem',
-        '--form-font-size-help-text': typographyProps['--form-font-size-help-text'] || '0.75rem',
-        '--form-font-size-error-text': typographyProps['--form-font-size-error-text'] || '0.875rem',
-        '--form-font-size-success-text': typographyProps['--form-font-size-success-text'] || '0.875rem',
-        '--form-font-size-caption': typographyProps['--form-font-size-caption'] || '0.75rem',
-        '--form-font-size-legal': typographyProps['--form-font-size-legal'] || '0.75rem',
-        
-        // Add other advanced typography properties with fallbacks...
-        // (keeping the rest but adding || fallbacks to each)
-      };
-    } catch (error) {
-      console.warn('Failed to generate advanced typography properties:', error);
-    }
+// Handle background type and image specifically
+  basicProperties['--form-background-type'] = colors.backgroundType || 'solid';
+  
+  if (colors.backgroundType === 'gradient') {
+    basicProperties['--form-background-image'] = `linear-gradient(${colors.backgroundGradientDirection || '135deg'}, ${colors.backgroundGradientColor1 || '#3B82F6'}, ${colors.backgroundGradientColor2 || '#6B7280'})`;
+    // For gradients, don't use the solid background color
+    basicProperties['--form-color-background'] = 'transparent';
+  } else if (colors.backgroundType === 'pattern') {
+    basicProperties['--form-background-image'] = generateBackgroundPattern(colors.backgroundPattern, colors.backgroundPatternColor);
+    basicProperties['--form-color-background'] = colors.background || defaultTheme.colors.background;
+  } else {
+    basicProperties['--form-background-image'] = 'none';
+    basicProperties['--form-color-background'] = colors.background || defaultTheme.colors.background;
+  }
+  // Use type assertion to convert to CSSCustomProperties
+  return basicProperties as CSSCustomProperties;
+};
+
+
+/**
+ * Creates a theme wrapper style object that includes background and container styling
+ */
+// REPLACE the existing createThemeWrapperStyle function with this:
+export function createThemeWrapperStyle(customization?: any): React.CSSProperties {
+
+  console.log('🔧 createThemeWrapperStyle called with:', customization);
+
+  if (!customization) {
+    return {
+      backgroundColor: '#ffffff',
+      color: '#1f2937',
+      fontFamily: 'Inter, system-ui, sans-serif',
+      minHeight: '100vh',
+    };
   }
 
-  // Merge all properties
+  // Use the simplified CSS generator
+  const cssProperties = customizationToCSSProperties(customization);
+  
+  // Apply CSS properties to document
+  Object.entries(cssProperties).forEach(([property, value]) => {
+    document.documentElement.style.setProperty(property, value);
+  });
+
+  // Handle background styling in React styles
+  const colors = customization.colors || {};
+  const backgroundStyle: React.CSSProperties = {};
+  
+  if (colors.backgroundType === 'gradient') {
+    backgroundStyle.backgroundImage = `linear-gradient(${colors.backgroundGradientDirection || '135deg'}, ${colors.backgroundGradientColor1 || '#3B82F6'}, ${colors.backgroundGradientColor2 || '#6B7280'})`;
+    backgroundStyle.backgroundColor = 'transparent';
+    backgroundStyle.backgroundSize = 'cover';
+    backgroundStyle.backgroundRepeat = 'no-repeat';
+  } else if (colors.backgroundType === 'pattern') {
+    backgroundStyle.backgroundColor = colors.background || '#ffffff';
+    backgroundStyle.backgroundImage = generateBackgroundPattern(colors.backgroundPattern, colors.backgroundPatternColor);
+    backgroundStyle.backgroundSize = colors.backgroundPatternSize || '20px';
+    backgroundStyle.backgroundRepeat = 'repeat';
+  } else {
+    backgroundStyle.backgroundColor = colors.background || '#ffffff';
+    backgroundStyle.backgroundImage = 'none';
+  }
+  
   return {
-    ...basicProperties,
-    ...advancedTypographyProperties
-  } as CSSCustomProperties;
+    ...cssProperties,
+    ...backgroundStyle,
+    color: colors.text || '#1f2937',
+    fontFamily: customization?.typography?.fontFamily || 'Inter, system-ui, sans-serif',
+    minHeight: '100vh',
+  } as React.CSSProperties;
+}
+
+/**
+ * Gets animation configuration for components
+ */
+export function getAnimationConfig(customization?: any) {
+  if (!customization) {
+    return {
+      intensity: 'moderate' as const,
+      enableAnimations: true,
+      respectReducedMotion: true,
+    };
+  }
+
+  const animations = customization.animations;
+  
+  return {
+    intensity: animations?.intensity || 'moderate',
+    enableAnimations: animations?.enableAnimations ?? true,
+    respectReducedMotion: animations?.respectReducedMotion ?? true,
+  };
+}
+
+/**
+ * Gets container alignment classes
+ */
+export function getContainerClasses(customization?: any): string {
+  if (!customization) {
+    return 'max-w-[100vw] mx-auto';
+  }
+
+  const alignment = customization.alignment || 'center';
+  
+  const alignmentClasses: Record<string, string> = {
+    left: 'mx-0',
+    center: 'mx-auto',
+    right: 'ml-auto mr-0'
+  };
+
+  // Type-safe access to alignment classes
+  const alignmentClass = alignmentClasses[alignment] || alignmentClasses.center;
+
+  return `max-w-[100vw] ${alignmentClass}`;
+}
+
+
+
+
+export const themeToCSSProperties = (theme?: any): CSSCustomProperties => {
+  if (!theme) {
+    return customizationToCSSProperties();
+  }
+  
+  // If it's a theme object, extract customization
+  const customization = (theme as any).customization || theme;
+  return customizationToCSSProperties(customization);
 };
 
 /**
@@ -546,4 +569,63 @@ export const cssPropertyUtils = {
   },
 };
 
+// Add these utility functions at the end of the file
+/**
+ * Generates React style object from theme
+ */
+// REPLACE the existing generateThemeStyle function with this:
+export const generateThemeStyle = (theme?: any): React.CSSProperties => {
+  if (!theme) {
+    return {
+      '--form-color-primary': '#3b82f6',
+      '--form-color-background': '#ffffff',
+    } as React.CSSProperties;
+  }
+
+  const cssProperties = themeToCSSProperties(theme);
+  
+  Object.entries(cssProperties).forEach(([property, value]) => {
+    document.documentElement.style.setProperty(property, value);
+  });
+    
+  return cssProperties as React.CSSProperties;
+};
+
+/**
+ * Gets button classes based on theme
+ */
+export const getButtonClasses = (theme?: Theme): string => {
+  const baseClasses = 'transition-all duration-200 font-medium rounded focus:outline-none focus:ring-2 focus:ring-offset-2';
+  
+  const sizeClasses = {
+    sm: 'px-3 py-2 text-sm',
+    md: 'px-4 py-2 text-base',
+    lg: 'px-6 py-3 text-lg'
+  };
+
+  const styleClasses = {
+    filled: 'bg-[var(--form-color-primary)] text-white hover:opacity-90 focus:ring-[var(--form-color-primary)]',
+    outlined: 'border-2 border-[var(--form-color-primary)] text-[var(--form-color-primary)] bg-transparent hover:bg-[var(--form-color-primary)] hover:text-white focus:ring-[var(--form-color-primary)]',
+    ghost: 'text-[var(--form-color-primary)] bg-transparent hover:bg-[var(--form-color-primary)]/10 focus:ring-[var(--form-color-primary)]'
+  };
+
+  return `${baseClasses} ${sizeClasses.md} ${styleClasses.filled}`;
+};
+
+
 // Check if these properties exist
+// Add these exports at the very end of cssProperties.ts
+
+export const convertCustomizationToCSS = (customization: any) => {
+  // Convert old customization format to new theme format
+  const theme = {
+    colors: customization?.colors || {},
+    typography: customization?.typography || {},
+    spacing: customization?.spacing || {},
+    shadows: customization?.shadows || {},
+    borderRadius: customization?.borders || {},
+    customization: customization
+  };
+  
+  return themeToCSSProperties(theme);
+};

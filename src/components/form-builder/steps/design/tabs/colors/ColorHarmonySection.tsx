@@ -50,9 +50,16 @@ export const ColorHarmonySection: React.FC<ColorHarmonySectionProps> = ({
   harmonySuggestions,
   onApplyHarmony,
 }) => {
-  // Separate light and dark harmonies
-  const lightHarmonies = harmonySuggestions.filter((h) => !h.isDark);
-  const darkHarmonies = harmonySuggestions.filter((h) => h.isDark);
+  // Mix light and dark harmonies and limit to 4
+  const mixedHarmonies = [...harmonySuggestions]
+    .sort((a, b) => {
+      // Alternate between light and dark
+      if (a.isDark !== b.isDark) {
+        return a.isDark ? 1 : -1;
+      }
+      return 0;
+    })
+    .slice(0, 4);
 
   if (harmonySuggestions.length === 0) {
     return (
@@ -77,141 +84,111 @@ export const ColorHarmonySection: React.FC<ColorHarmonySectionProps> = ({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center gap-2">
         <Palette className="w-4 h-4 flex-shrink-0" />
         <div className="min-w-0 flex-1">
           <h5 className="font-medium">Smart Color Harmonies</h5>
           <p className="text-xs text-muted-foreground">
-            AI-generated color combinations with light & dark variants
+            AI-generated color combinations using your primary color
           </p>
         </div>
       </div>
 
-      {/* Light Theme Harmonies */}
-      {lightHarmonies.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Sun className="w-3 h-3" />
-            <h6 className="text-sm font-medium">Light Theme Variants</h6>
-            <Badge variant="outline" className="text-xs">
-              {lightHarmonies.length} combinations
-            </Badge>
-          </div>
+      {/* Mixed Light & Dark Harmonies in 4 columns */}
+      <div className="grid grid-cols-4 gap-2">
+        {mixedHarmonies.map((harmony, index) => {
+          const isDark = harmony.isDark;
 
-          <div className="grid grid-cols-2 gap-3">
-            {lightHarmonies.map((harmony, index) => (
-              <Card
-                key={`light-${index}`}
-                className="cursor-pointer transition-all hover:shadow-md hover:ring-2 hover:ring-blue-200"
-                onClick={() => onApplyHarmony(harmony)}
-              >
-                <CardContent className="p-3">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between min-w-0">
-                      <span className="text-sm font-medium truncate flex-1 mr-2">
-                        {harmony.name}
-                      </span>
-                      <div className="flex gap-1 flex-shrink-0">
-                        {Object.entries(harmony.colors)
-                          .slice(0, 4)
-                          .map(([key, color]) => (
-                            <ColorTooltip
-                              key={key}
-                              color={color as string}
-                              label={key.charAt(0).toUpperCase() + key.slice(1)}
-                              usage={getColorUsage(key)}
-                            >
-                              <div
-                                className="w-4 h-4 rounded-full border-2 border-white shadow-sm flex-shrink-0"
-                                style={{ backgroundColor: color as string }}
-                              />
-                            </ColorTooltip>
-                          ))}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="text-xs text-muted-foreground truncate flex-1">
-                        {harmony.type.charAt(0).toUpperCase() +
-                          harmony.type.slice(1).replace("-", " ")}
-                      </div>
-                      <Badge
-                        variant="secondary"
-                        className="text-xs h-4 px-1 flex-shrink-0"
-                      >
-                        <span className="text-green-600">✓ WCAG AA</span>
-                      </Badge>
-                    </div>
+          return (
+            <Card
+              key={`harmony-${index}`}
+              className={`cursor-pointer transition-all hover:shadow-md hover:ring-2 hover:ring-blue-200 ${
+                isDark ? "bg-gray-900 text-white border-gray-700" : "bg-white"
+              }`}
+              onClick={() => onApplyHarmony(harmony)}
+            >
+              <CardContent className="p-4">
+                <div className="flex flex-col items-center gap-3">
+                  {/* Header with name and theme indicator */}
+                  <div className="flex items-center gap-2">
+                    {isDark ? (
+                      <Moon className="w-4 h-4 text-gray-400" />
+                    ) : (
+                      <Sun className="w-4 h-4 text-yellow-500" />
+                    )}
+                    <span
+                      className={`text-sm font-medium ${
+                        isDark ? "text-white" : "text-gray-900"
+                      }`}
+                    >
+                      {harmony.name}
+                    </span>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      )}
 
-      {/* Dark Theme Harmonies */}
-      {darkHarmonies.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Moon className="w-3 h-3" />
-            <h6 className="text-sm font-medium">Dark Theme Variants</h6>
-            <Badge variant="outline" className="text-xs">
-              {darkHarmonies.length} combinations
-            </Badge>
-          </div>
-
-          <div className="grid grid-cols-2 gap-3">
-            {darkHarmonies.map((harmony, index) => (
-              <Card
-                key={`dark-${index}`}
-                className="cursor-pointer transition-all hover:shadow-md hover:ring-2 hover:ring-blue-200 bg-gray-900 text-white border-gray-700"
-                onClick={() => onApplyHarmony(harmony)}
-              >
-                <CardContent className="p-3">
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between min-w-0">
-                      <span className="text-sm font-medium text-white truncate flex-1 mr-2">
-                        {harmony.name}
-                      </span>
-                      <div className="flex gap-1 flex-shrink-0">
-                        {Object.entries(harmony.colors)
-                          .slice(0, 4)
-                          .map(([key, color]) => (
-                            <ColorTooltip
-                              key={key}
-                              color={color as string}
-                              label={key.charAt(0).toUpperCase() + key.slice(1)}
-                              usage={getColorUsage(key)}
-                            >
-                              <div
-                                className="w-4 h-4 rounded-full border-2 border-gray-600 shadow-sm flex-shrink-0"
-                                style={{ backgroundColor: color as string }}
-                              />
-                            </ColorTooltip>
-                          ))}
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className="text-xs text-gray-400 truncate flex-1">
-                        {harmony.type.charAt(0).toUpperCase() +
-                          harmony.type
-                            .slice(1)
-                            .replace("-dark", "")
-                            .replace("-", " ")}
-                      </div>
-                      <Badge
-                        variant="secondary"
-                        className="text-xs h-4 px-1 bg-gray-700 text-gray-200 flex-shrink-0"
-                      >
-                        <span className="text-green-400">✓ Dark</span>
-                      </Badge>
-                    </div>
+                  {/* Color preview */}
+                  <div className="flex gap-2">
+                    {Object.entries(harmony.colors)
+                      .slice(0, 4)
+                      .map(([key, color]) => (
+                        <ColorTooltip
+                          key={key}
+                          color={color as string}
+                          label={key.charAt(0).toUpperCase() + key.slice(1)}
+                          usage={getColorUsage(key)}
+                        >
+                          <div
+                            className={`w-5 h-5 rounded-full border shadow-sm ${
+                              isDark ? "border-gray-600" : "border-gray-200"
+                            }`}
+                            style={{ backgroundColor: color as string }}
+                          />
+                        </ColorTooltip>
+                      ))}
                   </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+
+                  {/* Type + Compliance Badge */}
+                  <div className="flex flex-col items-center gap-1">
+                    <span
+                      className={`text-xs font-medium ${
+                        isDark ? "text-gray-400" : "text-muted-foreground"
+                      }`}
+                    >
+                      {harmony.type.charAt(0).toUpperCase() +
+                        harmony.type
+                          .slice(1)
+                          .replace("-dark", "")
+                          .replace("-", " ")}
+                    </span>
+
+                    <Badge
+                      variant="secondary"
+                      className={`text-xs px-2 py-0.5 rounded-full ${
+                        isDark
+                          ? "bg-gray-700 text-gray-200"
+                          : "bg-gray-100 text-gray-700"
+                      }`}
+                    >
+                      <span
+                        className={isDark ? "text-green-400" : "text-green-600"}
+                      >
+                        ✓ {isDark ? "Dark" : "WCAG AA"}
+                      </span>
+                    </Badge>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Show count if there are more harmonies available */}
+      {harmonySuggestions.length > 4 && (
+        <div className="text-center">
+          <p className="text-xs text-muted-foreground">
+            Showing 4 of {harmonySuggestions.length} available harmonies
+          </p>
         </div>
       )}
     </div>

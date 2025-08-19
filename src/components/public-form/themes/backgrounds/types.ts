@@ -4,7 +4,8 @@ export type BackgroundType =
   | 'solid'       // Single color background
   | 'gradient'    // Linear or radial gradient
   | 'pattern'     // Repeating patterns/textures
-  | 'image';      // Custom uploaded image
+  | 'image'     // Custom uploaded image
+  | 'animated';
 
 export type GradientType = 
   | 'linear'      // Linear gradient

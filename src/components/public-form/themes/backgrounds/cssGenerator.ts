@@ -177,7 +177,7 @@ import {
         .join(', ');
       
       const position = `at ${centerX}% ${centerY}%`;
-      return `radial-gradient(${shape} ${size} ${position}, ${stops})`;
+      return `linear-gradient(${shape} ${size} ${position}, ${stops})`;
     }
   
     /**

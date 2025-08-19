@@ -16,7 +16,6 @@ const customColors: CustomColor[] = [
   { name: "Primary", key: "primary", default: "#3B82F6" },
   { name: "Secondary", key: "secondary", default: "#6B7280" },
   { name: "Text", key: "text", default: "#1F2937" },
-  { name: "Accent", key: "accent", default: "#10b981" },
   { name: "Border", key: "border", default: "#e5e7eb" },
 ];
 

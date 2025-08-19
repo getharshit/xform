@@ -9,16 +9,13 @@ import { FormQuestion } from "./FormQuestion";
 import { FormNavigation } from "./FormNavigation";
 import { SingleColumnLayout, MultiStepLayout } from "../layouts";
 import { useFormContext } from "../providers/FormProvider";
-import {
-  hasMultiStepLayout,
-  groupFieldsByPageBreaks,
-} from "../utils/stepDetection";
+import { hasMultiStepLayout } from "../utils/stepDetection";
 import { ThemeProvider } from "../themes/ThemeProvider";
 import {
-  createThemeWrapperStyle,
-  getAnimationConfig,
   getContainerClasses,
-} from "../utils/themeUtils";
+  createThemeWrapperStyle,
+} from "../themes/cssProperties";
+import { defaultTheme } from "../themes/defaultTheme";
 
 // Internal component that has access to FormContext
 const FormContent: React.FC = () => {
@@ -36,21 +33,43 @@ const FormContent: React.FC = () => {
   // Initialize animation system with form customization
   useAnimationFromCustomization(form.customization);
 
-  // Cast the customization to the correct type (using unknown first as suggested by TypeScript)
-  const customization = form.customization as unknown as FormCustomization;
+  // Generate and apply theme styles from customization
+  const themeWrapperStyle = React.useMemo(() => {
+    return createThemeWrapperStyle(form.customization);
+  }, [form.customization]);
 
-  // Generate theme styles from customization
-  const themeStyle = createThemeWrapperStyle(customization);
-  const containerClasses = getContainerClasses(customization);
+  const containerClasses = getContainerClasses(form.customization);
 
   // Simple detection: check if form has pageBreak fields
   const isMultiStep = hasMultiStepLayout(form.fields);
 
-  // For single-column layout, we don't need manual navigation controls
-  // The layout handles everything internally
+  // Add this right after the themeWrapperStyle useMemo
+  React.useEffect(() => {
+    console.log("🎨 Theme wrapper style:", themeWrapperStyle);
+    console.log("🎨 Form customization:", form.customization);
+
+    // Check what CSS properties are actually set
+    const root = document.documentElement;
+    const computedStyle = getComputedStyle(root);
+
+    console.log("🎨 CSS Properties on root:");
+    console.log(
+      "--form-color-background:",
+      computedStyle.getPropertyValue("--form-color-background")
+    );
+    console.log(
+      "--form-background-image:",
+      computedStyle.getPropertyValue("--form-background-image")
+    );
+    console.log(
+      "--form-background-type:",
+      computedStyle.getPropertyValue("--form-background-type")
+    );
+  }, [themeWrapperStyle, form.customization]);
+
   return (
-    <div className="form-theme-wrapper min-h-screen" style={themeStyle}>
-      <div className={` ${containerClasses}`}>
+    <div className="form-theme-wrapper min-h-screen" style={themeWrapperStyle}>
+      <div className={containerClasses}>
         {isMultiStep ? (
           <MultiStepLayout
             form={form}
@@ -129,10 +148,24 @@ export const PublicFormRenderer: React.FC<PublicFormRendererProps> = (
     .customization as unknown as FormCustomization;
 
   // Get animation config from customization
-  const animationConfig = getAnimationConfig(customization);
+  const animationConfig = {
+    intensity: customization?.animations?.intensity || "moderate",
+    enableAnimations: customization?.animations?.enableAnimations ?? true,
+    respectReducedMotion:
+      customization?.animations?.respectReducedMotion ?? true,
+  };
+
+  // Create a theme-like object that works with our CSS generator
+  const themeForProvider = React.useMemo(() => {
+    // Don't pass customization directly to ThemeProvider,
+    // let our CSS functions handle it instead
+    return defaultTheme;
+  }, []);
+
+  console.log("🔍 Form customization:", props.form.customization);
 
   return (
-    <ThemeProvider initialTheme={props.form.customization}>
+    <ThemeProvider initialTheme={themeForProvider}>
       <AnimationProvider initialConfig={animationConfig}>
         <FormProvider {...props}>
           <FormContent />

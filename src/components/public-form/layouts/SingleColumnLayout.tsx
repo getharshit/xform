@@ -82,25 +82,6 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
           backgroundPosition: "center",
         };
         console.log("🌈 Applied gradient:", backgroundValue);
-      } else if (backgroundType === "pattern") {
-        const backgroundColor = computedStyle
-          .getPropertyValue("--form-color-background")
-          .trim()
-          .replace(/['"]/g, "");
-
-        newStyle = {
-          backgroundColor: backgroundColor || "#ffffff",
-          backgroundImage:
-            backgroundPattern !== "none" ? backgroundPattern : "none",
-          backgroundSize: "var(--form-background-pattern-size, 30px)",
-          backgroundRepeat: "repeat",
-          backgroundAttachment: "scroll",
-          backgroundPosition: "center",
-        };
-        console.log("🔲 Applied pattern:", {
-          backgroundColor,
-          backgroundPattern,
-        });
       } else {
         newStyle = {
           backgroundColor: backgroundValue || "#ffffff",
