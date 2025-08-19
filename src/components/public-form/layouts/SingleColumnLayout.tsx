@@ -618,11 +618,11 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
-          className="flex items-center justify-between"
+          className="flex items-center justify-between "
           style={{ marginTop: "var(--form-spacing-xl, 2rem)" }}
         >
           {/* Back Button */}
-          <div className="flex-1">
+          <div className="flex-1 z-10">
             {!isFirstQuestion && (
               <button
                 onClick={handlePreviousQuestion}
@@ -641,7 +641,7 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
 
           {/* Auto-advance Toggle */}
           <div
-            className="flex items-center"
+            className="flex items-center z-10"
             style={{ gap: "var(--form-spacing-md, 1rem)" }}
           >
             <label
@@ -667,7 +667,7 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
           </div>
 
           {/* Next/Submit Button */}
-          <div className="flex-1 flex justify-end">
+          <div className="flex-1 flex justify-end z-10">
             <button
               onClick={handleNextQuestion}
               disabled={isValidating || formState.isSubmitting} // Disable during validation OR submission
