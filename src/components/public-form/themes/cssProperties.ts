@@ -62,6 +62,7 @@ export const customizationToCSSProperties = (customization?: any): CSSCustomProp
   const fontFamily = typography.fontFamily || defaultTheme.typography.fontFamily;
   const fontSize = typography.fontSize || {};
   const fontWeight = typography.fontWeight || {};
+  const animations = customization?.animations || {};
 
   console.log('🔧 CSS Generator received customization:', customization);
 
@@ -139,13 +140,19 @@ export const customizationToCSSProperties = (customization?: any): CSSCustomProp
     '--form-spacing-2xl': `${spacing['2xl'] || defaultTheme.spacing['2xl']}rem`,
     '--form-spacing-3xl': `${spacing['3xl'] || defaultTheme.spacing['3xl']}rem`,
     
-    // Border radius
-    '--form-border-radius-none': `${borders.radius?.none || defaultTheme.borderRadius.none}px`,
-    '--form-border-radius-sm': `${borders.radius?.sm || defaultTheme.borderRadius.sm}rem`,
-    '--form-border-radius-md': `${borders.radius?.md || defaultTheme.borderRadius.md}rem`,
-    '--form-border-radius-lg': `${borders.radius?.lg || defaultTheme.borderRadius.lg}rem`,
-    '--form-border-radius-xl': `${borders.radius?.xl || defaultTheme.borderRadius.xl}rem`,
-    '--form-border-radius-full': `${borders.radius?.full || defaultTheme.borderRadius.full}px`,
+// Border properties (matching BordersTab structure)
+'--form-border-radius': `${borders.radius || 8}px`,
+'--form-border-width': `${borders.width || 1}px`, 
+'--form-border-style': borders.style || 'solid',
+'--form-border-color': borders.color || '#e5e7eb',
+
+// Legacy/fallback border radius properties  
+'--form-border-radius-none': '0px',
+'--form-border-radius-sm': `${borders.radius || 8}px`,
+'--form-border-radius-md': `${borders.radius || 8}px`, 
+'--form-border-radius-lg': `${borders.radius || 8}px`,
+'--form-border-radius-xl': `${borders.radius || 8}px`,
+'--form-border-radius-full': `${borders.radius === 9999 ? '9999px' : `${borders.radius || 8}px`}`,
     
     // Shadows
     '--form-shadow-none': shadows.none || defaultTheme.shadows.none,
@@ -155,7 +162,19 @@ export const customizationToCSSProperties = (customization?: any): CSSCustomProp
     '--form-shadow-xl': shadows.xl || defaultTheme.shadows.xl,
     '--form-shadow-2xl': shadows['2xl'] || defaultTheme.shadows['2xl'],
     '--form-shadow-inner': shadows.inner || defaultTheme.shadows.inner,
+
+    // Animation properties
+'--form-animation-duration': `${animations.duration || 300}ms`,
+'--form-animation-easing': 'ease-out',
+'--form-button-hover-scale': animations.buttonHoverScale || 1.02,
+'--form-button-tap-scale': animations.buttonTapScale || 0.98,
+'--form-animation-enabled': animations.enabled ? '1' : '0',
   };
+
+
+// Override default input borders with custom border properties
+basicProperties['--form-input-border'] = `${borders.width || 1}px ${borders.style || 'solid'} ${borders.color || '#e5e7eb'}`;
+basicProperties['--form-input-border-radius'] = `${borders.radius || 8}px`;
 
 // Handle background type and image specifically
   basicProperties['--form-background-type'] = colors.backgroundType || 'solid';

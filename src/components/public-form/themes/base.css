@@ -220,10 +220,14 @@
     border-radius: var(--form-border-radius-md);
     border: 1px solid transparent;
     cursor: pointer;
-    transition: all var(--form-transition-duration-normal) var(--form-transition-easing-ease-in-out);
+    transition: transform var(--form-animation-duration) var(--form-animation-easing);;
     text-decoration: none;
   }
   
+.form-button:hover {
+  transform: scale(var(--form-button-hover-scale));
+}
+
   .form-button:focus {
     outline: none;
     box-shadow: 0 0 0 2px var(--form-color-border-focus);

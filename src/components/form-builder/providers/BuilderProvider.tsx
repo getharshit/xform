@@ -347,6 +347,38 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
     [state.form, updateCustomization]
   );
 
+  // NEW: Border updates function
+  const updateBorders = useCallback(
+    (borderUpdates: Record<string, any>) => {
+      if (!state.form) return; // Add null check
+
+      console.log(
+        "🔲 BuilderProvider.updateBorders called with:",
+        borderUpdates
+      );
+
+      const currentBorders = state.form.customization?.borders || {};
+      const updatedBorders = { ...currentBorders, ...borderUpdates };
+
+      console.log("🔲 Current borders:", currentBorders);
+      console.log("🔲 Updated borders:", updatedBorders);
+
+      updateCustomization({ borders: updatedBorders });
+    },
+    [state.form, updateCustomization]
+  );
+
+  // NEW: Animation updates function
+  // NEW: Animation updates function
+  const updateAnimations = useCallback(
+    (animationUpdates: Record<string, any>) => {
+      if (!state.form) return;
+      const currentAnimations = state.form.customization?.animations || {};
+      const updatedAnimations = { ...currentAnimations, ...animationUpdates };
+      updateCustomization({ animations: updatedAnimations });
+    },
+    [state.form, updateCustomization]
+  );
   // Apply complete theme preset (immediate save)
   const applyThemePreset = useCallback(
     async (themePreset: Partial<FormTheme & FormCustomization>) => {
@@ -659,13 +691,15 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
     loadFromStorage,
     clearStorage,
 
-    // Customization operations (NEW)
+    // Customization operations (UPDATED WITH BORDERS)
     updateTheme,
     updateCustomization,
     updateColors,
     updateTypography,
     updateSpacing,
+    updateBorders, // NEW: Added borders update function
     applyThemePreset,
+    updateAnimations,
 
     // Extended functionality
     addFieldByType,
@@ -678,6 +712,8 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
     updateColors: (colorUpdates: Record<string, string>) => void;
     updateTypography: (typographyUpdates: Record<string, any>) => void;
     updateSpacing: (spacingUpdates: Record<string, number>) => void;
+    updateBorders: (borderUpdates: Record<string, any>) => void; // NEW
+    updateAnimations: (animationUpdates: Record<string, any>) => void; // NEW
     applyThemePreset: (
       themePreset: FormTheme & FormCustomization
     ) => Promise<void>;
@@ -700,6 +736,7 @@ export const useBuilder = (): BuilderContextValue & {
   updateColors: (colorUpdates: Record<string, string>) => void;
   updateTypography: (typographyUpdates: Record<string, any>) => void;
   updateSpacing: (spacingUpdates: Record<string, number>) => void;
+  updateBorders: (borderUpdates: Record<string, any>) => void; // NEW
   applyThemePreset: (
     themePreset: FormTheme & FormCustomization
   ) => Promise<void>;
@@ -717,6 +754,7 @@ export const useBuilder = (): BuilderContextValue & {
     updateColors: (colorUpdates: Record<string, string>) => void;
     updateTypography: (typographyUpdates: Record<string, any>) => void;
     updateSpacing: (spacingUpdates: Record<string, number>) => void;
+    updateBorders: (borderUpdates: Record<string, any>) => void; // NEW
     applyThemePreset: (
       themePreset: FormTheme & FormCustomization
     ) => Promise<void>;

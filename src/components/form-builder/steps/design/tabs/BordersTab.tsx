@@ -49,7 +49,7 @@ const borderRadiusPresets = {
   full: {
     name: "Full",
     description: "Pill-shaped elements",
-    radius: 9999,
+    radius: 32,
     icon: Circle,
   },
 };
@@ -79,15 +79,32 @@ const defaultBorderValues = {
   color: "#e5e7eb",
 };
 
+// Type for borders object to fix TypeScript errors
+interface BordersConfig {
+  radius?: number;
+  width?: number;
+  style?: string;
+  color?: string;
+  [key: string]: any; // Add index signature for dynamic access
+}
+
 export const BordersTab: React.FC = () => {
-  const { updateCustomization, state } = useBuilder();
+  const { updateBorders, state } = useBuilder();
 
-  // Get current borders from form state with proper fallbacks
-  const currentBorders = state.form?.customization?.borders || {};
+  // Get current borders from form state with proper typing
+  const currentBorders: BordersConfig =
+    state.form?.customization?.borders || {};
 
-  // Helper function to get current values with fallbacks
-  const getCurrentValue = (key: string, fallback: any): any => {
-    return currentBorders[key] !== undefined ? currentBorders[key] : fallback;
+  // Helper function to get current values with fallbacks (Fixed TypeScript errors)
+  const getCurrentValue = (
+    key: keyof typeof defaultBorderValues,
+    fallback: any
+  ): any => {
+    // Use type-safe property access
+    if (key in currentBorders && currentBorders[key] !== undefined) {
+      return currentBorders[key];
+    }
+    return fallback;
   };
 
   const currentRadius = getCurrentValue("radius", defaultBorderValues.radius);
@@ -106,7 +123,7 @@ export const BordersTab: React.FC = () => {
     };
 
     // Update form state
-    updateCustomization({ borders: updatedBorders });
+    updateBorders(updatedBorders);
 
     // Apply CSS changes immediately for instant preview
     const fullCustomization = {
@@ -233,7 +250,6 @@ export const BordersTab: React.FC = () => {
                 );
               })}
             </div>
-
             {/* Custom Radius Slider */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -257,184 +273,6 @@ export const BordersTab: React.FC = () => {
                     borderRadius: `${currentRadius}px`,
                   }}
                 />
-              </div>
-            </div>
-          </div>
-
-          {/* Border Width */}
-          <div className="space-y-4">
-            <div>
-              <h5 className="font-medium mb-2">Border Width</h5>
-              <p className="text-xs text-muted-foreground mb-4">
-                Set border thickness
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">Width</Label>
-                <span className="text-xs text-muted-foreground">
-                  {currentWidth}px
-                </span>
-              </div>
-              <Slider
-                value={[currentWidth]}
-                onValueChange={handleWidthChange}
-                min={0}
-                max={8}
-                step={1}
-                className="w-full"
-              />
-
-              {/* Quick width buttons */}
-              <div className="grid grid-cols-5 gap-1">
-                {borderWidthOptions.map((option) => (
-                  <button
-                    key={option.value}
-                    onClick={() => handleWidthChange([option.value])}
-                    className={`p-2 text-xs rounded border transition-colors ${
-                      currentWidth === option.value
-                        ? "bg-blue-500 text-white border-blue-500"
-                        : "bg-gray-50 hover:bg-gray-100 border-gray-200"
-                    }`}
-                  >
-                    {option.label}
-                  </button>
-                ))}
-              </div>
-
-              <div className="flex justify-center p-4 bg-gray-50 rounded">
-                <div
-                  className="w-16 h-16 bg-white"
-                  style={{
-                    border: `${currentWidth}px ${currentStyle} ${currentColor}`,
-                    borderRadius: `${currentRadius}px`,
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Border Style */}
-          <div className="space-y-4">
-            <div>
-              <h5 className="font-medium mb-2">Border Style</h5>
-              <p className="text-xs text-muted-foreground mb-4">
-                Choose border line style
-              </p>
-            </div>
-
-            <Select value={currentStyle} onValueChange={handleStyleChange}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {borderStyleOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    <div className="flex items-center gap-2">
-                      <div
-                        className="w-8 h-0.5 bg-gray-600"
-                        style={{
-                          borderTop: `2px ${option.value} currentColor`,
-                          background: "transparent",
-                        }}
-                      />
-                      {option.label}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Border Color */}
-          <div className="space-y-4">
-            <div>
-              <h5 className="font-medium mb-2">Border Color</h5>
-              <p className="text-xs text-muted-foreground mb-4">
-                Set border color
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Color</Label>
-              <div className="flex gap-2">
-                <input
-                  type="color"
-                  value={currentColor}
-                  onChange={(e) => handleColorChange(e.target.value)}
-                  className="w-12 h-10 rounded border border-gray-300 cursor-pointer"
-                />
-                <input
-                  type="text"
-                  value={currentColor}
-                  onChange={(e) => handleColorChange(e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm"
-                  placeholder="#e5e7eb"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Border Preview */}
-          <div className="space-y-4">
-            <div>
-              <h5 className="font-medium mb-2">Border Preview</h5>
-              <p className="text-xs text-muted-foreground mb-4">
-                Preview of your border settings
-              </p>
-            </div>
-
-            <div className="p-6 bg-gray-50 rounded-lg">
-              <div className="grid grid-cols-3 gap-4">
-                {/* Button Preview */}
-                <div className="text-center">
-                  <div className="text-xs text-muted-foreground mb-2">
-                    Button
-                  </div>
-                  <button
-                    className="px-4 py-2 bg-blue-600 text-white transition-colors hover:bg-blue-700"
-                    style={{
-                      borderRadius: `${currentRadius}px`,
-                      border: `${currentWidth}px ${currentStyle} ${currentColor}`,
-                    }}
-                  >
-                    Submit
-                  </button>
-                </div>
-
-                {/* Input Preview */}
-                <div className="text-center">
-                  <div className="text-xs text-muted-foreground mb-2">
-                    Input
-                  </div>
-                  <input
-                    type="text"
-                    placeholder="Enter text..."
-                    className="w-full px-3 py-2 bg-white"
-                    style={{
-                      borderRadius: `${currentRadius}px`,
-                      border: `${currentWidth}px ${currentStyle} ${currentColor}`,
-                    }}
-                  />
-                </div>
-
-                {/* Card Preview */}
-                <div className="text-center">
-                  <div className="text-xs text-muted-foreground mb-2">Card</div>
-                  <div
-                    className="p-3 bg-white"
-                    style={{
-                      borderRadius: `${currentRadius}px`,
-                      border: `${currentWidth}px ${currentStyle} ${currentColor}`,
-                    }}
-                  >
-                    <div className="text-sm font-medium">Question Title</div>
-                    <div className="text-xs text-gray-500 mt-1">
-                      Question description
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>

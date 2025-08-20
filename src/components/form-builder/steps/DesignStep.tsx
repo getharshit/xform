@@ -16,6 +16,7 @@ import { Palette, ArrowLeft, Eye, Settings, AlertCircle } from "lucide-react";
 import { CenterPanel } from "../panels/center-panel/CenterPanel";
 import { DesignRightPanel } from "./design/DesignRightPanel";
 import { useBuilder } from "../providers/BuilderProvider";
+import { AnimationProvider } from "@/components/public-form/animation/AnimationProvider";
 
 export interface DesignStepProps {
   className?: string;
@@ -74,47 +75,49 @@ export const DesignStep: React.FC<DesignStepProps> = ({ className = "" }) => {
   }, [builderStep]);
 
   return (
-    <div className={`h-full ${className}`}>
-      <ResizablePanelGroup direction="horizontal" className="h-full">
-        {/* Center Panel - Form Preview (60% default) */}
-        <ResizablePanel defaultSize={rightPanelCollapsed ? 100 : 60}>
-          <div className="h-full border-r bg-muted/30">
-            {/* Design-specific header for center panel */}
+    <AnimationProvider>
+      <div className={`h-full ${className}`}>
+        <ResizablePanelGroup direction="horizontal" className="h-full">
+          {/* Center Panel - Form Preview (60% default) */}
+          <ResizablePanel defaultSize={rightPanelCollapsed ? 100 : 60}>
+            <div className="h-full border-r bg-muted/30">
+              {/* Design-specific header for center panel */}
 
-            {/* Center Panel Content - Reuse existing CenterPanel */}
-            <div className="h-[calc(100%-80px)]">
-              <CenterPanel previewMode={false} step={builderStep} />
+              {/* Center Panel Content - Reuse existing CenterPanel */}
+              <div className="h-[calc(100%-80px)]">
+                <CenterPanel previewMode={false} step={builderStep} />
+              </div>
             </div>
-          </div>
-        </ResizablePanel>
+          </ResizablePanel>
 
-        {/* Right Panel - Design Customization (40% default) */}
-        {!rightPanelCollapsed && (
-          <>
-            <ResizableHandle />
-            <ResizablePanel defaultSize={40} minSize={30} maxSize={50}>
-              <DesignRightPanel
-                collapsed={rightPanelCollapsed}
-                onToggleCollapse={toggleRightPanel}
-                activeTab={activeDesignTab}
-                onTabChange={setActiveDesignTab}
-              />
-            </ResizablePanel>
-          </>
+          {/* Right Panel - Design Customization (40% default) */}
+          {!rightPanelCollapsed && (
+            <>
+              <ResizableHandle />
+              <ResizablePanel defaultSize={40} minSize={30} maxSize={50}>
+                <DesignRightPanel
+                  collapsed={rightPanelCollapsed}
+                  onToggleCollapse={toggleRightPanel}
+                  activeTab={activeDesignTab}
+                  onTabChange={setActiveDesignTab}
+                />
+              </ResizablePanel>
+            </>
+          )}
+        </ResizablePanelGroup>
+
+        {/* Collapsed Panel Toggle */}
+        {rightPanelCollapsed && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10"
+            onClick={toggleRightPanel}
+          >
+            <Settings className="w-4 h-4" />
+          </Button>
         )}
-      </ResizablePanelGroup>
-
-      {/* Collapsed Panel Toggle */}
-      {rightPanelCollapsed && (
-        <Button
-          variant="outline"
-          size="sm"
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10"
-          onClick={toggleRightPanel}
-        >
-          <Settings className="w-4 h-4" />
-        </Button>
-      )}
-    </div>
+      </div>
+    </AnimationProvider>
   );
 };

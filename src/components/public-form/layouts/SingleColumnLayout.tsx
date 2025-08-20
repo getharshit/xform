@@ -26,12 +26,55 @@ import {
   AlertCircle,
   X,
 } from "lucide-react";
+import { useAnimation } from "@/components/public-form/animation/AnimationProvider";
+import { useBuilder } from "@/components/form-builder/providers/BuilderProvider";
 
 interface SingleColumnLayoutProps {
   form: ExtendedForm;
   state: FormState;
   children?: React.ReactNode;
 }
+
+const useConnectAnimations = () => {
+  const { updateConfig } = useAnimation(); // AnimationProvider
+  const { state } = useBuilder(); // BuilderProvider
+
+  // Connect BuilderProvider animations to AnimationProvider
+  React.useEffect(() => {
+    const animations = state.form?.customization?.animations;
+    if (animations) {
+      console.log("🔗 Connecting animations:", animations);
+
+      // Map your AnimationsTab values to AnimationProvider format
+      updateConfig({
+        enabled: animations.enabled !== false,
+        intensity: animations.intensity || "moderate",
+        button: {
+          hover: {
+            scale: animations.buttonHoverScale || 1.02,
+            duration: animations.duration || 300,
+            easing: animations.easing || "ease-out",
+          },
+          tap: {
+            scale: animations.buttonTapScale || 0.98,
+            duration: animations.duration || 300,
+          },
+          disabled: {
+            opacity: 0.5,
+            duration: animations.duration || 300,
+          },
+        },
+      });
+    }
+  }, [
+    state.form?.customization?.animations?.enabled,
+    state.form?.customization?.animations?.intensity,
+    state.form?.customization?.animations?.buttonHoverScale,
+    state.form?.customization?.animations?.buttonTapScale,
+    state.form?.customization?.animations?.duration,
+    updateConfig,
+  ]);
+};
 
 export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
   form,
@@ -41,6 +84,8 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
   const [backgroundStyle, setBackgroundStyle] = useState<React.CSSProperties>(
     {}
   );
+
+  useConnectAnimations();
 
   // SIMPLIFIED: Remove problematic dependencies, keep it simple
   useEffect(() => {
@@ -107,7 +152,6 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
     form?.id, // Watch form ID changes
   ]); // This will trigger when any theme/customization changes occur
 
-  // Dynamic button styles using CSS properties
   const getButtonStyle = (
     variant: "primary" | "secondary",
     isSubmit: boolean = false
@@ -117,75 +161,66 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
       fontSize: "var(--form-button-font-size, 1rem)",
       borderRadius: "var(--form-border-radius, 8px)",
       fontWeight: "var(--form-font-weight-medium, 500)",
-      transition: "all 200ms ease",
+      transition: "all var(--form-animation-duration, 300ms) ease-out", // ✅ Uses animation duration
       border: "none",
       cursor: "pointer",
       display: "inline-flex",
       alignItems: "center",
       gap: "var(--form-spacing-xs, 0.5rem)",
+      transform: "scale(1)", // ✅ Initial transform
     };
 
-    const buttonStyle =
-      getComputedStyle(document.documentElement)
-        .getPropertyValue("--form-button-style")
-        .trim() || "filled";
+    // Add hover/tap event handlers
+    const eventHandlers = {
+      onMouseEnter: (e: React.MouseEvent<HTMLButtonElement>) => {
+        if (
+          getComputedStyle(document.documentElement)
+            .getPropertyValue("--form-animation-enabled")
+            .trim() !== "0"
+        ) {
+          e.currentTarget.style.transform = `scale(var(--form-button-hover-scale, 1.02))`;
+        }
+      },
+      onMouseLeave: (e: React.MouseEvent<HTMLButtonElement>) => {
+        e.currentTarget.style.transform = "scale(1)";
+      },
+      onMouseDown: (e: React.MouseEvent<HTMLButtonElement>) => {
+        if (
+          getComputedStyle(document.documentElement)
+            .getPropertyValue("--form-animation-enabled")
+            .trim() !== "0"
+        ) {
+          e.currentTarget.style.transform = `scale(var(--form-button-tap-scale, 0.98))`;
+        }
+      },
+      onMouseUp: (e: React.MouseEvent<HTMLButtonElement>) => {
+        if (
+          getComputedStyle(document.documentElement)
+            .getPropertyValue("--form-animation-enabled")
+            .trim() !== "0"
+        ) {
+          e.currentTarget.style.transform = `scale(var(--form-button-hover-scale, 1.02))`;
+        }
+      },
+    };
 
     if (variant === "primary") {
-      const backgroundColor = isSubmit
-        ? "var(--form-color-success, #10b981)"
-        : "var(--form-color-primary, #3b82f6)";
-
-      if (buttonStyle === "outlined") {
-        return {
-          ...baseStyle,
-          backgroundColor: "transparent",
-          color: backgroundColor
-            .replace("var(--form-color-", "var(--form-color-")
-            .replace(", ", ", "),
-          border: `2px solid ${backgroundColor}`,
-        };
-      } else if (buttonStyle === "ghost") {
-        return {
-          ...baseStyle,
-          backgroundColor: "transparent",
-          color: backgroundColor
-            .replace("var(--form-color-", "var(--form-color-")
-            .replace(", ", ", "),
-          border: "none",
-        };
-      } else {
-        // filled (default)
-        return {
-          ...baseStyle,
-          backgroundColor,
-          color: "var(--form-color-text-inverse, #ffffff)",
-          border: "none",
-        };
-      }
+      return {
+        ...baseStyle,
+        ...eventHandlers,
+        backgroundColor: isSubmit
+          ? "var(--form-color-success, #10b981)"
+          : "var(--form-color-primary, #3b82f6)",
+        color: "var(--form-color-text-inverse, #ffffff)",
+      };
     } else {
-      // secondary button
-      if (buttonStyle === "outlined") {
-        return {
-          ...baseStyle,
-          backgroundColor: "transparent",
-          color: "var(--form-color-border, #374151)",
-          border: "2px solid var(--form-color-border, #d1d5db)",
-        };
-      } else if (buttonStyle === "ghost") {
-        return {
-          ...baseStyle,
-          backgroundColor: "transparent",
-          color: "var(--form-color-text-primary, #374151)",
-          border: "none",
-        };
-      } else {
-        return {
-          ...baseStyle,
-          backgroundColor: "var(--form-color-background, #ffffff)",
-          color: "var(--form-color-secondary, #374151)",
-          border: "1px solid var(--form-color-secondary, #d1d5db)",
-        };
-      }
+      return {
+        ...baseStyle,
+        ...eventHandlers,
+        backgroundColor: "transparent",
+        color: "var(--form-color-text-primary, #374151)",
+        border: "1px solid var(--form-color-border, #d1d5db)",
+      };
     }
   };
 
@@ -470,13 +505,15 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
               </button>
             </div>
           </div>
-
           <AnimatedProgressIndicator
             progress={progressPercentage}
             type="bar"
             showPercentage={false}
             className="mb-2"
-            style={{ marginBottom: "var(--form-spacing-xs, 0.5rem)" }}
+            style={{
+              marginBottom: "var(--form-spacing-xs, 0.5rem)",
+              borderRadius: "var(--form-border-radius, 0.75rem)",
+            }}
           />
         </div>
       </div>
@@ -684,6 +721,10 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
                     style={{
                       borderColor: "currentColor",
                       borderTopColor: "transparent",
+                      border:
+                        "var(--form-border-width)" +
+                        "var(--form-border-style)" +
+                        "var(--form-border-color)",
                     }}
                   />
                   Validating...
@@ -724,6 +765,10 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
             style={{
               backgroundColor: "var(--form-color-error, #fef2f2)",
               borderColor: "var(--form-color-error, #ef4444)",
+              border:
+                "var(--form-border-width)" +
+                "var(--form-border-style)" +
+                "var(--form-border-color)",
               color: "var(--form-color-error, #ef4444)",
             }}
           >

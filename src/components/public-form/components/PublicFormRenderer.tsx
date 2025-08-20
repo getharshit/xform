@@ -5,6 +5,7 @@ import { PublicFormRendererProps, ProgressConfig } from "../types";
 import type { FormCustomization } from "@/types/form";
 import { FormProvider } from "../providers/FormProvider";
 import { AnimationProvider, useAnimationFromCustomization } from "../animation";
+import { useBuilder } from "@/components/form-builder/providers/BuilderProvider";
 import { FormQuestion } from "./FormQuestion";
 import { FormNavigation } from "./FormNavigation";
 import { SingleColumnLayout, MultiStepLayout } from "../layouts";
@@ -47,7 +48,9 @@ const FormContent: React.FC = () => {
   };
 
   // Initialize animation system with form customization
-  useAnimationFromCustomization(form.customization);
+
+  const { state } = useBuilder(); // Get form state
+  useAnimationFromCustomization(state.form?.customization);
 
   // Generate and apply theme styles from customization
   const themeWrapperStyle = React.useMemo(() => {

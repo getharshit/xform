@@ -17,31 +17,17 @@ import {
 
 import { ColorsTab } from "./tabs/ColorsTab";
 import { TypographyTab } from "./tabs/TypographyTab";
-// import { SpacingTab } from "./tabs/SpacingTab";
-// import { BordersTab } from "./tabs/BordersTab";
-// import { ShadowsTab } from "./tabs/ShadowsTab";
-// import { AnimationsTab } from "./tabs/AnimationsTab";
+import { BordersTab } from "./tabs/BordersTab";
+import { AnimationsTab } from "./tabs/AnimationsTab";
 
 import { useBuilder } from "../../providers/BuilderProvider";
 
 export interface DesignRightPanelProps {
   collapsed?: boolean;
   onToggleCollapse?: () => void;
-  activeTab?:
-    | "colors"
-    | "typography"
-    | "spacing"
-    | "borders"
-    | "shadows"
-    | "animations";
+  activeTab?: "colors" | "typography" | "borders" | "animations";
   onTabChange?: (
-    tab:
-      | "colors"
-      | "typography"
-      | "spacing"
-      | "borders"
-      | "shadows"
-      | "animations"
+    tab: "colors" | "typography" | "borders" | "animations"
   ) => void;
   className?: string;
 }
@@ -85,9 +71,7 @@ export const DesignRightPanel: React.FC<DesignRightPanelProps> = ({
     if (
       tab === "colors" ||
       tab === "typography" ||
-      tab === "spacing" ||
       tab === "borders" ||
-      tab === "shadows" ||
       tab === "animations"
     ) {
       onTabChange?.(tab);
@@ -112,28 +96,20 @@ export const DesignRightPanel: React.FC<DesignRightPanelProps> = ({
 
         {/* Horizontal Tab Navigation */}
         <Tabs value={activeTab} onValueChange={handleTabChange}>
-          <TabsList className="grid w-full grid-cols-6 h-auto">
-            <TabsTrigger value="colors" className="p-2 flex flex-col gap-1">
+          <TabsList className="grid w-full grid-cols-4 h-auto">
+            <TabsTrigger value="colors" className="p-2 flex flex-row gap-1">
               <Palette className="w-4 h-4" />
               <span className="text-xs">Colors</span>
             </TabsTrigger>
-            <TabsTrigger value="typography" className="p-2 flex flex-col gap-1">
+            <TabsTrigger value="typography" className="p-2 flex flex-row gap-1">
               <Type className="w-4 h-4" />
               <span className="text-xs">Typography</span>
             </TabsTrigger>
-            <TabsTrigger value="spacing" className="p-2 flex flex-col gap-1">
-              <Minus className="w-4 h-4" />
-              <span className="text-xs">Spacing</span>
-            </TabsTrigger>
-            <TabsTrigger value="borders" className="p-2 flex flex-col gap-1">
+            <TabsTrigger value="borders" className="p-2 flex flex-row gap-1">
               <Square className="w-4 h-4" />
               <span className="text-xs">Borders</span>
             </TabsTrigger>
-            <TabsTrigger value="shadows" className="p-2 flex flex-col gap-1">
-              <Sparkles className="w-4 h-4" />
-              <span className="text-xs">Shadows</span>
-            </TabsTrigger>
-            <TabsTrigger value="animations" className="p-2 flex flex-col gap-1">
+            <TabsTrigger value="animations" className="p-2 flex flex-row gap-1">
               <Zap className="w-4 h-4" />
               <span className="text-xs">Animations</span>
             </TabsTrigger>
@@ -152,23 +128,15 @@ export const DesignRightPanel: React.FC<DesignRightPanelProps> = ({
             <TypographyTab />
           </TabsContent>
 
-          <TabsContent value="spacing" className="m-0 h-full overflow-y-auto">
-            <PlaceholderTab title="Spacing" />
-          </TabsContent>
-
           <TabsContent value="borders" className="m-0 h-full overflow-y-auto">
-            <PlaceholderTab title="Borders" />
-          </TabsContent>
-
-          <TabsContent value="shadows" className="m-0 h-full overflow-y-auto">
-            <PlaceholderTab title="Shadows" />
+            <BordersTab />
           </TabsContent>
 
           <TabsContent
             value="animations"
             className="m-0 h-full overflow-y-auto"
           >
-            <PlaceholderTab title="Animations" />
+            <AnimationsTab />
           </TabsContent>
         </Tabs>
       </div>
