@@ -24,12 +24,14 @@ export interface CenterPanelProps {
   previewMode?: boolean;
   onPreviewToggle?: () => void;
   className?: string;
+  step?: string;
 }
 
 export const CenterPanel: React.FC<CenterPanelProps> = ({
   previewMode = false,
   onPreviewToggle,
   className = "",
+  step = "build", // Default to "build" step
 }) => {
   const {
     state: {
@@ -175,17 +177,19 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({
       </ScrollArea>
 
       {/* Canvas Toolbar - Always visible when form exists */}
-      <CanvasToolbar
-        onSave={handleSave}
-        onPreview={handlePreviewToggle}
-        onUndo={undo}
-        onRedo={redo}
-        onFieldAdd={handleAddField}
-        canUndo={canUndo}
-        canRedo={canRedo}
-        isDirty={hasUnsavedChanges}
-        isPreviewMode={false} // Always show toolbar since we're always in "edit" mode
-      />
+      {step == "build" && (
+        <CanvasToolbar
+          onSave={handleSave}
+          onPreview={handlePreviewToggle}
+          onUndo={undo}
+          onRedo={redo}
+          onFieldAdd={handleAddField}
+          canUndo={canUndo}
+          canRedo={canRedo}
+          isDirty={hasUnsavedChanges}
+          isPreviewMode={false} // Always show toolbar since we're always in "edit" mode
+        />
+      )}
     </div>
   );
 };

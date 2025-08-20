@@ -1,4 +1,4 @@
-// src/components/form-builder/steps/design/DesignRightPanel.tsx
+// src/components/form-builder/steps/design/tabs/DesignRightPanel.tsx
 
 "use client";
 
@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 
 import { ColorsTab } from "./tabs/ColorsTab";
-// import { TypographyTab } from "./tabs/TypographyTab";
+import { TypographyTab } from "./tabs/TypographyTab";
 // import { SpacingTab } from "./tabs/SpacingTab";
 // import { BordersTab } from "./tabs/BordersTab";
 // import { ShadowsTab } from "./tabs/ShadowsTab";
@@ -148,11 +148,8 @@ export const DesignRightPanel: React.FC<DesignRightPanelProps> = ({
             <ColorsTab />
           </TabsContent>
 
-          <TabsContent
-            value="typography"
-            className="m-0 h-full overflow-y-auto"
-          >
-            <PlaceholderTab title="Typography" />
+          <TabsContent value="typography" className="m-0 h-full">
+            <TypographyTab />
           </TabsContent>
 
           <TabsContent value="spacing" className="m-0 h-full overflow-y-auto">

@@ -19,6 +19,7 @@ import { useBuilder } from "../providers/BuilderProvider";
 
 export interface DesignStepProps {
   className?: string;
+  builderStep?: string; // Optional step prop for future use
 }
 
 export const DesignStep: React.FC<DesignStepProps> = ({ className = "" }) => {
@@ -82,7 +83,7 @@ export const DesignStep: React.FC<DesignStepProps> = ({ className = "" }) => {
 
             {/* Center Panel Content - Reuse existing CenterPanel */}
             <div className="h-[calc(100%-80px)]">
-              <CenterPanel previewMode={false} />
+              <CenterPanel previewMode={false} step={builderStep} />
             </div>
           </div>
         </ResizablePanel>

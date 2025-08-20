@@ -233,7 +233,7 @@ const FormBuilderLayoutInner: React.FC<{
 
               {/* Center Panel - Form Preview */}
               <ResizablePanel defaultSize={leftPanelCollapsed ? 80 : 60}>
-                <CenterPanel previewMode={previewMode} />
+                <CenterPanel previewMode={previewMode} step={builderStep} />
               </ResizablePanel>
 
               {/* Right Panel - Properties */}
@@ -255,7 +255,7 @@ const FormBuilderLayoutInner: React.FC<{
 
           {/* Design Step */}
           <TabsContent value="design" className="h-full m-0">
-            <DesignStep />
+            <DesignStep step={builderStep} />
           </TabsContent>
 
           {/* Integrate Step */}
