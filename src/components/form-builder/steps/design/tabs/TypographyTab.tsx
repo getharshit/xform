@@ -527,45 +527,57 @@ export const TypographyTab: React.FC = () => {
             </div>
 
             <div className="space-y-4">
-              {[
-                { key: "question", label: "Question Labels", min: 14, max: 24 },
-                { key: "input", label: "Input Text", min: 14, max: 20 },
-                { key: "button", label: "Button Text", min: 14, max: 20 },
-                { key: "description", label: "Descriptions", min: 12, max: 18 },
-              ].map(({ key, label, min, max }) => {
-                const currentSize =
-                  (currentFontSizes as any)[key] ||
-                  (defaultTypographyValues.fontSize as any)[key];
-                return (
-                  <div key={key} className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label className="text-sm font-medium">{label}</Label>
-                      <span className="text-xs text-muted-foreground">
-                        {currentSize}px
-                      </span>
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  {
+                    key: "question",
+                    label: "Question Labels",
+                    min: 14,
+                    max: 24,
+                  },
+                  { key: "input", label: "Input Text", min: 14, max: 20 },
+                  { key: "button", label: "Button Text", min: 14, max: 20 },
+                  {
+                    key: "description",
+                    label: "Descriptions",
+                    min: 12,
+                    max: 18,
+                  },
+                ].map(({ key, label, min, max }) => {
+                  const currentSize =
+                    (currentFontSizes as any)[key] ||
+                    (defaultTypographyValues.fontSize as any)[key];
+                  return (
+                    <div key={key} className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm font-medium">{label}</Label>
+                        <span className="text-xs text-muted-foreground">
+                          {currentSize}px
+                        </span>
+                      </div>
+                      <Slider
+                        value={[currentSize]}
+                        onValueChange={(value) =>
+                          handleFontSizeChange(key, value)
+                        }
+                        min={min}
+                        max={max}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div
+                        className="p-2 bg-gray-50 rounded text-center"
+                        style={{
+                          fontSize: `${Math.min(currentSize * 0.8, 18)}px`,
+                          fontFamily: currentFontFamily,
+                        }}
+                      >
+                        {label} Preview
+                      </div>
                     </div>
-                    <Slider
-                      value={[currentSize]}
-                      onValueChange={(value) =>
-                        handleFontSizeChange(key, value)
-                      }
-                      min={min}
-                      max={max}
-                      step={1}
-                      className="w-full"
-                    />
-                    <div
-                      className="p-2 bg-gray-50 rounded text-center"
-                      style={{
-                        fontSize: `${Math.min(currentSize * 0.8, 18)}px`,
-                        fontFamily: currentFontFamily,
-                      }}
-                    >
-                      {label} Preview
-                    </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
           </div>
 
