@@ -18,8 +18,9 @@ import {
 } from "@/components/ui/select";
 import { RotateCcw, Type, Palette, Zap } from "lucide-react";
 import { useBuilder } from "../../../providers/BuilderProvider";
+import { applyCustomizationToDOM } from "@/components/public-form/themes/cssProperties";
 
-// Font configurations from typography system
+// Font configurations
 const systemFonts = [
   {
     id: "system-ui",
@@ -82,7 +83,7 @@ const googleFonts = [
 
 const allFonts = [...systemFonts, ...googleFonts];
 
-// Typography scales based on the typography system
+// Typography scales - Fixed to work with form builder
 const typographyScales = {
   small: {
     name: "Small Scale",
@@ -90,14 +91,11 @@ const typographyScales = {
     baseSize: 14,
     ratio: 1.2,
     sizes: {
-      xs: 10,
-      sm: 12,
-      base: 14,
-      lg: 17,
-      xl: 20,
-      "2xl": 24,
-      "3xl": 29,
-      "4xl": 35,
+      title: 24,
+      question: 14,
+      input: 14,
+      button: 14,
+      description: 12,
     },
   },
   medium: {
@@ -106,14 +104,11 @@ const typographyScales = {
     baseSize: 16,
     ratio: 1.25,
     sizes: {
-      xs: 10,
-      sm: 13,
-      base: 16,
-      lg: 20,
-      xl: 25,
-      "2xl": 31,
-      "3xl": 39,
-      "4xl": 49,
+      title: 32,
+      question: 16,
+      input: 16,
+      button: 16,
+      description: 14,
     },
   },
   large: {
@@ -122,14 +117,11 @@ const typographyScales = {
     baseSize: 18,
     ratio: 1.333,
     sizes: {
-      xs: 11,
-      sm: 14,
-      base: 18,
-      lg: 24,
-      xl: 32,
-      "2xl": 43,
-      "3xl": 57,
-      "4xl": 76,
+      title: 40,
+      question: 18,
+      input: 18,
+      button: 18,
+      description: 16,
     },
   },
 };
@@ -143,7 +135,7 @@ const fontWeights = [
   { value: 700, label: "Bold" },
 ];
 
-// Default typography values
+// Default typography values - Fixed structure
 const defaultTypographyValues = {
   fontFamily: "Inter, system-ui, sans-serif",
   scale: "medium",
@@ -165,6 +157,8 @@ const defaultTypographyValues = {
 
 export const TypographyTab: React.FC = () => {
   const { updateTypography, state } = useBuilder();
+
+  // Get current typography from form state with proper fallbacks
   const currentTypography = state.form?.customization?.typography || {};
 
   // Local state for font loading
@@ -189,11 +183,14 @@ export const TypographyTab: React.FC = () => {
     "fontFamily",
     defaultTypographyValues.fontFamily
   );
+
   const currentScale = getCurrentValue("scale", defaultTypographyValues.scale);
+
   const currentFontSizes = getCurrentValue(
     "fontSize",
     defaultTypographyValues.fontSize
   );
+
   const currentFontWeights = getCurrentValue(
     "fontWeight",
     defaultTypographyValues.fontWeight
@@ -246,9 +243,30 @@ export const TypographyTab: React.FC = () => {
     }
   }, [currentFontFamily]);
 
+  // Fixed typography change handler with immediate CSS application
   const handleTypographyChange = (updates: Record<string, any>) => {
     console.log("🔤 Typography change:", updates);
-    updateTypography(updates);
+
+    // Merge with existing typography to preserve other properties
+    const updatedTypography = {
+      ...currentTypography,
+      ...updates,
+    };
+
+    // Update form state
+    updateTypography(updatedTypography);
+
+    // Apply CSS changes immediately for instant preview
+    const fullCustomization = {
+      ...state.form?.customization,
+      typography: updatedTypography,
+    };
+
+    console.log(
+      "🚀 Applying typography changes to preview:",
+      fullCustomization
+    );
+    applyCustomizationToDOM(fullCustomization);
   };
 
   const handleFontFamilyChange = (fontId: string) => {
@@ -260,18 +278,18 @@ export const TypographyTab: React.FC = () => {
     }
   };
 
+  // Fixed scale change handler
   const handleScaleChange = (scale: string) => {
     const scaleConfig =
       typographyScales[scale as keyof typeof typographyScales];
     if (scaleConfig) {
+      console.log("🎯 Applying scale:", scale, scaleConfig);
+
       handleTypographyChange({
         scale,
         fontSize: {
-          title: scaleConfig.sizes["2xl"],
-          question: scaleConfig.sizes.base,
-          input: scaleConfig.sizes.base,
-          button: scaleConfig.sizes.base,
-          description: scaleConfig.sizes.sm,
+          ...currentFontSizes,
+          ...scaleConfig.sizes,
         },
       });
     }
@@ -304,6 +322,7 @@ export const TypographyTab: React.FC = () => {
   const selectedFont = allFonts.find(
     (font) => font.family === currentFontFamily
   );
+
   const selectedScale =
     typographyScales[currentScale as keyof typeof typographyScales];
 
@@ -454,7 +473,7 @@ export const TypographyTab: React.FC = () => {
                           className="font-bold"
                           style={{
                             fontSize: `${Math.min(
-                              scale.sizes["2xl"] * 0.6,
+                              scale.sizes.title * 0.4,
                               16
                             )}px`,
                             fontFamily: currentFontFamily,
@@ -465,7 +484,7 @@ export const TypographyTab: React.FC = () => {
                         <div
                           style={{
                             fontSize: `${Math.min(
-                              scale.sizes.base * 0.8,
+                              scale.sizes.question * 0.7,
                               12
                             )}px`,
                             fontFamily: currentFontFamily,
@@ -476,7 +495,10 @@ export const TypographyTab: React.FC = () => {
                         <div
                           className="text-muted-foreground"
                           style={{
-                            fontSize: `${Math.min(scale.sizes.sm * 0.8, 10)}px`,
+                            fontSize: `${Math.min(
+                              scale.sizes.description * 0.7,
+                              10
+                            )}px`,
                             fontFamily: currentFontFamily,
                           }}
                         >
@@ -493,16 +515,6 @@ export const TypographyTab: React.FC = () => {
                 </Card>
               ))}
             </div>
-
-            {selectedScale && (
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <div className="text-sm font-medium mb-2">Scale Details</div>
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div>Base Size: {selectedScale.baseSize}px</div>
-                  <div>Ratio: {selectedScale.ratio}</div>
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Font Sizes */}
@@ -516,7 +528,6 @@ export const TypographyTab: React.FC = () => {
 
             <div className="space-y-4">
               {[
-                { key: "title", label: "Form Title", min: 20, max: 48 },
                 { key: "question", label: "Question Labels", min: 14, max: 24 },
                 { key: "input", label: "Input Text", min: 14, max: 20 },
                 { key: "button", label: "Button Text", min: 14, max: 20 },
@@ -558,132 +569,6 @@ export const TypographyTab: React.FC = () => {
             </div>
           </div>
 
-          {/* Font Weights */}
-          <div className="space-y-4">
-            <div>
-              <h5 className="font-medium mb-2">Font Weights</h5>
-              <p className="text-xs text-muted-foreground mb-4">
-                Set weight for different text elements
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { key: "title", label: "Form Title" },
-                { key: "question", label: "Questions" },
-                { key: "button", label: "Buttons" },
-                { key: "description", label: "Descriptions" },
-              ].map(({ key, label }) => {
-                const currentWeight =
-                  (currentFontWeights as any)[key] ||
-                  (defaultTypographyValues.fontWeight as any)[key];
-                return (
-                  <div key={key} className="space-y-2">
-                    <Label className="text-sm font-medium">{label}</Label>
-                    <Select
-                      value={currentWeight.toString()}
-                      onValueChange={(value) =>
-                        handleFontWeightChange(key, value)
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {fontWeights.map((weight) => (
-                          <SelectItem
-                            key={weight.value}
-                            value={weight.value.toString()}
-                          >
-                            <span
-                              style={{
-                                fontWeight: weight.value,
-                                fontFamily: currentFontFamily,
-                              }}
-                            >
-                              {weight.label}
-                            </span>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Preview Section */}
-          <div className="space-y-4">
-            <div>
-              <h5 className="font-medium mb-2">Typography Preview</h5>
-              <p className="text-xs text-muted-foreground mb-4">
-                Preview of your typography settings
-              </p>
-            </div>
-
-            <div className="p-4 bg-white border rounded-lg space-y-4">
-              <div
-                style={{
-                  fontSize: `${
-                    (currentFontSizes as any).title ||
-                    defaultTypographyValues.fontSize.title
-                  }px`,
-                  fontWeight:
-                    (currentFontWeights as any).title ||
-                    defaultTypographyValues.fontWeight.title,
-                  fontFamily: currentFontFamily,
-                }}
-              >
-                Customer Feedback Form
-              </div>
-              <div
-                style={{
-                  fontSize: `${
-                    (currentFontSizes as any).question ||
-                    defaultTypographyValues.fontSize.question
-                  }px`,
-                  fontWeight:
-                    (currentFontWeights as any).question ||
-                    defaultTypographyValues.fontWeight.question,
-                  fontFamily: currentFontFamily,
-                }}
-              >
-                How satisfied are you with our service?
-              </div>
-              <div
-                style={{
-                  fontSize: `${
-                    (currentFontSizes as any).description ||
-                    defaultTypographyValues.fontSize.description
-                  }px`,
-                  fontWeight:
-                    (currentFontWeights as any).description ||
-                    defaultTypographyValues.fontWeight.description,
-                  fontFamily: currentFontFamily,
-                }}
-                className="text-muted-foreground"
-              >
-                Please rate your experience from 1 to 5 stars
-              </div>
-              <button
-                className="px-4 py-2 bg-blue-600 text-white rounded"
-                style={{
-                  fontSize: `${
-                    (currentFontSizes as any).button ||
-                    defaultTypographyValues.fontSize.button
-                  }px`,
-                  fontWeight:
-                    (currentFontWeights as any).button ||
-                    defaultTypographyValues.fontWeight.button,
-                  fontFamily: currentFontFamily,
-                }}
-              >
-                Submit Response
-              </button>
-            </div>
-          </div>
-
           {/* Debug Information (Development only) */}
           {process.env.NODE_ENV === "development" && (
             <div className="p-4 bg-gray-50 rounded-lg">
@@ -692,10 +577,13 @@ export const TypographyTab: React.FC = () => {
                 <div>Current Font: {currentFontFamily}</div>
                 <div>Current Scale: {currentScale}</div>
                 <div>
-                  Font Loading States: {Object.keys(fontLoadingStates).length}
+                  Font Sizes: {JSON.stringify(currentFontSizes, null, 2)}
                 </div>
                 <div>
-                  Selected Font Category: {selectedFont?.category || "unknown"}
+                  Font Weights: {JSON.stringify(currentFontWeights, null, 2)}
+                </div>
+                <div>
+                  Typography State: {JSON.stringify(currentTypography, null, 2)}
                 </div>
               </div>
             </div>

@@ -27,6 +27,24 @@ const generateBackgroundPattern = (patternType?: string, patternColor?: string):
   }
 };
 
+/**
+ * Apply customization immediately with enhanced typography support
+ */
+export const applyCustomizationToDOM = (customization: any) => {
+  console.log('🚀 Applying customization to DOM:', customization);
+  
+  const cssProperties = customizationToCSSProperties(customization);
+  const manager = CSSPropertiesManager.getInstance();
+  manager.applyProperties(cssProperties);
+  
+  // Also apply as inline styles for immediate effect
+  Object.entries(cssProperties).forEach(([property, value]) => {
+    document.documentElement.style.setProperty(property, value);
+  });
+  
+  console.log('✅ Customization applied to DOM');
+};
+
 
 
 /**
@@ -40,6 +58,10 @@ export const customizationToCSSProperties = (customization?: any): CSSCustomProp
   const spacing = customization?.spacing || {};
   const borders = customization?.borders || {};
   const shadows = customization?.shadows || {};
+  // Enhanced typography processing
+  const fontFamily = typography.fontFamily || defaultTheme.typography.fontFamily;
+  const fontSize = typography.fontSize || {};
+  const fontWeight = typography.fontWeight || {};
 
   console.log('🔧 CSS Generator received customization:', customization);
 
@@ -64,7 +86,6 @@ export const customizationToCSSProperties = (customization?: any): CSSCustomProp
     '--form-color-surface': colors.surface || defaultTheme.colors.surface,
     
     // Typography
-    '--form-font-family': typography.fontFamily || defaultTheme.typography.fontFamily,
     '--form-font-size-base': `${typography.fontSize?.base || defaultTheme.typography.fontSizeBase}rem`,
     '--form-font-size-lg': `${typography.fontSize?.lg || defaultTheme.typography.fontSizeLg}rem`,
     '--form-font-size-xl': `${typography.fontSize?.xl || defaultTheme.typography.fontSizeXl}rem`,
@@ -73,6 +94,33 @@ export const customizationToCSSProperties = (customization?: any): CSSCustomProp
     '--form-font-size-2xl': `${typography.fontSize?.['2xl'] || defaultTheme.typography.fontSize2xl}rem`,
     '--form-font-size-3xl': `${typography.fontSize?.['3xl'] || defaultTheme.typography.fontSize3xl}rem`,
     '--form-font-size-4xl': `${typography.fontSize?.['4xl'] || defaultTheme.typography.fontSize4xl}rem`,
+
+
+        // Enhanced typography properties
+    '--form-font-family': fontFamily,
+    '--form-font-primary': fontFamily,
+    '--form-font-secondary': fontFamily,
+    '--form-font-mono': 'ui-monospace, SFMono-Regular, "SF Mono", Consolas, monospace',
+    
+    // Form-specific font sizes (matching the form builder structure)
+    '--form-font-size-title': `${fontSize.title || 32}px`,
+    '--form-font-size-form-title': `${fontSize.title || 32}px`,
+    '--form-font-size-question': `${fontSize.question || 16}px`,
+    '--form-font-size-question-label': `${fontSize.question || 16}px`,
+    '--form-font-size-input': `${fontSize.input || 16}px`,
+    '--form-font-size-input-text': `${fontSize.input || 16}px`,
+    '--form-font-size-button': `${fontSize.button || 16}px`,
+    '--form-font-size-button-text': `${fontSize.button || 16}px`,
+    '--form-font-size-description': `${fontSize.description || 14}px`,
+    '--form-font-size-help-text': `${fontSize.description || 14}px`,
+    '--form-font-size-small': `${fontSize.description || 14}px`,
+    
+    // Font weights
+    '--form-font-weight-title': fontWeight.title || 700,
+    '--form-font-weight-question': fontWeight.question || 500,
+    '--form-font-weight-input': fontWeight.input || 400,
+    '--form-font-weight-button': fontWeight.button || 500,
+    '--form-font-weight-description': fontWeight.description || 400,
     
     // Font weights
     '--form-font-weight-light': typography.fontWeight?.light || defaultTheme.typography.fontWeightLight,
