@@ -139,7 +139,6 @@ const FormBuilderLayoutInner: React.FC<{
     autoSave,
   } = state;
 
-  // Handle step changes with proper typing
   const handleStepChange = (value: string) => {
     if (
       value === "build" ||
@@ -147,6 +146,12 @@ const FormBuilderLayoutInner: React.FC<{
       value === "integrate" ||
       value === "share"
     ) {
+      // If trying to go to share step but form has no fields, show a warning
+      if (value === "share" && (!form?.fields || form.fields.length === 0)) {
+        alert("Add at least one question before sharing your form.");
+        return;
+      }
+
       setBuilderStep(value);
     }
   };
@@ -155,24 +160,26 @@ const FormBuilderLayoutInner: React.FC<{
     if (onSave && form) {
       const success = await onSave(form);
       if (!success) {
-        // Error is handled by the provider
         return;
       }
     } else {
-      // Use built-in save functionality
       await saveForm();
     }
   };
 
   const handlePublish = async () => {
+    // Check if form has fields
+    if (!form?.fields || form.fields.length === 0) {
+      alert("Add at least one question before publishing your form.");
+      return;
+    }
+
     if (onPublish && form) {
       const success = await onPublish(form);
       if (!success) {
-        // Error is handled by the provider
         return;
       }
     } else {
-      // Use built-in publish functionality
       await publishForm();
     }
   };
@@ -260,10 +267,20 @@ const FormBuilderLayoutInner: React.FC<{
             className="flex-1 max-w-md"
           >
             <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="build">Build</TabsTrigger>
+              <TabsTrigger value="build" className="relative">
+                Build
+                {(!form?.fields || form.fields.length === 0) && (
+                  <span className="ml-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                )}
+              </TabsTrigger>
               <TabsTrigger value="design">Design</TabsTrigger>
               <TabsTrigger value="integrate">Integrate</TabsTrigger>
-              <TabsTrigger value="share">Share</TabsTrigger>
+              <TabsTrigger value="share" className="relative">
+                Share
+                {form?.published && (
+                  <CheckCircle2 className="w-3 h-3 ml-1 text-green-600" />
+                )}
+              </TabsTrigger>
             </TabsList>
           </Tabs>
 
@@ -285,8 +302,18 @@ const FormBuilderLayoutInner: React.FC<{
             <Button
               size="sm"
               onClick={handlePublish}
-              disabled={isPublishing || !form}
+              disabled={
+                isPublishing ||
+                !form ||
+                !form?.fields ||
+                form.fields.length === 0
+              }
               variant={form?.published ? "outline" : "default"}
+              className={
+                form?.published
+                  ? "border-green-200 text-green-700 hover:bg-green-50"
+                  : ""
+              }
             >
               <Share2 className="w-4 h-4 mr-2" />
               {isPublishing
@@ -360,7 +387,7 @@ const FormBuilderLayoutInner: React.FC<{
 
           {/* Share Step */}
           <TabsContent value="share" className="h-full m-0">
-            <ShareStep step={builderStep} />
+            <ShareStep step={builderStep} onPublish={handlePublish} />
           </TabsContent>
         </Tabs>
       </div>

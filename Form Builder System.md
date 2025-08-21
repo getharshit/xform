@@ -658,7 +658,7 @@ function FormBuilderPage() {
     <FormBuilderLayout
       onSave={handleSave}
       onPublish={handlePublish}
-      autoSaveInterval={30000}  // 30 seconds
+      autoSaveInterval={5000}  // 30 seconds
       enablePersistence={true}
     />
   );
