@@ -171,13 +171,13 @@ const FormBuilderLayoutInner: React.FC<{
     // Check if form has fields
     if (!form?.fields || form.fields.length === 0) {
       alert("Add at least one question before publishing your form.");
-      return;
+      return false;
     }
 
     if (onPublish && form) {
       const success = await onPublish(form);
       if (!success) {
-        return;
+        return false;
       }
     } else {
       await publishForm();

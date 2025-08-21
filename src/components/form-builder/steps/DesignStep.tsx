@@ -21,6 +21,7 @@ import { AnimationProvider } from "@/components/public-form/animation/AnimationP
 export interface DesignStepProps {
   className?: string;
   builderStep?: string; // Optional step prop for future use
+  step?: "build" | "design" | "integrate" | "share";
 }
 
 export const DesignStep: React.FC<DesignStepProps> = ({ className = "" }) => {

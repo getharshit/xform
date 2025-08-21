@@ -8,7 +8,7 @@ export interface UIPreferences {
   rightPanelCollapsed: boolean
   leftPanelWidth: number
   rightPanelWidth: number
-  activePanelTab: 'field' | 'form' | 'theme'
+  activePanelTab: 'field' | 'form' 
   builderStep: 'build' | 'design' | 'integrate' | 'share'
   previewMode: boolean
   viewportMode: 'desktop' | 'tablet' | 'mobile'
