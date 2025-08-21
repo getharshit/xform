@@ -46,12 +46,43 @@ export default function DashboardPage() {
       const formsResponse = await fetch("/api/forms");
       if (formsResponse.ok) {
         const formsData = await formsResponse.json();
-        setForms(formsData.slice(0, 5)); // Show only recent 5 forms
 
-        // Calculate stats
-        const totalForms = formsData.length;
-        const totalResponses = formsData.reduce(
-          (sum: number, form: Form) => sum + form.responseCount,
+        // 🐛 DEBUG: Check what the API is returning
+        console.log("📡 Forms API response:", formsData);
+        console.log("📡 Response type:", typeof formsData);
+        console.log("📡 Is array?", Array.isArray(formsData));
+
+        // ✅ FIX: Handle different response formats
+        let formsArray: Form[] = [];
+
+        if (Array.isArray(formsData)) {
+          // If it's directly an array
+          formsArray = formsData;
+        } else if (
+          formsData &&
+          formsData.forms &&
+          Array.isArray(formsData.forms)
+        ) {
+          // If it's wrapped in a "forms" property
+          formsArray = formsData.forms;
+        } else if (formsData && typeof formsData === "object") {
+          // If it's a single object, wrap it in an array
+          formsArray = [formsData];
+        } else {
+          // Fallback to empty array
+          console.warn("⚠️ Unexpected forms data format:", formsData);
+          formsArray = [];
+        }
+
+        console.log("✅ Processed forms array:", formsArray);
+
+        // Now safely use slice
+        setForms(formsArray.slice(0, 5)); // Show only recent 5 forms
+
+        // Calculate stats safely
+        const totalForms = formsArray.length;
+        const totalResponses = formsArray.reduce(
+          (sum: number, form: Form) => sum + (form.responseCount || 0),
           0
         );
 
@@ -61,9 +92,11 @@ export default function DashboardPage() {
           responsesToday: Math.floor(totalResponses * 0.1), // Mock: 10% of total
           averageCompletionRate: 85, // Mock completion rate
         });
+      } else {
+        console.error("❌ Forms API response not ok:", formsResponse.status);
       }
     } catch (error) {
-      console.error("Failed to load dashboard data:", error);
+      console.error("💥 Failed to load dashboard data:", error);
     } finally {
       setLoading(false);
     }

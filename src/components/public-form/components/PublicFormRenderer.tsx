@@ -64,9 +64,6 @@ const FormContent: React.FC = () => {
 
   // Add this right after the themeWrapperStyle useMemo
   React.useEffect(() => {
-    console.log("🎨 Theme wrapper style:", themeWrapperStyle);
-    console.log("🎨 Form customization:", form.customization);
-
     // Check what CSS properties are actually set
     const root = document.documentElement;
     const computedStyle = getComputedStyle(root);
@@ -181,8 +178,6 @@ export const PublicFormRenderer: React.FC<PublicFormRendererProps> = (
     // let our CSS functions handle it instead
     return defaultTheme;
   }, []);
-
-  console.log("🔍 Form customization:", props.form.customization);
 
   return (
     <ThemeProvider initialTheme={themeForProvider}>

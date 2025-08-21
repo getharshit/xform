@@ -25,6 +25,7 @@ import {
   hasMultiStepLayout,
   groupFieldsByPageBreaks,
 } from "../utils/stepDetection";
+import { BuilderProvider } from "@/components/form-builder/providers/BuilderProvider";
 
 interface FormContextValue {
   // Form configuration
@@ -402,18 +403,20 @@ export const FormProvider: React.FC<FormProviderProps> = ({
 
   return (
     <FormContext.Provider value={contextValue}>
-      <RHFFormProvider {...formMethods}>
-        {/* FIXED: Prevent default form submission and double submission */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault(); // Prevent default HTML form submission
-            // Don't call submitForm here - let components handle it manually
-          }}
-          noValidate
-        >
-          {children}
-        </form>
-      </RHFFormProvider>
+      <BuilderProvider>
+        <RHFFormProvider {...formMethods}>
+          {/* FIXED: Prevent default form submission and double submission */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault(); // Prevent default HTML form submission
+              // Don't call submitForm here - let components handle it manually
+            }}
+            noValidate
+          >
+            {children}
+          </form>
+        </RHFFormProvider>
+      </BuilderProvider>
     </FormContext.Provider>
   );
 };

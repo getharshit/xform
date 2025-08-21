@@ -31,6 +31,69 @@ import { LeftPanel } from "../panels/left-panel/LeftPanel";
 import { CenterPanel } from "../panels/center-panel/CenterPanel";
 import { RightPanel } from "../panels/right-panel/RightPanel";
 import { DesignStep } from "../steps/DesignStep";
+import { ShareStep } from "../steps/ShareStep";
+
+// const DebugPanel = () => {
+//   const { state, hasUnsavedChanges, saveForm } = useBuilder();
+
+//   React.useEffect(() => {
+//     console.log("🎯 BUILDER STATE UPDATE:", {
+//       hasForm: !!state.form,
+//       formId: state.formId,
+//       autoSaveEnabled: state.autoSave.enabled,
+//       autoSaveInterval: state.autoSave.interval,
+//       hasUnsavedChanges: hasUnsavedChanges,
+//       isSaving: state.autoSave.isSaving,
+//       lastSaved: state.autoSave.lastSaved,
+//       // ✅ ADD THESE TO DEBUG THE CONNECTION
+//       saveFormFunction: typeof saveForm,
+//       hasError: !!state.loading.error,
+//       error: state.loading.error,
+//     });
+//   }, [state, hasUnsavedChanges, saveForm]);
+
+//   const handleManualSave = () => {
+//     console.log("🖱️ MANUAL SAVE BUTTON CLICKED");
+//     console.log("🔍 saveForm function type:", typeof saveForm);
+//     saveForm()
+//       .then((result) => {
+//         console.log("💾 Save result:", result);
+//       })
+//       .catch((error) => {
+//         console.log("❌ Save error:", error);
+//       });
+//   };
+
+//   return (
+//     <div className="fixed top-4 right-4 bg-white p-4 border rounded shadow-lg z-50 max-w-xs">
+//       <h3 className="font-bold text-sm">Debug Panel</h3>
+//       <div className="text-xs space-y-1">
+//         <p>Form ID: {state.formId || "None"}</p>
+//         <p>Auto-save: {state.autoSave.enabled ? "ON" : "OFF"}</p>
+//         <p>Unsaved: {hasUnsavedChanges ? "YES" : "NO"}</p>
+//         <p>Saving: {state.autoSave.isSaving ? "YES" : "NO"}</p>
+//         <p>Save Func: {typeof saveForm}</p>
+//         {state.loading.error && (
+//           <p className="text-red-600">Error: {state.loading.error}</p>
+//         )}
+//       </div>
+//       <div className="flex gap-2 mt-2">
+//         <button
+//           onClick={handleManualSave}
+//           className="bg-blue-500 text-white px-2 py-1 rounded text-xs"
+//         >
+//           Manual Save
+//         </button>
+//         <button
+//           onClick={() => (window as any).testCustomizationSave?.()}
+//           className="bg-green-500 text-white px-2 py-1 rounded text-xs"
+//         >
+//           Test Custom
+//         </button>
+//       </div>
+//     </div>
+//   );
+// };
 
 export interface FormBuilderLayoutProps {
   initialForm?: Form;
@@ -120,6 +183,7 @@ const FormBuilderLayoutInner: React.FC<{
 
   return (
     <div className="h-screen flex flex-col bg-background">
+      {/*<DebugPanel />}
       {/* Top Navigation Bar */}
       <div className="border-b bg-card">
         <div className="flex items-center justify-between p-4">
@@ -131,6 +195,24 @@ const FormBuilderLayoutInner: React.FC<{
             <div className="flex items-center gap-2">
               <Badge variant="outline">
                 {fieldCount} field{fieldCount !== 1 ? "s" : ""}
+              </Badge>
+
+              {/* 🆕 ADD PUBLISH STATUS BADGE */}
+              <Badge
+                variant={form?.published ? "default" : "secondary"}
+                className="flex items-center gap-1"
+              >
+                {form?.published ? (
+                  <>
+                    <CheckCircle2 className="w-3 h-3" />
+                    Published
+                  </>
+                ) : (
+                  <>
+                    <AlertCircle className="w-3 h-3" />
+                    Draft
+                  </>
+                )}
               </Badge>
 
               {/* Auto-save status */}
@@ -204,9 +286,14 @@ const FormBuilderLayoutInner: React.FC<{
               size="sm"
               onClick={handlePublish}
               disabled={isPublishing || !form}
+              variant={form?.published ? "outline" : "default"}
             >
               <Share2 className="w-4 h-4 mr-2" />
-              {isPublishing ? "Publishing..." : "Publish"}
+              {isPublishing
+                ? "Publishing..."
+                : form?.published
+                ? "Published"
+                : "Publish"}
             </Button>
           </div>
         </div>
@@ -273,15 +360,7 @@ const FormBuilderLayoutInner: React.FC<{
 
           {/* Share Step */}
           <TabsContent value="share" className="h-full m-0">
-            <div className="h-full flex items-center justify-center">
-              <Card className="p-8 text-center">
-                <Share2 className="w-12 h-12 mx-auto mb-4 text-muted-foreground" />
-                <h3 className="text-lg font-semibold mb-2">Share Step</h3>
-                <p className="text-muted-foreground">
-                  Sharing options coming soon
-                </p>
-              </Card>
-            </div>
+            <ShareStep step={builderStep} />
           </TabsContent>
         </Tabs>
       </div>
@@ -331,7 +410,7 @@ export const FormBuilderLayout: React.FC<FormBuilderLayoutProps> = ({
         onFormPublish={onPublish}
         onError={onError}
         enablePersistence={true}
-        autoSaveInterval={30000} // 30 seconds
+        autoSaveInterval={5000} // 30 seconds
       >
         <FormBuilderLayoutInner
           onSave={onSave}

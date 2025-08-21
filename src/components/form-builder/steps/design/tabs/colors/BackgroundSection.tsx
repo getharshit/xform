@@ -94,16 +94,6 @@ export const BackgroundSection: React.FC<BackgroundSectionProps> = ({
     currentColors.backgroundGradientDirection || "135deg";
   const animatedConfig = currentColors.animatedConfig;
 
-  console.log("🎨 BackgroundSection Debug:", {
-    backgroundType,
-    backgroundColor,
-    gradientColor1,
-    gradientColor2,
-    gradientDirection,
-    animatedConfig,
-    currentColors,
-  });
-
   const handleBackgroundTypeChange = (type: string) => {
     onColorChange("backgroundType", type);
 

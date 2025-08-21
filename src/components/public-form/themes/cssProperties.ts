@@ -64,7 +64,6 @@ export const customizationToCSSProperties = (customization?: any): CSSCustomProp
   const fontWeight = typography.fontWeight || {};
   const animations = customization?.animations || {};
 
-  console.log('🔧 CSS Generator received customization:', customization);
 
   // Generate basic properties with fallbacks to defaultTheme - use any type to avoid interface issues
   const basicProperties: any = {

@@ -305,6 +305,9 @@ export interface Form {
   settings?: FormSettings;
   createdAt: Date | string;
   updatedAt: Date | string;
+    published?: boolean;           // 🆕 ADD THIS
+  publishedAt?: Date | string;
+  responseCount?: number;
 }
 
 // Form response

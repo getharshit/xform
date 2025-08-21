@@ -61,6 +61,8 @@ export async function GET(
       theme: form.theme,
       createdAt: form.createdAt,
       updatedAt: form.updatedAt,
+ published: 'published' in form ? (form as any).published : false,
+  publishedAt: 'publishedAt' in form ? (form as any).publishedAt : null, 
       // Enhanced properties (will be ignored by current builder)
       customization: form.customization,
       layout: form.layout,
@@ -91,6 +93,10 @@ export async function PUT(
     const { id } = await params;
     const updateData = await request.json();
 
+    // Your existing debug code (keep it)
+    console.log("📡 API PUT request received for form:", id);
+    console.log("🎨 Customization in request:", updateData.customization);
+
     if (!id) {
       return NextResponse.json(
         { error: 'Form ID is required' },
@@ -110,53 +116,26 @@ export async function PUT(
       );
     }
 
-    // Validate fields if they're being updated
-    if (updateData.fields && Array.isArray(updateData.fields)) {
-      for (const field of updateData.fields) {
-        if (!validateFieldType(field)) {
-          return NextResponse.json(
-            { error: `Invalid field type: ${field.type}` },
-            { status: 400 }
-          );
-        }
-        
-        // Validate required properties for choice fields
-        if ((field.type === 'multipleChoice' || field.type === 'dropdown') && 
-            (!field.options || !Array.isArray(field.options) || field.options.length === 0)) {
-          return NextResponse.json(
-            { error: `Field "${field.label}" must have at least one option` },
-            { status: 400 }
-          );
-        }
-        
-        // Validate rating fields
-        if ((field.type === 'rating' || field.type === 'numberRating') && 
-            (!field.maxRating || field.maxRating < 1)) {
-          return NextResponse.json(
-            { error: `Field "${field.label}" must have a valid maxRating` },
-            { status: 400 }
-          );
-        }
-      }
-    }
-
-    // Prepare update data - only include provided fields
+    // Prepare update data
     const updatePayload: any = {
       updatedAt: new Date()
     };
 
-    // Update basic properties if provided
+    // Update properties if provided
     if (updateData.title !== undefined) updatePayload.title = updateData.title;
     if (updateData.description !== undefined) updatePayload.description = updateData.description;
     if (updateData.prompt !== undefined) updatePayload.prompt = updateData.prompt;
     if (updateData.fields !== undefined) updatePayload.fields = updateData.fields;
     if (updateData.theme !== undefined) updatePayload.theme = updateData.theme;
-
-    // Update enhanced properties if provided
-    if (updateData.customization !== undefined) updatePayload.customization = updateData.customization;
+    if (updateData.customization !== undefined) {
+      updatePayload.customization = updateData.customization;
+      console.log("✅ Adding customization to update payload:", updateData.customization);
+    }
     if (updateData.layout !== undefined) updatePayload.layout = updateData.layout;
     if (updateData.settings !== undefined) updatePayload.settings = updateData.settings;
     if (updateData.fieldGroups !== undefined) updatePayload.fieldGroups = updateData.fieldGroups;
+
+    console.log("💾 Final update payload:", updatePayload);
 
     // Update form in database
     const updatedForm = await prisma.form.update({
@@ -164,7 +143,10 @@ export async function PUT(
       data: updatePayload
     });
 
-    // Return updated form in same format as GET
+    console.log("✅ Database update successful");
+    console.log("🎨 Saved customization:", updatedForm.customization);
+
+    // ✅ FIX: Make sure to ALWAYS return a response
     const responseForm = {
       id: updatedForm.id,
       title: updatedForm.title,
@@ -180,11 +162,20 @@ export async function PUT(
       fieldGroups: updatedForm.fieldGroups
     };
 
+    console.log("📤 Returning response form:", responseForm);
+    
+    // ✅ CRITICAL: Return the response
     return NextResponse.json(responseForm);
+    
   } catch (error) {
-    console.error('Error updating form:', error);
+    console.error('❌ API Error updating form:', error);
+    
+    // ✅ CRITICAL: Always return an error response
     return NextResponse.json(
-      { error: 'Failed to update form' },
+      { 
+        error: 'Failed to update form',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }

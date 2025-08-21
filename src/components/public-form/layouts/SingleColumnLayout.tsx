@@ -106,12 +106,6 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
         .trim()
         .replace(/['"]/g, "");
 
-      console.log("🎨 Background update triggered:", {
-        backgroundType,
-        backgroundValue,
-        backgroundPattern,
-      });
-
       let newStyle: React.CSSProperties = {};
 
       if (

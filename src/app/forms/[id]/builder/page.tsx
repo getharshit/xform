@@ -63,6 +63,54 @@ export default function FormBuilderPage() {
     }
   }, [formId]);
 
+  useEffect(() => {
+    console.log("🔍 BUILDER PAGE LOADED");
+    console.log("📋 Form ID:", formId);
+    console.log("🎨 Current form:", form);
+
+    // Check if we have the conversion functions
+    console.log("🔄 Conversion functions available:", {
+      convertBuilderFormToAPIForm: typeof convertBuilderFormToAPIForm,
+      convertAPIFormToBuilderForm: typeof convertAPIFormToBuilderForm,
+    });
+  }, [formId, form]);
+
+  // 🆕 ADD THIS TEST FUNCTION
+  const testCustomizationSave = () => {
+    console.log("🧪 TESTING CUSTOMIZATION SAVE");
+
+    if (form) {
+      const updatedForm = {
+        ...form,
+        customization: {
+          ...form.customization,
+          colors: {
+            ...form.customization?.colors,
+            primary: "#FF0000", // Test color change
+          },
+        },
+      };
+
+      console.log("🧪 Setting form with test customization:", updatedForm);
+      setForm(updatedForm);
+
+      // This should trigger auto-save
+      setTimeout(() => {
+        console.log("🧪 Checking if auto-save was triggered...");
+      }, 1000);
+    }
+  };
+
+  // 🆕 ADD THIS useEffect to expose the test function globally
+  useEffect(() => {
+    // Make the test function available in browser console
+    (window as any).testCustomizationSave = testCustomizationSave;
+
+    return () => {
+      delete (window as any).testCustomizationSave;
+    };
+  }, [form]);
+
   const loadForm = async () => {
     try {
       setLoading(true);
@@ -88,8 +136,12 @@ export default function FormBuilderPage() {
   };
 
   const handleSave = async (formData: BuilderForm): Promise<boolean> => {
+    console.log("🚀 MANUAL SAVE TRIGGERED");
+    console.log("🎨 Form customization:", formData.customization);
+
     try {
       const apiFormData = convertBuilderFormToAPIForm(formData);
+      console.log("🔄 Converted API form data:", apiFormData);
 
       const response = await fetch(`/api/forms/${formId}`, {
         method: "PUT",
@@ -99,35 +151,87 @@ export default function FormBuilderPage() {
         body: JSON.stringify(apiFormData),
       });
 
+      console.log("📡 API Response status:", response.status);
+      console.log("📡 API Response ok:", response.ok);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to save form");
+        // ✅ BETTER ERROR HANDLING: Try to get error message
+        let errorMessage = "Failed to save form";
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.error || errorMessage;
+          console.error("❌ API Error response:", errorData);
+        } catch (jsonError) {
+          // If JSON parsing fails, try to get text
+          try {
+            const errorText = await response.text();
+            console.error("❌ API Error text:", errorText);
+            errorMessage = `Server error (${response.status})`;
+          } catch (textError) {
+            console.error("❌ Could not parse error response");
+          }
+        }
+        throw new Error(errorMessage);
       }
 
+      // ✅ BETTER SUCCESS HANDLING: Handle the response properly
       const updatedAPIForm: APIForm = await response.json();
+      console.log("✅ API returned updated form:", updatedAPIForm);
+      console.log(
+        "🎨 API returned customization:",
+        updatedAPIForm.customization
+      );
+
       const updatedBuilderForm = convertAPIFormToBuilderForm(updatedAPIForm);
       setForm(updatedBuilderForm);
 
       return true;
     } catch (err) {
-      console.error("Save error:", err);
+      console.error("💥 Save error:", err);
       return false;
     }
   };
 
   const handlePublish = async (formData: BuilderForm): Promise<boolean> => {
     try {
+      console.log("🚀 PUBLISHING FORM");
+
       // First save the form to ensure it's up to date
       const saveSuccess = await handleSave(formData);
       if (!saveSuccess) {
         return false;
       }
 
-      // For now, publishing is just saving the form since we don't have a separate publish endpoint
-      // You can add additional publish logic here if needed
+      // Call the publish endpoint
+      const response = await fetch(`/api/forms/${formId}/publish`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to publish form");
+      }
+
+      const result = await response.json();
+      console.log("✅ Form published:", result);
+
+      // Update the form state to reflect published status
+      setForm((prev) =>
+        prev
+          ? {
+              ...prev,
+              published: true,
+              publishedAt: new Date().toISOString(),
+            }
+          : null
+      );
+
       return true;
     } catch (err) {
-      console.error("Publish error:", err);
+      console.error("💥 Publish error:", err);
       return false;
     }
   };
@@ -221,9 +325,14 @@ export default function FormBuilderPage() {
         onFormPublish={handlePublish}
         onError={handleError}
         enablePersistence={true}
-        autoSaveInterval={20000} // 20 seconds
+        autoSaveInterval={5000} // 20 seconds
       >
-        <FormBuilderLayout onPreview={handlePreview} />
+        <FormBuilderLayout
+          onSave={handleSave} // ✅ Add this
+          onPublish={handlePublish} // ✅ Add this
+          onPreview={handlePreview}
+          onError={handleError}
+        />
       </BuilderProvider>
     </div>
   );

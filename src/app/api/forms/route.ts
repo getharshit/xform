@@ -1,3 +1,5 @@
+// src/app/api/forms/route.ts - Fix the GET response format
+
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db';
 import { generateUniqueFormId } from '@/lib/id-generator';
@@ -18,7 +20,7 @@ function validateFieldType(field: any): boolean {
 
 export async function GET(request: NextRequest) {
   try {
-    // Fetch all forms with response counts (unchanged for builder compatibility)
+    // Fetch all forms with response counts
     const forms = await prisma.form.findMany({
       orderBy: {
         createdAt: 'desc'
@@ -33,7 +35,6 @@ export async function GET(request: NextRequest) {
     });
 
     // Transform the data to include responseCount at the top level
-    // (Keep exact same format for builder compatibility)
     const formsWithResponseCount = forms.map(form => ({
       id: form.id,
       title: form.title,
@@ -44,7 +45,8 @@ export async function GET(request: NextRequest) {
       theme: form.theme
     }));
 
-    return NextResponse.json(formsWithResponseCount);
+    // FIXED: Return forms wrapped in object to match expected format
+    return NextResponse.json({ forms: formsWithResponseCount });
   } catch (error) {
     console.error('Forms fetch error:', error);
     return NextResponse.json(
@@ -109,8 +111,6 @@ export async function POST(request: NextRequest) {
 
     // Create form with enhanced database structure
     const form = await prisma.form.create({
-
-
       data: {
         id: formId,
         title,

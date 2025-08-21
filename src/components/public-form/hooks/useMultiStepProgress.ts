@@ -217,7 +217,7 @@ export const useMultiStepProgress = ({
 
   // Auto-save progress periodically
   useEffect(() => {
-    const interval = setInterval(saveProgress, 30000); // Save every 30 seconds
+    const interval = setInterval(saveProgress, 5000); // Save every 30 seconds
     return () => clearInterval(interval);
   }, [saveProgress]);
 

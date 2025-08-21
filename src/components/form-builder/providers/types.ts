@@ -180,7 +180,7 @@ export const defaultUIPreferences: UIPreferences = {
 
 export const defaultAutoSaveState: AutoSaveState = {
   enabled: true,
-  interval: 30000, // 30 seconds
+  interval: 5000, // 30 seconds
   lastSaved: null,
   isSaving: false,
   hasUnsavedChanges: false,

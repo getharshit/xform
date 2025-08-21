@@ -9,23 +9,13 @@ import {
   Edit,
   Trash2,
   Copy,
+  Badge,
 } from "lucide-react";
 import Link from "next/link";
 import { AICreateFormModal } from "@/components/form-builder/steps/AI/AICreateFormModal";
 
 // Types based on your API response
-interface Form {
-  id: string;
-  title: string;
-  description: string | null;
-  createdAt: string;
-  updatedAt: string;
-  responseCount: number;
-  theme: {
-    primaryColor?: string;
-    fontFamily?: string;
-  };
-}
+import type { Form } from "@/types/form";
 
 export default function FormsPage() {
   const [forms, setForms] = useState<Form[]>([]);
@@ -257,6 +247,12 @@ export default function FormsPage() {
                     <h3 className="text-lg font-semibold text-gray-900 mb-2">
                       {form.title}
                     </h3>
+                    {/* 🆕 ADD PUBLISH STATUS BADGE */}
+
+                    {!form.published && (
+                      <Badge className="bg-gray-100 text-gray-800">Draft</Badge>
+                    )}
+
                     {form.description && (
                       <p className="text-gray-600 mb-3 line-clamp-2">
                         {form.description}
