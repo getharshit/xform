@@ -61,15 +61,85 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
 
   // Initialize form on mount
   useEffect(() => {
-    if (initialForm) {
-      dispatch({
-        type: "SET_FORM",
-        payload: { form: initialForm, saveToHistory: false },
+    const initializeForm = async () => {
+      console.log("🔄 BuilderProvider initialization:", {
+        hasInitialForm: !!initialForm,
+        formId,
+        enablePersistence,
+        timestamp: Date.now(),
       });
-    } else if (enablePersistence) {
-      loadFromStorage();
+
+      if (initialForm) {
+        console.log("🆕 Initial form provided:", initialForm.id);
+
+        // Clear any previous form data from storage when starting with a new form
+        if (enablePersistence) {
+          console.log("🧹 Clearing storage for new form");
+          clearStorage();
+        }
+
+        // Set the new form
+        dispatch({
+          type: "SET_FORM",
+          payload: { form: initialForm, saveToHistory: false },
+        });
+
+        console.log("✅ Initial form set successfully");
+      } else if (enablePersistence && formId) {
+        console.log("📂 Loading existing form with ID:", formId);
+
+        // Check if we have matching form in storage
+        const storageData = storage.loadBuilderState();
+        console.log("📦 Storage data:", {
+          hasStorageData: !!storageData,
+          hasForm: !!storageData?.form,
+          storedFormId: storageData?.form?.id,
+          matchesFormId: storageData?.form?.id === formId,
+        });
+
+        if (storageData && storageData.form && storageData.form.id === formId) {
+          console.log("✅ Loading matching form from storage");
+          loadFromStorage();
+        } else {
+          console.log("🚫 No matching form in storage, clearing and waiting");
+          clearStorage();
+          // Don't create empty form here - wait for initialForm from parent
+        }
+      } else if (enablePersistence && !formId && !initialForm) {
+        console.log(
+          "📝 No form ID or initial form, checking for any stored form"
+        );
+
+        const storageData = storage.loadBuilderState();
+        if (storageData && storageData.form) {
+          console.log("✅ Loading any form from storage:", storageData.form.id);
+          loadFromStorage();
+        } else {
+          console.log("📝 No form found anywhere, starting with empty state");
+          // Clear storage to ensure clean state
+          clearStorage();
+        }
+      } else {
+        console.log("🚫 Persistence disabled or no form data available");
+      }
+    };
+
+    // Small delay to ensure all props are settled
+    const timeoutId = setTimeout(() => {
+      initializeForm();
+    }, 10);
+
+    return () => clearTimeout(timeoutId);
+  }, [initialForm, enablePersistence, formId]); // Keep dependencies
+
+  // 🆕 ADD: Additional effect to handle form ID changes
+  useEffect(() => {
+    // If formId changes and we have a different form loaded, clear storage
+    if (formId && state.form && state.form.id !== formId) {
+      console.log("🔄 Form ID changed, clearing storage for new form");
+      clearStorage();
     }
-  }, [initialForm, enablePersistence]);
+  }, [formId, state.form?.id]);
 
   // Enhanced auto-save setup with proper debouncing
   useEffect(() => {
@@ -417,8 +487,27 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
   );
 
   // Storage functions
+  // 🔧 ENHANCE: Replace the storage functions in BuilderProvider.tsx
+  // Find the storage functions (around lines 415-480) and enhance them:
+
+  // Enhanced storage functions with better logging and error handling
   const saveToStorage = useCallback(() => {
-    if (!enablePersistence) return;
+    if (!enablePersistence) {
+      console.log("🚫 Storage disabled, skipping save");
+      return;
+    }
+
+    if (!state.form) {
+      console.log("🚫 No form to save to storage");
+      return;
+    }
+
+    console.log("💾 Saving to storage:", {
+      formId: state.form.id,
+      fieldCount: state.form.fields?.length || 0,
+      published: state.form.published,
+      timestamp: Date.now(),
+    });
 
     const storageData = {
       form: state.form,
@@ -429,11 +518,14 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
 
     const success = storage.saveBuilderState(storageData);
     if (!success) {
+      console.error("❌ Failed to save to localStorage");
       onError?.("Failed to save to local storage");
+    } else {
+      console.log("✅ Successfully saved to storage");
     }
 
     // Also save form history
-    if (state.form) {
+    if (state.form && state.history.past.length > 0) {
       storage.saveFormHistory(
         state.history.past,
         state.history.past.length - 1
@@ -442,29 +534,50 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
   }, [state, enablePersistence, onError]);
 
   const loadFromStorage = useCallback(() => {
-    if (!enablePersistence) return;
+    if (!enablePersistence) {
+      console.log("🚫 Storage disabled, skipping load");
+      return;
+    }
+
+    console.log("📂 Attempting to load from storage");
 
     const storageData = storage.loadBuilderState();
+    console.log("📦 Storage load result:", {
+      hasData: !!storageData,
+      hasForm: !!storageData?.form,
+      formId: storageData?.form?.id,
+      fieldCount: storageData?.form?.fields?.length || 0,
+      published: storageData?.form?.published,
+    });
+
     if (storageData && storageData.form) {
+      console.log("✅ Loading form from storage:", storageData.form.id);
+
       dispatch({
         type: "LOAD_FROM_STORAGE",
         payload: {
           data: {
             form: storageData.form,
             originalForm: storageData.form,
-            ui: storageData.uiPreferences,
+            ui: storageData.uiPreferences || state.ui,
             selectedFieldId: storageData.selectedFieldId,
             autoSave: {
               ...state.autoSave,
-              lastSaved: storageData.lastSaved,
+              lastSaved: storageData.lastSaved || Date.now(),
+              hasUnsavedChanges: false, // Form from storage is considered saved
             },
           },
         },
       });
 
-      // Load form history
+      // Load form history if available
       const historyData = storage.loadFormHistory();
-      if (historyData) {
+      if (historyData && historyData.history.length > 0) {
+        console.log(
+          "📚 Loading form history:",
+          historyData.history.length,
+          "entries"
+        );
         dispatch({
           type: "LOAD_FROM_STORAGE",
           payload: {
@@ -478,15 +591,27 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
           },
         });
       }
+
+      console.log("✅ Form loaded from storage successfully");
+    } else {
+      console.log("📝 No valid form data in storage");
     }
-  }, [enablePersistence]);
+  }, [enablePersistence, state.ui, state.autoSave, state.history]);
 
   const clearStorage = useCallback(() => {
-    if (!enablePersistence) return;
+    if (!enablePersistence) {
+      console.log("🚫 Storage disabled, skipping clear");
+      return;
+    }
+
+    console.log("🧹 Clearing form builder storage");
 
     const success = storage.clear();
     if (!success) {
+      console.error("❌ Failed to clear localStorage");
       onError?.("Failed to clear local storage");
+    } else {
+      console.log("✅ Storage cleared successfully");
     }
   }, [enablePersistence, onError]);
 
@@ -573,20 +698,89 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
   }, [state.form, onFormSave, onError]);
 
   const publishForm = useCallback(async (): Promise<boolean> => {
-    if (!state.form || !onFormPublish) return false;
+    if (!state.form || !onFormPublish) {
+      console.log("❌ Cannot publish: missing form or onFormPublish");
+      return false;
+    }
 
+    console.log(
+      "🚀 BuilderProvider: Starting publish for form:",
+      state.form.id
+    );
     dispatch({ type: "SET_PUBLISHING", payload: { isPublishing: true } });
 
     try {
+      // Call the API to publish the form
+      console.log("📞 BuilderProvider: Calling onFormPublish API...");
       const success = await onFormPublish(state.form);
+
+      console.log("📊 BuilderProvider: API Response:", success);
+
       if (success) {
+        console.log(
+          "✅ BuilderProvider: API call successful, updating local state..."
+        );
+
+        const now = new Date();
+
+        // Create the updated form object
+        const updatedForm = {
+          ...state.form,
+          published: true,
+          publishedAt: now,
+          updatedAt: now,
+        };
+
+        console.log("📝 BuilderProvider: New form state:", {
+          id: updatedForm.id,
+          published: updatedForm.published,
+          publishedAt: updatedForm.publishedAt,
+          fields: updatedForm.fields?.length,
+        });
+
+        // CRITICAL: Update the form state with published status
         dispatch({
           type: "SET_FORM",
-          payload: { form: state.form, saveToHistory: false },
+          payload: {
+            form: updatedForm,
+            saveToHistory: false,
+          },
         });
+
+        console.log(
+          "✅ BuilderProvider: Dispatched SET_FORM with published=true"
+        );
+
+        // Clear unsaved changes
+        dispatch({
+          type: "COMPLETE_AUTO_SAVE",
+          payload: { timestamp: Date.now() },
+        });
+
+        console.log("✅ BuilderProvider: Cleared unsaved changes");
+
+        // Force re-render by updating state again after a tiny delay
+        setTimeout(() => {
+          dispatch({
+            type: "UPDATE_FORM",
+            payload: {
+              updates: {
+                published: true,
+                publishedAt: now,
+              },
+              saveToHistory: false,
+            },
+          });
+          console.log("✅ BuilderProvider: Second update dispatched");
+        }, 50);
+
+        return true;
+      } else {
+        console.error("❌ BuilderProvider: API call failed");
+        return false;
       }
-      return success;
     } catch (error) {
+      console.error("❌ BuilderProvider: Error in publish process:", error);
       const errorMessage =
         error instanceof Error ? error.message : "Publish failed";
       dispatch({ type: "SET_ERROR", payload: { error: errorMessage } });
@@ -594,6 +788,7 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
       return false;
     } finally {
       dispatch({ type: "SET_PUBLISHING", payload: { isPublishing: false } });
+      console.log("🏁 BuilderProvider: Publish process finished");
     }
   }, [state.form, onFormPublish, onError]);
 
@@ -639,16 +834,66 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
   // Helper function to add field by type
   const addFieldByType = useCallback(
     (fieldType: string, index?: number) => {
+      console.log("🎯 addFieldByType called:", {
+        fieldType,
+        index,
+        hasForm: !!state.form,
+      });
+
+      // If no form exists, create one first
+      if (!state.form) {
+        console.log("📝 No form exists, creating new form first...");
+
+        const newForm: Form = {
+          id: `form-${Date.now()}`, // Temporary ID
+          title: "Untitled Form",
+          description: "",
+          fields: [],
+          published: false,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+          theme: {},
+          customization: {},
+        };
+
+        // Set the form first
+        dispatch({
+          type: "SET_FORM",
+          payload: { form: newForm, saveToHistory: false },
+        });
+
+        // Then add the field using the new form
+        const template = getTemplateByType(fieldType as any);
+        if (!template) {
+          onError?.(`Unknown field type: ${fieldType}`);
+          return;
+        }
+
+        const field = createFieldFromTemplate(template, []);
+
+        // Add field to the new form
+        dispatch({
+          type: "ADD_FIELD",
+          payload: { field, index },
+        });
+
+        console.log("✅ Created new form and added field:", fieldType);
+        return;
+      }
+
+      // Form exists, proceed normally
       const template = getTemplateByType(fieldType as any);
       if (!template) {
         onError?.(`Unknown field type: ${fieldType}`);
         return;
       }
 
-      const field = createFieldFromTemplate(template, state.form?.fields || []);
+      const field = createFieldFromTemplate(template, state.form.fields || []);
       addField(field, index);
+
+      console.log("✅ Added field to existing form:", fieldType);
     },
-    [state.form?.fields, addField, onError]
+    [state.form, addField, onError, dispatch]
   );
 
   const contextValue: BuilderContextValue = {

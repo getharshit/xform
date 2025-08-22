@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { AICreateFormModal } from "@/components/form-builder/steps/AI/AICreateFormModal";
+import { toast, Toaster } from "sonner";
 
 // Types based on your API response
 import type { Form } from "@/types/form";
@@ -75,7 +76,7 @@ export default function FormsPage() {
       // Remove from local state
       setForms(forms.filter((form) => form.id !== formId));
     } catch (err) {
-      alert(
+      toast.error(
         "Failed to delete form: " +
           (err instanceof Error ? err.message : "Unknown error")
       );
@@ -115,7 +116,7 @@ export default function FormsPage() {
       // Refresh forms list
       fetchForms();
     } catch (err) {
-      alert(
+      toast.error(
         "Failed to duplicate form: " +
           (err instanceof Error ? err.message : "Unknown error")
       );
@@ -347,7 +348,7 @@ function CreateFormModal({
     e.preventDefault();
 
     if (!title.trim()) {
-      alert("Please enter a form title");
+      toast.error("Please enter a form title");
       return;
     }
 
@@ -379,7 +380,7 @@ function CreateFormModal({
       // Redirect to form builder
       window.location.href = `/forms/${newForm.id}/builder`;
     } catch (err) {
-      alert(
+      toast.error(
         "Failed to create form: " +
           (err instanceof Error ? err.message : "Unknown error")
       );

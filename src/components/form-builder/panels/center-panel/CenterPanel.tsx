@@ -39,6 +39,7 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({
       ui: { viewportMode },
       selectedFieldId,
     },
+    dispatch,
     addFieldByType,
     selectField,
     saveForm,
@@ -65,9 +66,49 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({
     }
   };
 
-  const handleAddField = () => {
-    // Default to adding a short text field
-    addFieldByType("shortText");
+  const handleAddField = (fieldType: string = "shortText") => {
+    console.log("🎯 CenterPanel: handleAddField called with:", fieldType);
+    console.log("🔍 Current form state:", {
+      hasForm: !!form,
+      formId: form?.id,
+      fieldCount: form?.fields?.length || 0,
+    });
+
+    // If no form exists, create one first
+    if (!form) {
+      console.log("📝 No form exists in CenterPanel, creating new form...");
+
+      const newForm = {
+        id: `form-${Date.now()}`, // Temporary ID
+        title: "Untitled Form",
+        description: "",
+        fields: [],
+        published: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        theme: {},
+        customization: {},
+      };
+
+      // Create form using the context
+      dispatch({
+        type: "SET_FORM",
+        payload: { form: newForm, saveToHistory: false },
+      });
+
+      // Small delay to ensure form is set, then add field
+      setTimeout(() => {
+        console.log(
+          "✅ Form created in CenterPanel, now adding field:",
+          fieldType
+        );
+        addFieldByType(fieldType);
+      }, 10);
+    } else {
+      // Form exists, add field directly
+      console.log("✅ Form exists in CenterPanel, adding field:", fieldType);
+      addFieldByType(fieldType);
+    }
   };
 
   const handlePreviewToggle = () => {

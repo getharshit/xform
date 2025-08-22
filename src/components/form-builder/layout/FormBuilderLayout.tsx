@@ -32,6 +32,7 @@ import { CenterPanel } from "../panels/center-panel/CenterPanel";
 import { RightPanel } from "../panels/right-panel/RightPanel";
 import { DesignStep } from "../steps/DesignStep";
 import { ShareStep } from "../steps/ShareStep";
+import { toast } from "sonner";
 
 // const DebugPanel = () => {
 //   const { state, hasUnsavedChanges, saveForm } = useBuilder();
@@ -148,7 +149,7 @@ const FormBuilderLayoutInner: React.FC<{
     ) {
       // If trying to go to share step but form has no fields, show a warning
       if (value === "share" && (!form?.fields || form.fields.length === 0)) {
-        alert("Add at least one question before sharing your form.");
+        toast.error("Add at least one question before sharing your form.");
         return;
       }
 
@@ -170,7 +171,7 @@ const FormBuilderLayoutInner: React.FC<{
   const handlePublish = async () => {
     // Check if form has fields
     if (!form?.fields || form.fields.length === 0) {
-      alert("Add at least one question before publishing your form.");
+      toast.error("Add at least one question before publishing your form.");
       return false;
     }
 

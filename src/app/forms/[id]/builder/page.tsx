@@ -192,17 +192,15 @@ export default function FormBuilderPage() {
     }
   };
 
-  const handlePublish = async (formData: BuilderForm): Promise<boolean> => {
+  const handlePublish = async (): Promise<boolean> => {
+    if (!formId) {
+      console.error("❌ No form ID available for publishing");
+      return false;
+    }
+
     try {
-      console.log("🚀 PUBLISHING FORM");
+      console.log("🚀 Publishing form:", formId);
 
-      // First save the form to ensure it's up to date
-      const saveSuccess = await handleSave(formData);
-      if (!saveSuccess) {
-        return false;
-      }
-
-      // Call the publish endpoint
       const response = await fetch(`/api/forms/${formId}/publish`, {
         method: "POST",
         headers: {
@@ -210,28 +208,20 @@ export default function FormBuilderPage() {
         },
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to publish form");
-      }
-
       const result = await response.json();
       console.log("✅ Form published:", result);
 
-      // Update the form state to reflect published status
-      setForm((prev) =>
-        prev
-          ? {
-              ...prev,
-              published: true,
-              publishedAt: new Date().toISOString(),
-            }
-          : null
-      );
-
-      return true;
-    } catch (err) {
-      console.error("💥 Publish error:", err);
+      if (response.ok && result.success) {
+        // ✅ CRITICAL: Return true for success
+        return true;
+      } else {
+        console.error("❌ Publish failed:", result.error || "Unknown error");
+        // ✅ CRITICAL: Return false for failure
+        return false;
+      }
+    } catch (error) {
+      console.error("❌ Publish error:", error);
+      // ✅ CRITICAL: Return false for errors
       return false;
     }
   };

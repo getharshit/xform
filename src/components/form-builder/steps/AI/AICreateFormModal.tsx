@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { toast } from "sonner";
 
 interface AICreateFormModalProps {
   onClose: () => void;
@@ -49,7 +50,7 @@ export function AICreateFormModal({
       // Redirect to form builder
       window.location.href = `/forms/${newForm.id}/builder`;
     } catch (err) {
-      alert(
+      toast.error(
         "Failed to generate form: " +
           (err instanceof Error ? err.message : "Unknown error")
       );

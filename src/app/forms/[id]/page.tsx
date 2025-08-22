@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileQuestion, ArrowLeft, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { toast } from "sonner";
 
 // Simple Skeleton component if not available in UI
 const Skeleton = ({ className }: { className?: string }) => (
@@ -225,7 +226,9 @@ export default function FormPage({ params, searchParams }: FormPageProps) {
   const isPreviewMode = !form?.published;
   const handlePreviewSubmit = async (formData: Record<string, any>) => {
     // For preview mode, just show a message instead of actually submitting
-    alert("This is preview mode. Publish your form to collect real responses!");
+    toast.error(
+      "This is preview mode. Publish your form to collect real responses!"
+    );
     return;
   };
 
