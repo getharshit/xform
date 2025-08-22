@@ -158,11 +158,6 @@ export const AnimationsTab: React.FC = () => {
   };
 
   // Get current preset
-  const currentPreset =
-    animationIntensityOptions.find(
-      (option) =>
-        option.value === (formAnimations.intensity || config.intensity)
-    ) || animationIntensityOptions[1]; // Default to "subtle"
 
   return (
     <ScrollArea className="h-full">
@@ -185,68 +180,6 @@ export const AnimationsTab: React.FC = () => {
             Reset
           </Button>
         </div>
-
-        {/* Enable/Disable Animations */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <Label className="text-sm font-medium">Enable Animations</Label>
-                <p className="text-xs text-muted-foreground">
-                  Turn form animations on or off
-                </p>
-              </div>
-              <Switch
-                checked={formAnimations.enabled !== false}
-                onCheckedChange={handleEnabledToggle}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Animation Intensity */}
-        <Card>
-          <CardContent className="p-4 space-y-4">
-            <div>
-              <Label className="text-sm font-medium">Animation Intensity</Label>
-              <p className="text-xs text-muted-foreground">
-                Choose how animated your form feels
-              </p>
-            </div>
-
-            <div className="space-y-3">
-              {animationIntensityOptions.map((option) => (
-                <div
-                  key={option.value}
-                  className={`p-3 rounded-lg border cursor-pointer transition-colors ${
-                    currentPreset.value === option.value
-                      ? "border-primary bg-primary/5"
-                      : "border-border hover:border-primary/50"
-                  }`}
-                  onClick={() => handleIntensityChange(option.value)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-medium text-sm">{option.name}</div>
-                      <div className="text-xs text-muted-foreground">
-                        {option.description}
-                      </div>
-                    </div>
-                    <Badge
-                      variant={
-                        currentPreset.value === option.value
-                          ? "default"
-                          : "secondary"
-                      }
-                    >
-                      {Math.round(option.multiplier * 100)}%
-                    </Badge>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
 
         {isReducedMotion && (
           <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-lg">

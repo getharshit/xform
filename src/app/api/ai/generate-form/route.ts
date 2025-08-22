@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { generateFormFromPrompt } from '@/lib/ai/form-generator';
 import { prisma } from '@/lib/db';
 import { Prisma } from '@prisma/client';
+import { generateUniqueFormId } from '@/lib/id-generator';
 
 export async function POST(request: NextRequest) {
   try {
@@ -50,6 +51,7 @@ export async function POST(request: NextRequest) {
 
     // Create form in database
     const formData: Prisma.FormCreateInput = {
+       id: await generateUniqueFormId(),
       title: generatedForm.title,
       description: generatedForm.description,
       prompt: prompt.trim(), // Store the original prompt

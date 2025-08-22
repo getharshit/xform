@@ -16,7 +16,7 @@ import { AICreateFormModal } from "@/components/form-builder/steps/AI/AICreateFo
 import { toast, Toaster } from "sonner";
 
 // Types based on your API response
-import type { Form } from "@/types/form";
+import type { Form } from "@/types";
 
 export default function FormsPage() {
   const [forms, setForms] = useState<Form[]>([]);

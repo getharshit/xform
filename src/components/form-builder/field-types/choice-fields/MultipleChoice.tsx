@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { GripVertical, Plus, X } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import { FormField } from "@/types/form";
+import { FormField } from "@/types";
 import {
   BaseQuestionTile,
   BaseQuestionTileProps,

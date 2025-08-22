@@ -12,7 +12,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { FileText, Settings } from "lucide-react";
-import { FormField } from "@/types/form";
+import { FormField } from "@/types";
 import {
   getFieldConfig,
   getFieldPropertySchema,

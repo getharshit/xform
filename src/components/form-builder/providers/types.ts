@@ -1,6 +1,6 @@
 // src/components/form-builder/providers/types.ts
 
-import { Form, FormField } from '@/types/form'
+import { Form, FormField } from '@/types'
 
 // UI Preferences
 export interface UIPreferences {

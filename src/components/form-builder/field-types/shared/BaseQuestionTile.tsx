@@ -27,7 +27,7 @@ import {
   Copy,
   Trash2,
 } from "lucide-react";
-import { FormField } from "@/types/form";
+import { FormField } from "@/types";
 import { toast } from "sonner";
 
 // Field type icon mapping

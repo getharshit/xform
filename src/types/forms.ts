@@ -56,6 +56,13 @@ export interface FormSettings {
   maxSubmissionsPerHour?: number;       // Maximum submissions per hour
   enableCaptcha?: boolean;              // Enable CAPTCHA verification
   captchaProvider?: 'recaptcha' | 'hcaptcha' | 'turnstile'; // CAPTCHA provider
+    thankYouMessage?: string;
+  requireCaptcha?: boolean;
+  encryptData?: boolean;
+  acceptResponses?: boolean;
+  closedMessage?: string;
+  responseLimit?: number;
+  autoCloseDate?: string | Date;
 }
 
 /**
@@ -121,7 +128,7 @@ export interface Form {
   fieldGroups?: FieldGroup[];           // Multi-step form groups
   
   // Visual and behavioral configuration
-  theme: FormTheme;                     // Theme configuration
+  theme?: FormTheme;                     // Theme configuration
   customization?: FormCustomization;    // Advanced customization
   layout?: FormLayoutConfig;            // Layout configuration
   settings?: FormSettings;              // Form settings
@@ -129,6 +136,9 @@ export interface Form {
   // Metadata and tracking
   createdAt: Date | string;
   updatedAt: Date | string;
+    published?: boolean;           // 🆕 ADD THIS
+  publishedAt?: Date | string;
+  responseCount?: number;
   
   // Extended metadata (optional)
   metadata?: Partial<FormMetadata>;
@@ -151,6 +161,9 @@ export interface LegacyForm {
   settings?: Partial<FormSettings>;     // Partial for backward compatibility
   createdAt: Date | string;
   updatedAt: Date | string;
+   published?: boolean;           
+  publishedAt?: Date | string;   
+  responseCount?: number;  
 }
 
 /**

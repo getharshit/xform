@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { NavigationConfig } from "../types";
+import { NavigationConfig } from "@/types";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface FormNavigationProps {
@@ -80,7 +80,7 @@ export const FormNavigation: React.FC<FormNavigationProps> = ({
               }}
             >
               <ChevronLeft className="w-4 h-4" />
-              {config.buttonLabels.back}
+              {config.buttonLabels?.back}
             </button>
           )}
         </div>
@@ -154,7 +154,7 @@ export const FormNavigation: React.FC<FormNavigationProps> = ({
                     e.currentTarget.style.outline = "none";
                   }}
                 >
-                  {isSubmitting ? "Submitting..." : config.buttonLabels.submit}
+                  {isSubmitting ? "Submitting..." : config.buttonLabels?.submit}
                 </button>
               )
             : config.showNextButton && (
@@ -206,7 +206,7 @@ export const FormNavigation: React.FC<FormNavigationProps> = ({
                     e.currentTarget.style.outline = "none";
                   }}
                 >
-                  {config.buttonLabels.next}
+                  {config.buttonLabels?.next}
                   <ChevronRight className="w-4 h-4" />
                 </button>
               )}

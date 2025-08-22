@@ -1,5 +1,5 @@
 // Validation utilities
-import { Form, FormField } from '@/types/form'
+import { Form, FormField } from '@/types'
 
 export const validateForm = (form: Form): string[] => {
   const errors: string[] = []

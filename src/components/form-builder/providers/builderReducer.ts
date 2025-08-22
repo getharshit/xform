@@ -1,6 +1,6 @@
 // src/components/form-builder/providers/builderReducer.ts
 
-import { Form, FormField } from '@/types/form'
+import { Form, FormField } from '@/types'
 import { BuilderState, BuilderAction, defaultHistoryState } from './types'
 import { generateFieldId } from '../utils/field-templates'
 import { toast } from "sonner"

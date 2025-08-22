@@ -3,6 +3,7 @@
 "use client";
 
 import React from "react";
+import { useState } from "react";
 import {
   ResizablePanelGroup,
   ResizablePanel,
@@ -36,8 +37,8 @@ export const DesignStep: React.FC<DesignStepProps> = ({ className = "" }) => {
   } = useBuilder();
 
   // Local state for design-specific tabs
-  const [activeDesignTab, setActiveDesignTab] = React.useState<
-    "themes" | "colors" | "typography" | "layout" | "animations"
+  const [activeTab, setActiveTab] = useState<
+    "colors" | "typography" | "borders" | "animations"
   >("colors");
 
   // Check if design step should be accessible
@@ -71,7 +72,7 @@ export const DesignStep: React.FC<DesignStepProps> = ({ className = "" }) => {
   React.useEffect(() => {
     if (builderStep === "design") {
       // Design step manages its own tabs independently
-      setActiveDesignTab("colors");
+      setActiveTab("colors");
     }
   }, [builderStep]);
 
@@ -99,8 +100,8 @@ export const DesignStep: React.FC<DesignStepProps> = ({ className = "" }) => {
                 <DesignRightPanel
                   collapsed={rightPanelCollapsed}
                   onToggleCollapse={toggleRightPanel}
-                  activeTab={activeDesignTab}
-                  onTabChange={setActiveDesignTab}
+                  activeTab={activeTab}
+                  onTabChange={setActiveTab}
                 />
               </ResizablePanel>
             </>

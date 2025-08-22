@@ -4,7 +4,7 @@
 
 import { useState, useEffect, use } from "react";
 import { PublicFormRenderer } from "@/components/public-form";
-import type { Form } from "@/types/form";
+import type { Form } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileQuestion, ArrowLeft, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";

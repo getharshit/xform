@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ExtendedForm, FormState, ProgressConfig } from "../types";
+import { ExtendedForm, FormState, ProgressConfig } from "@/types";
 import { useFormContext } from "../providers/FormProvider";
 import { FormQuestion } from "../components/FormQuestion";
 import { StepIndicator } from "../components/StepIndicator";
@@ -400,7 +400,7 @@ export const MultiStepLayout: React.FC<MultiStepLayoutProps> = ({
     if (!progressConfig?.type) return "horizontal";
 
     // Map progressConfig types to StepIndicator variants
-    if (form.layout.options.multiStep?.progressBarStyle === "dots") {
+    if (form.layout?.options.multiStep?.progressBarStyle === "dots") {
       return "dots";
     }
     return "horizontal";

@@ -3,7 +3,7 @@
 "use client";
 
 import React from "react";
-import { Form } from "@/types/form";
+import { Form } from "@/types";
 import { PublicFormRenderer } from "@/components/public-form";
 
 export interface FormPreviewProps {

@@ -6,7 +6,7 @@ import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { FormField } from "@/types/form";
+import { FormField } from "@/types";
 import {
   BaseQuestionTile,
   BaseQuestionTileProps,

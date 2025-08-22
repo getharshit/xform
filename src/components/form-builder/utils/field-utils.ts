@@ -1,5 +1,5 @@
 // Field manipulation utilities
-import { FormField } from '@/types/form'
+import { FormField } from '@/types'
 
 export const duplicateField = (field: FormField, existingFields: FormField[]): FormField => {
   const existingIds = existingFields.map(f => f.id)

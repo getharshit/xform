@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useController } from "react-hook-form";
-import { ExtendedFormField } from "../../types";
+import { ExtendedFormField } from "@/types";
 import { useFormContext } from "../../providers/FormProvider";
 
 interface FieldWrapperProps {

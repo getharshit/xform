@@ -3,7 +3,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAnimation, useErrorAnimation } from "../AnimationProvider";
-import { AnimatedComponentProps } from "../types";
+import { AnimatedComponentProps } from "@/types";
 
 interface AnimatedErrorMessageProps extends AnimatedComponentProps {
   isVisible: boolean;

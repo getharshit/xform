@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
-import { ExtendedFormField, FieldGroup } from '../types';
+import { ExtendedFormField, FieldGroup } from '@/types';
 
 interface StepGroup {
   id: string;
@@ -55,13 +55,14 @@ export const useStepGrouping = ({ fields, fieldGroups }: UseStepGroupingProps) =
           fields: []
         };
         stepCounter++;
-      }
-
-      // Add field to current step (unless it's a page break)
-      // We know currentStep is not null here because we just created it if it was null
-      if (field.type !== 'pageBreak' && currentStep) {
-        currentStep.fields.push(field);
-      }
+      }         // Add field to current step (unless it's a page break)
+              // We know currentStep is not null here because we just created it if it was null
+        if (field.type !== 'pageBreak') {
+          // We know currentStep is not null here because we just created it if it was null
+          if (currentStep) {
+            currentStep.fields.push(field);
+          }
+        }
     });
 
     // Add the last step if it exists and has fields

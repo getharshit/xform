@@ -4,7 +4,7 @@
 
 import React from "react";
 import { Badge } from "@/components/ui/badge";
-import { FormField } from "@/types/form";
+import { FormField } from "@/types";
 import {
   BaseQuestionTile,
   BaseQuestionTileProps,

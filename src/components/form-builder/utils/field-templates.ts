@@ -1,7 +1,7 @@
 // src/components/form-builder/utils/field-templates.ts
 
 import { FieldTemplate } from '../types/builder'
-import { FormField } from '@/types/form'
+import { FormField } from '@/types'
 // Create field from template
 // Import getFieldDefaultValues at the top of the file
 import { getFieldDefaultValues } from '../field-types/registry/fieldRegistry'

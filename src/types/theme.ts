@@ -44,19 +44,19 @@ export interface ThemeColors {
   // Primary colors
   primary: string;
   primaryHover: string;
-  primaryActive: string;
-  primaryDisabled: string;
+  primaryActive?: string;
+  primaryDisabled?: string;
   
   // Secondary colors
   secondary: string;
   secondaryHover: string;
-  secondaryActive: string;
+  secondaryActive?: string;
   
   // Background colors
   background: string;
   surface: string;
-  surfaceElevated: string;
-  overlay: string;
+  surfaceElevated?: string;
+  overlay?: string;
   
   // Background type and configuration
   backgroundType?: 'solid' | 'gradient' | 'pattern' | 'image' | 'animated';
@@ -229,15 +229,16 @@ export interface FormTheme {
   name: string;
   description?: string;
   
+  
   // Core theme configuration
-  colors: ThemeColors;
-  typography: ThemeTypography;
-  spacing: ThemeSpacing;
-  borderRadius: ThemeBorderRadius;
-  shadows: ThemeShadows;
-  transitions: ThemeTransitions;
-  breakpoints: ThemeBreakpoints;
-  zIndex: ThemeZIndex;
+  colors?: ThemeColors;
+  typography?: ThemeTypography;
+  spacing?: ThemeSpacing;
+  borderRadius?: ThemeBorderRadius;
+  shadows?: ThemeShadows;
+  transitions?: ThemeTransitions;
+  breakpoints?: ThemeBreakpoints;
+  zIndex?: ThemeZIndex;
   
   // Advanced customization integration
   customization?: FormCustomization;

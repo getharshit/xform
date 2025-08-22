@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
+import { defaultTheme } from "@/lib/defaults/defaults";
 import {
   Eye,
   EyeOff,
@@ -86,7 +87,7 @@ export const CenterPanel: React.FC<CenterPanelProps> = ({
         published: false,
         createdAt: new Date(),
         updatedAt: new Date(),
-        theme: {},
+        theme: defaultTheme,
         customization: {},
       };
 

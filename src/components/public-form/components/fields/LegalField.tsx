@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useController } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
-import { ExtendedFormField } from "../../types";
+import { ExtendedFormField } from "@/types";
 import { useFormContext } from "../../providers/FormProvider";
 import { QuestionContainer } from "./QuestionContainer";
 import { AnimatedErrorMessage } from "../../animation/components";
@@ -186,7 +186,7 @@ export const LegalField: React.FC<LegalFieldProps> = ({
                       {field.displayOptions.externalLinks.map((link, index) => (
                         <a
                           key={index}
-                          href={link.url}
+                          href={typeof link === "string" ? link : link.url}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 underline transition-colors"
@@ -202,7 +202,7 @@ export const LegalField: React.FC<LegalFieldProps> = ({
                               "var(--form-color-primary, #3B82F6)";
                           }}
                         >
-                          {link.text}
+                          {typeof link === "string" ? link : link.text}
                           <ExternalLink className="w-3 h-3" />
                         </a>
                       ))}

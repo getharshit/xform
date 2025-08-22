@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { useController } from "react-hook-form";
 import { motion, AnimatePresence } from "framer-motion";
-import { ExtendedFormField } from "../../types";
+import { ExtendedFormField } from "@/types";
 import { useFormContext } from "../../providers/FormProvider";
 import { QuestionContainer } from "./QuestionContainer";
 import { AnimatedErrorMessage } from "../../animation/components";

@@ -87,7 +87,7 @@ export interface FieldDisplayOptions {
   enableRichText?: boolean;            // Enable rich text editing for long text
   
   // Choice field specific
-  layout?: 'vertical' | 'horizontal' | 'grid'; // Layout for options
+  layout?: 'vertical' | 'horizontal'; // Layout for options
   columns?: number;                    // Number of columns for grid layout
   allowOther?: boolean;               // Allow "Other" option with text input
   otherLabel?: string;                // Custom label for "Other" option

@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import { PublicFormRendererProps, ProgressConfig } from "../types";
-import type { FormCustomization } from "@/types/form";
+import { PublicFormRendererProps, ProgressConfig } from "@/types";
+import type { FormCustomization } from "@/types";
 import { FormProvider } from "../providers/FormProvider";
 import { AnimationProvider, useAnimationFromCustomization } from "../animation";
 import { useBuilder } from "@/components/form-builder/providers/BuilderProvider";
@@ -93,16 +93,16 @@ const FormContent: React.FC = () => {
             state={formState}
             progressConfig={{
               type:
-                form.layout.options.multiStep?.progressBarStyle === "dots"
+                form.layout?.options.multiStep?.progressBarStyle === "dots"
                   ? "circle"
-                  : form.layout.options.multiStep?.progressBarStyle ===
+                  : form.layout?.options.multiStep?.progressBarStyle ===
                     "numbers"
                   ? "steps"
                   : "bar",
               position: "top",
               showPercentage: true,
               showStepLabels:
-                form.layout.options.multiStep?.showStepTitles || false,
+                form.layout?.options.multiStep?.showStepTitles || false,
               animated: true,
             }}
           >
@@ -165,12 +165,7 @@ export const PublicFormRenderer: React.FC<PublicFormRendererProps> = (
     .customization as unknown as FormCustomization;
 
   // Get animation config from customization
-  const animationConfig = {
-    intensity: customization?.animations?.intensity || "moderate",
-    enableAnimations: customization?.animations?.enableAnimations ?? true,
-    respectReducedMotion:
-      customization?.animations?.respectReducedMotion ?? true,
-  };
+  const animationConfig = {};
 
   // Create a theme-like object that works with our CSS generator
   const themeForProvider = React.useMemo(() => {

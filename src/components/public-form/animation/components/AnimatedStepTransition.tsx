@@ -3,7 +3,7 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAnimation } from "../AnimationProvider";
-import { AnimatedComponentProps } from "../types";
+import { AnimatedComponentProps } from "@/types";
 
 interface AnimatedStepTransitionProps extends AnimatedComponentProps {
   currentStep: number;

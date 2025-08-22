@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { X, Plus } from "lucide-react";
-import { FormField } from "@/types/form";
+import { FormField } from "@/types";
 import {
   BaseQuestionTile,
   BaseQuestionTileProps,

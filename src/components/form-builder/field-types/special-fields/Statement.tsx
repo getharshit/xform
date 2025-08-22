@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
-import { FormField } from "@/types/form";
+import { FormField } from "@/types";
 import {
   BaseQuestionTile,
   BaseQuestionTileProps,

@@ -17,9 +17,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   ExtendedForm,
   FormState,
-  ExtendedValidationError,
+  FieldValidationError,
   FieldGroup,
-} from "../types";
+} from "@/types";
 import { useFormValidation } from "../hooks/useFormValidation";
 import {
   hasMultiStepLayout,
@@ -50,10 +50,7 @@ interface FormContextValue {
   submitForm: () => Promise<void>;
 
   // Validation
-  validateField: (
-    fieldId: string,
-    value: any
-  ) => ExtendedValidationError | null;
+  validateField: (fieldId: string, value: any) => FieldValidationError | null;
 
   // Utilities
   getFieldValue: (fieldId: string) => any;
@@ -194,14 +191,41 @@ export const FormProvider: React.FC<FormProviderProps> = ({
 
   // Form state
   const [formState, setFormState] = React.useState<FormState>({
+    // Current state
     currentStep,
     totalSteps,
+    currentStepFields,
+
+    // Form data
     formData: getValues(),
+    initialData,
+    changedFields: new Set<string>(),
+    touchedFields: new Set<string>(),
+
+    // Validation state
     errors: [],
-    isSubmitting: false,
     isValid: rhfFormState.isValid,
-    touchedFields: new Set(),
+    isValidating: false,
+
+    // Submission state
+    isSubmitting: false,
+    isSubmitted: false,
+    submissionAttempts: 0,
+
+    // Navigation state
     visitedSteps: new Set([0]),
+    canGoBack: false,
+    canGoForward: true,
+
+    // Progress state
+    completionPercentage: 0,
+    timeSpent: 0,
+    lastActivity: new Date(),
+
+    // Auto-save state
+    isSaving: false,
+    lastSaved: undefined,
+    hasUnsavedChanges: false,
   });
 
   // Track previous form data for change detection
