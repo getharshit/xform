@@ -1,5 +1,5 @@
 // Field Editor Types
-import { FormField } from '@/types/form'
+import { FormField } from '@/types'
 
 export interface FieldEditorProps {
   field: FormField

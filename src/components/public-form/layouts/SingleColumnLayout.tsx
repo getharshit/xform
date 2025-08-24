@@ -8,7 +8,7 @@ import React, {
   useMemo,
 } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ExtendedForm, FormState, NavigationConfig } from "../types";
+import { ExtendedForm, FormState, NavigationConfig } from "@/types";
 import { useFormContext } from "../providers/FormProvider";
 import { FormQuestion } from "../components/FormQuestion";
 import {
@@ -35,47 +35,6 @@ interface SingleColumnLayoutProps {
   children?: React.ReactNode;
 }
 
-const useConnectAnimations = () => {
-  const { updateConfig } = useAnimation(); // AnimationProvider
-  const { state } = useBuilder(); // BuilderProvider
-
-  // Connect BuilderProvider animations to AnimationProvider
-  React.useEffect(() => {
-    const animations = state.form?.customization?.animations;
-    if (animations) {
-      console.log("🔗 Connecting animations:", animations);
-
-      // Map your AnimationsTab values to AnimationProvider format
-      updateConfig({
-        enabled: animations.enabled !== false,
-        intensity: animations.intensity || "moderate",
-        button: {
-          hover: {
-            scale: animations.buttonHoverScale || 1.02,
-            duration: animations.duration || 300,
-            easing: animations.easing || "ease-out",
-          },
-          tap: {
-            scale: animations.buttonTapScale || 0.98,
-            duration: animations.duration || 300,
-          },
-          disabled: {
-            opacity: 0.5,
-            duration: animations.duration || 300,
-          },
-        },
-      });
-    }
-  }, [
-    state.form?.customization?.animations?.enabled,
-    state.form?.customization?.animations?.intensity,
-    state.form?.customization?.animations?.buttonHoverScale,
-    state.form?.customization?.animations?.buttonTapScale,
-    state.form?.customization?.animations?.duration,
-    updateConfig,
-  ]);
-};
-
 export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
   form,
   state,
@@ -84,8 +43,6 @@ export const SingleColumnLayout: React.FC<SingleColumnLayoutProps> = ({
   const [backgroundStyle, setBackgroundStyle] = useState<React.CSSProperties>(
     {}
   );
-
-  useConnectAnimations();
 
   // SIMPLIFIED: Remove problematic dependencies, keep it simple
   useEffect(() => {

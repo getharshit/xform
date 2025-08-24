@@ -1,6 +1,6 @@
 // src/components/form-builder/field-types/registry/fieldRegistry.ts
 
-import { FormField } from "@/types/form";
+import { FormField } from "@/types";
 
 // Property schema interface
 export interface FieldPropertySchema {

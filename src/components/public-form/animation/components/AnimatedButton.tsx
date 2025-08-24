@@ -3,7 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useAnimation, useButtonAnimation } from "../AnimationProvider";
-import { AnimatedComponentProps } from "../types";
+import { AnimatedComponentProps } from "@/types";
 
 interface AnimatedButtonProps extends AnimatedComponentProps {
   variant?: "default" | "primary" | "secondary";

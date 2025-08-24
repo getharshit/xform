@@ -1,6 +1,6 @@
 // src/components/form-builder/utils/form-adapter.ts
 
-import { Form, FormField } from "@/types/form";
+import { Form, FormField } from "@/types";
 
 /**
  * Adapter to convert builder form format to public form renderer format

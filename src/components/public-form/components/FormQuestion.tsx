@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ExtendedFormField } from "../types";
+import { ExtendedFormField } from "@/types";
 import { useFormContext } from "../providers/FormProvider";
 import { FieldRenderer } from "./FieldRenderer";
 

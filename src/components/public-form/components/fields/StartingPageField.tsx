@@ -2,7 +2,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { ExtendedFormField } from "../../types";
+import { ExtendedFormField } from "@/types";
 import { useFormContext } from "../../providers/FormProvider";
 import { Play, Clock, Users, Shield, ArrowRight } from "lucide-react";
 

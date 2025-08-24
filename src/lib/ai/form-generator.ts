@@ -1,5 +1,6 @@
-import { ollamaClient } from './ollama-client';
-import { FormField, ExtendedFieldType } from '@/types/form';
+// src/lib/ai/form-generator.ts - FIXED VERSION
+import ollama from 'ollama'; // Assuming ollama is properly set up in your project
+import { FormField, ExtendedFieldType } from '@/types'; // FIXED: Changed from @/types/form to @/types
 
 export interface GeneratedForm {
   title: string;
@@ -71,102 +72,144 @@ const generateFieldId = (type: ExtendedFieldType, index: number, existingIds: st
   return fieldId;
 };
 
-// Validate and clean field data
-const validateAndCleanField = (field: any, index: number, existingIds: string[]): FormField => {
-  const mappedType = mapFieldType(field.type || 'text');
-  const fieldId = field.id || generateFieldId(mappedType, index, existingIds);
-  
-  // Ensure ID is unique
-  let uniqueId = fieldId;
-  let counter = 1;
-  while (existingIds.includes(uniqueId)) {
-    uniqueId = `${fieldId}-${counter}`;
-    counter++;
-  }
-  existingIds.push(uniqueId);
-
+// Create default field configuration based on type
+const createDefaultField = (type: ExtendedFieldType, id: string, label: string, description?: string): FormField => {
   const baseField: FormField = {
-    id: uniqueId,
-    type: mappedType,
-    label: field.label || `Question ${index + 1}`,
-    description: field.description || undefined,
-    required: Boolean(field.required),
-    placeholder: field.placeholder || undefined,
-    helpText: field.helpText || undefined,
+    id,
+    type,
+    label,
+    description: description || '',
+    required: false,
+    displayOptions: {
+      width: 'full',
+      showLabel: true,
+      showDescription: true,
+    },
+    validationRules: {},
   };
 
-  // Add type-specific properties
-  switch (mappedType) {
-    case 'multipleChoice':
-    case 'dropdown':
-      return {
-        ...baseField,
-        options: Array.isArray(field.options) && field.options.length > 0 
-          ? field.options 
-          : ['Option 1', 'Option 2', 'Option 3'] // Default options
-      };
-      
-    case 'numberRating':
-      return {
-        ...baseField,
-        minRating: field.minRating || 1,
-        maxRating: field.maxRating || 5
-      };
-      
+  // Add type-specific defaults
+  switch (type) {
     case 'shortText':
+      return {
+        ...baseField,
+        placeholder: 'Enter your answer',
+        maxLength: 100,
+      };
+    
     case 'longText':
       return {
         ...baseField,
-        maxLength: field.maxLength || (mappedType === 'shortText' ? 100 : 1000),
-        minLength: field.minLength || undefined,
-        validationRules: field.pattern ? {
-          pattern: field.pattern,
-          customMessage: field.customMessage || undefined
-        } : undefined
+        placeholder: 'Enter your detailed response',
+        maxLength: 500,
       };
-      
+    
     case 'email':
       return {
         ...baseField,
-        placeholder: field.placeholder || 'name@example.com'
+        placeholder: 'Enter your email address',
+        validationRules: {
+          pattern: '^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$',
+          customMessage: 'Please enter a valid email address',
+        },
       };
-      
-    case 'website':
-      return {
-        ...baseField,
-        placeholder: field.placeholder || 'https://example.com'
-      };
-      
+    
     case 'phoneNumber':
       return {
         ...baseField,
-        placeholder: field.placeholder || '(555) 123-4567'
+        placeholder: 'Enter your phone number',
+        validationRules: {
+          autoFormat: true,
+        },
       };
-      
+    
+    case 'website':
+      return {
+        ...baseField,
+        placeholder: 'https://example.com',
+        validationRules: {
+          autoAddProtocol: true,
+          allowedProtocols: ['http', 'https'],
+        },
+      };
+    
+    case 'multipleChoice':
+      return {
+        ...baseField,
+        options: ['Option 1', 'Option 2', 'Option 3'],
+        displayOptions: {
+          ...baseField.displayOptions,
+          layout: 'vertical',
+        },
+      };
+    
+    case 'dropdown':
+      return {
+        ...baseField,
+        options: ['Select an option', 'Option 1', 'Option 2', 'Option 3'],
+      };
+    
+    case 'yesNo':
+      return {
+        ...baseField,
+        options: ['Yes', 'No'],
+        displayOptions: {
+          ...baseField.displayOptions,
+          inline: true,
+        },
+      };
+    
+    case 'numberRating':
+      return {
+        ...baseField,
+        minRating: 1,
+        maxRating: 5,
+        displayStyle: 'numbers',
+      };
+    
+    case 'opinionScale':
+      return {
+        ...baseField,
+        minRating: 1,
+        maxRating: 10,
+      };
+    
     case 'fileUpload':
       return {
         ...baseField,
-        acceptedFileTypes: field.acceptedFileTypes || ['.pdf', '.doc', '.docx'],
-        maxFileSize: field.maxFileSize || 10
+        acceptedFileTypes: ['.pdf', '.doc', '.docx', '.jpg', '.png'],
+        maxFileSize: 10, // 10MB
+        helpText: 'Maximum file size: 10MB',
       };
-      
+    
     case 'statement':
       return {
         ...baseField,
-        description: field.content || field.description || 'This is a statement field.',
         displayOptions: {
-          variant: 'default'
-        }
+          ...baseField.displayOptions,
+          showLabel: false,
+        },
       };
-      
+    
     case 'legal':
       return {
         ...baseField,
-        label: field.label || 'I agree to the terms and conditions',
-        description: field.terms || field.description || 'By checking this box, you agree to our terms.',
-        required: true // Legal fields should always be required
+        required: true,
+        validationRules: {
+          requireScrollToAccept: true,
+        },
+        displayOptions: {
+          ...baseField.displayOptions,
+          links: [
+            {
+              text: 'Terms of Service',
+              url: 'https://example.com/terms',
+              external: true,
+            },
+          ],
+        },
       };
-      
+    
     default:
       return baseField;
   }
@@ -174,132 +217,108 @@ const validateAndCleanField = (field: any, index: number, existingIds: string[])
 
 export async function generateFormFromPrompt(prompt: string): Promise<GeneratedForm> {
   try {
-    console.log('Starting AI form generation with prompt:', prompt);
+    const completion = await ollama.generate({
+      model: "gemma3:12b",
+      prompt: `
+        Create a form based on this request: "${prompt}"
+        
+        Respond with a JSON object containing:
+        - title: A clear, descriptive form title
+        - description: A brief description of the form's purpose
+        - fields: An array of form fields
+        
+        For each field, include:
+        - type: One of the supported types (shortText, longText, email, website, phoneNumber, multipleChoice, dropdown, yesNo, opinionScale, numberRating, statement, legal, fileUpload)
+        - label: Clear, user-friendly field label
+        - description: Optional helpful description
+        - required: Boolean indicating if field is required
+        - options: Array of options for choice fields
+        
+        Make the form practical and user-friendly. Use appropriate field types.
+        
+        Example:
+        {
+          "title": "Customer Feedback Form",
+          "description": "Help us improve our service",
+          "fields": [
+            {
+              "type": "shortText",
+              "label": "Your Name",
+              "required": true
+            },
+            {
+              "type": "email",
+              "label": "Email Address",
+              "required": true
+            }
+          ]
+        }
+      `,
+      stream: false,
+    });
+
+    const aiResponse = completion.response;
     
-    const result = await ollamaClient.generateForm(prompt);
-    console.log('AI generated result:', result);
-    
-    if (!result || typeof result !== 'object') {
+    // Parse the AI response
+    let formData;
+    try {
+      // Extract JSON from the response
+      const jsonMatch = aiResponse.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error('No JSON found in AI response');
+      }
+      
+      formData = JSON.parse(jsonMatch[0]);
+    } catch (parseError) {
+      console.error('Failed to parse AI response:', parseError);
       throw new Error('Invalid response format from AI');
     }
 
     // Validate required fields
-    if (!result.title && !result.fields) {
-      throw new Error('AI response missing required fields (title and fields)');
+    if (!formData.title || !formData.fields || !Array.isArray(formData.fields)) {
+      throw new Error('Invalid form structure from AI');
     }
 
+    // Process fields and generate proper FormField objects
     const existingIds: string[] = [];
-    
-    // Validate and transform the fields
-    const fields: FormField[] = [];
-    if (Array.isArray(result.fields)) {
-      result.fields.forEach((field: any, index: number) => {
-        try {
-          const validatedField = validateAndCleanField(field, index, existingIds);
-          fields.push(validatedField);
-        } catch (error) {
-          console.warn(`Skipping invalid field at index ${index}:`, error);
-          // Create a fallback field
-          const fallbackField = validateAndCleanField({
-            type: 'shortText',
-            label: `Question ${index + 1}`,
-            required: false
-          }, index, existingIds);
-          fields.push(fallbackField);
-        }
-      });
-    }
+    const processedFields: FormField[] = formData.fields.map((field: any, index: number) => {
+      const fieldType = mapFieldType(field.type || 'shortText');
+      const fieldId = generateFieldId(fieldType, index, existingIds);
+      existingIds.push(fieldId);
 
-    // Ensure we have at least one field
-    if (fields.length === 0) {
-      console.warn('No valid fields generated, adding default field');
-      fields.push(validateAndCleanField({
-        type: 'shortText',
-        label: 'Your Response',
-        required: false
-      }, 0, existingIds));
-    }
+      const processedField = createDefaultField(
+        fieldType,
+        fieldId,
+        field.label || `Field ${index + 1}`,
+        field.description
+      );
 
-    const generatedForm: GeneratedForm = {
-      title: typeof result.title === 'string' ? result.title.trim() : 'AI Generated Form',
-      description: typeof result.description === 'string' ? result.description.trim() : 'Form generated by AI based on your requirements.',
-      fields
+      // Apply AI-generated properties
+      if (field.required !== undefined) {
+        processedField.required = Boolean(field.required);
+      }
+
+      if (field.options && Array.isArray(field.options)) {
+        processedField.options = field.options;
+      }
+
+      if (field.placeholder) {
+        processedField.placeholder = field.placeholder;
+      }
+
+      return processedField;
+    });
+
+    return {
+      title: formData.title,
+      description: formData.description || '',
+      fields: processedFields,
     };
-
-    console.log('Successfully generated form:', generatedForm);
-    return generatedForm;
 
   } catch (error) {
-    console.error('Form generation failed:', error);
-    
-    // Enhanced fallback form based on the prompt
-    const fallbackFields: FormField[] = [];
-    const existingIds: string[] = [];
-    
-    // Try to infer some fields from the prompt
-    const lowercasePrompt = prompt.toLowerCase();
-    
-    // Add name field if it seems like a form that would need it
-    if (lowercasePrompt.includes('name') || lowercasePrompt.includes('contact') || lowercasePrompt.includes('feedback')) {
-      fallbackFields.push(validateAndCleanField({
-        type: 'shortText',
-        label: 'Your Name',
-        required: true,
-        placeholder: 'Enter your name'
-      }, 0, existingIds));
-    }
-    
-    // Add email field for contact/feedback forms
-    if (lowercasePrompt.includes('email') || lowercasePrompt.includes('contact') || lowercasePrompt.includes('feedback')) {
-      fallbackFields.push(validateAndCleanField({
-        type: 'email',
-        label: 'Email Address',
-        required: true,
-        placeholder: 'name@example.com'
-      }, fallbackFields.length, existingIds));
-    }
-    
-    // Add rating field for feedback/survey forms
-    if (lowercasePrompt.includes('rating') || lowercasePrompt.includes('feedback') || lowercasePrompt.includes('survey') || lowercasePrompt.includes('satisfaction')) {
-      fallbackFields.push(validateAndCleanField({
-        type: 'numberRating',
-        label: 'How would you rate your experience?',
-        required: false,
-        minRating: 1,
-        maxRating: 5
-      }, fallbackFields.length, existingIds));
-    }
-    
-    // Add comment field for most forms
-    fallbackFields.push(validateAndCleanField({
-      type: 'longText',
-      label: 'Additional Comments',
-      required: false,
-      placeholder: 'Please share any additional thoughts...',
-      maxLength: 500
-    }, fallbackFields.length, existingIds));
-    
-    // If no fields were inferred, add basic fields
-    if (fallbackFields.length === 0) {
-      fallbackFields.push(
-        validateAndCleanField({
-          type: 'shortText',
-          label: 'Your Name',
-          required: true
-        }, 0, existingIds),
-        validateAndCleanField({
-          type: 'longText',
-          label: 'Your Message',
-          required: true,
-          placeholder: 'Please enter your message...'
-        }, 1, existingIds)
-      );
-    }
-    
-    return {
-      title: `Form: ${prompt.slice(0, 50)}${prompt.length > 50 ? '...' : ''}`,
-      description: 'This is a fallback form created when AI generation is unavailable. You can edit and customize it as needed.',
-      fields: fallbackFields
-    };
+    console.error('Error generating form:', error);
+    throw new Error(`Failed to generate form: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
+
+export { mapFieldType, generateFieldId, createDefaultField };

@@ -9,7 +9,7 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Plus, X, GripVertical } from "lucide-react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import { FormField } from "@/types/form";
+import { FormField } from "@/types";
 
 interface OptionsManagerProps {
   field: FormField;

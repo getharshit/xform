@@ -1,6 +1,6 @@
 // src/lib/test-api.ts
 
-import { Form, FormField } from '@/types/form'
+import { Form, FormField } from '@/types'
 
 const API_BASE = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 

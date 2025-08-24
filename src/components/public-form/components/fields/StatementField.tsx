@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { ExtendedFormField } from "../../types";
+import { ExtendedFormField } from "@/types";
 import { QuestionContainer } from "./QuestionContainer";
 import { Eye, EyeOff, Image, ExternalLink } from "lucide-react";
 

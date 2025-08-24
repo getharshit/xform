@@ -50,12 +50,13 @@ export interface AnimatedBackgroundConfig {
  */
 export interface ColorCustomization {
   // Primary brand colors
-  primary: string;           // Main brand color
-  secondary: string;         // Secondary color
+  primary?: string;           // Main brand color
+  secondary?: string;         // Secondary color
   accent?: string;           // Accent color (optional)
+
   
   // Background configuration
-  background: string;        // Form background color
+  background?: string;        // Form background color
   backgroundType?: 'solid' | 'gradient' | 'pattern' | 'image' | 'animated';
   backgroundGradientDirection?: string;     // Gradient direction
   backgroundGradientColor1?: string;        // Gradient first color
@@ -65,10 +66,10 @@ export interface ColorCustomization {
   animatedConfig?: AnimatedBackgroundConfig;
   
   // Surface and layout colors
-  surface: string;          // Card/field backgrounds
+  surface?: string;          // Card/field backgrounds
   
   // Text colors
-  text: {
+  text?: {
     primary: string;        // Main text color
     secondary: string;      // Secondary text color
     muted: string;         // Muted text color
@@ -77,7 +78,7 @@ export interface ColorCustomization {
   };
   
   // Border colors
-  border: {
+  border?: {
     default: string;       // Default border color
     focus: string;         // Focused border color
     error: string;         // Error border color
@@ -90,7 +91,7 @@ export interface ColorCustomization {
   warning?: string;         // Warning state color
   
   // Button color configurations
-  button: {
+  button?: {
     primary: {
       background: string;
       text: string;
@@ -118,10 +119,10 @@ export interface ColorCustomization {
  * Typography customization with comprehensive font control
  */
 export interface TypographyCustomization {
-  fontFamily: string;       // Primary font family
+  fontFamily?: string;       // Primary font family
   
   // Font sizes for different elements
-  fontSize: {
+  fontSize?: {
     title: number;          // Form title
     question: number;       // Question labels
     description: number;    // Descriptions
@@ -130,14 +131,14 @@ export interface TypographyCustomization {
   };
   
   // Font weights
-  fontWeight: {
+  fontWeight?: {
     title: 'normal' | 'medium' | 'semibold' | 'bold';
     question: 'normal' | 'medium' | 'semibold' | 'bold';
     description: 'normal' | 'medium' | 'semibold' | 'bold';
   };
   
   // Line heights
-  lineHeight: {
+  lineHeight?: {
     title: number;
     question: number;
     description: number;
@@ -247,10 +248,9 @@ export interface LayoutCustomization {
  * Animation and transition customization
  */
 export interface AnimationCustomization {
-  enableAnimations: boolean; // Enable/disable animations
   
   // Transition settings
-  transitions: {
+  transitions?: {
     duration: number;     // Duration in milliseconds
     easing: string;       // CSS easing function
   };
@@ -310,14 +310,21 @@ export interface BrandingCustomization {
  */
 export interface FormCustomization {
   // Core customization categories
-  typography: TypographyCustomization;
-  colors: ColorCustomization;
-  spacing: SpacingCustomization;
-  buttons: ButtonCustomization;
-  inputs: InputCustomization;
-  layout: LayoutCustomization;
-  animations: AnimationCustomization;
-  branding: BrandingCustomization;
+
+  typography?: TypographyCustomization;
+  colors?: ColorCustomization;
+  spacing?: SpacingCustomization;
+  buttons?: ButtonCustomization;
+  inputs?: InputCustomization;
+  layout?: LayoutCustomization;
+  animations?: AnimationCustomization;
+  maxWidth?: number; // Maximum form width
+  alignment?: 'left' | 'center' | 'right'; // Form alignment
+  branding?: BrandingCustomization;
+
+  buttonStyle?: 'filled' | 'outlined' | 'text'; // Button style
+  buttonSize?: 'sm' | 'md' | 'lg'; // Button size 
+
   
   // Generic extensibility (for backward compatibility)
   shadows?: {

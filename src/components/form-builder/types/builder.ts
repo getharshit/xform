@@ -1,6 +1,6 @@
 // src/components/form-builder/types/builder.ts
 
-import { FormField, Form } from '@/types/form'
+import { FormField, Form } from '@/types'
 
 // Main builder state
 export interface FormBuilderState {

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { ExtendedFormField } from "../../types";
+import { ExtendedFormField } from "@/types";
 import { useFormContext } from "../../providers/FormProvider";
 import {
   CheckCircle,

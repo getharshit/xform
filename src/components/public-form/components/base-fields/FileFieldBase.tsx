@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef } from "react";
-import { ExtendedFormField } from "../../types";
+import { ExtendedFormField } from "@/types";
 import { FieldWrapper } from "./FieldWrapper";
 import { Upload, File, X } from "lucide-react";
 

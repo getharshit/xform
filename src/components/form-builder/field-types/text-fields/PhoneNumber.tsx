@@ -3,7 +3,7 @@
 "use client";
 
 import React from "react";
-import { FormField } from "@/types/form";
+import { FormField } from "@/types";
 import {
   BaseQuestionTile,
   BaseQuestionTileProps,

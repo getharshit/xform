@@ -192,8 +192,8 @@ export class TypographyValidator {
    */
   static validateScale(scale: TypographyScale): {
     isValid: boolean;
-    errors: string[];
-    warnings: string[];
+    errors: any;
+    warnings: any;
   } {
     const errors: string[] = [];
     const warnings: string[] = [];

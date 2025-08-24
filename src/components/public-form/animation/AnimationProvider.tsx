@@ -10,18 +10,20 @@ import React, {
   useRef,
 } from "react";
 import { useReducedMotion, Variants, Transition } from "framer-motion";
-import {
+
+import * as AnimationTypes from "@/types";
+import type {
   AnimationConfig,
   AnimationContextValue,
+  AnimationProviderProps,
   AnimationIntensity,
-  AnimationPreset,
   IntensitySettings,
   AnimationVariants,
   AnimationTransitions,
-  AnimationTiming,
+  AnimationPreset,
   AnimationEasing,
-} from "./types";
-
+  AnimationTiming,
+} from "@/types";
 // Intensity configurations
 const intensityConfigurations: Record<AnimationIntensity, IntensitySettings> = {
   none: {
@@ -268,11 +270,6 @@ export const useAnimation = () => {
   return context;
 };
 
-interface AnimationProviderProps {
-  initialConfig?: Partial<AnimationConfig>;
-  children: React.ReactNode;
-}
-
 export const AnimationProvider: React.FC<AnimationProviderProps> = ({
   initialConfig = {},
   children,
@@ -342,12 +339,46 @@ export const AnimationProvider: React.FC<AnimationProviderProps> = ({
       }
 
       const settings = getCurrentIntensitySettings();
+
+      // Convert custom easing to Framer Motion easing
+      let framerEasing: any = "easeInOut";
+
+      if (settings.easing.type === "spring") {
+        return {
+          duration: settings.duration,
+          type: "spring",
+          stiffness: settings.easing.stiffness || 200,
+          damping: settings.easing.damping || 15,
+          delay: timing.delay || 0,
+        };
+      }
+
+      // Map string easing types to Framer Motion values
+      switch (settings.easing.type) {
+        case "linear":
+          framerEasing = "linear";
+          break;
+        case "easeIn":
+          framerEasing = "easeIn";
+          break;
+        case "easeOut":
+          framerEasing = "easeOut";
+          break;
+        case "easeInOut":
+          framerEasing = "easeInOut";
+          break;
+        case "bezier":
+          if ("values" in settings.easing) {
+            framerEasing = settings.easing.values;
+          }
+          break;
+        default:
+          framerEasing = "easeInOut";
+      }
+
       return {
         duration: settings.duration,
-        ease:
-          settings.easing.type === "spring"
-            ? "easeInOut"
-            : settings.easing.type,
+        ease: framerEasing,
         delay: timing.delay || 0,
       };
     },

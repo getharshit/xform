@@ -7,6 +7,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { defaultTheme } from "@/lib/defaults/defaults";
 import {
   Plus,
   MessageSquare,
@@ -16,6 +17,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useBuilder } from "../../providers/BuilderProvider";
+import { FormTheme } from "@/types";
 
 export interface EmptyStateProps {
   onAddField?: (fieldType: string) => void;
@@ -76,7 +78,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
         published: false,
         createdAt: new Date(),
         updatedAt: new Date(),
-        theme: {},
+        theme: defaultTheme,
         customization: {},
       };
 
@@ -110,20 +112,13 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     <div className={`bg-background ${className}`}>
       <Card className="min-h-[600px] border-2 border-dashed border-muted-foreground/25">
         <CardContent className="flex flex-col items-center justify-center h-full text-center p-12 space-y-8">
-          {/* Hero Section */}
-          <div className="space-y-4">
-            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center mb-6">
-              <Zap className="w-10 h-10 text-white" />
-            </div>
-
-            <h2 className="text-2xl font-bold tracking-tight">
-              Let's build something amazing
-            </h2>
-            <p className="text-muted-foreground max-w-md text-lg">
-              Start with one of these popular field types, or explore all
-              options in the left panel
-            </p>
-          </div>
+          <h2 className="text-2xl font-bold tracking-tight">
+            Let's build something amazing
+          </h2>
+          <p className="text-muted-foreground max-w-md text-lg">
+            Start with one of these popular field types, or explore all options
+            in the left panel
+          </p>
 
           {/* Quick Action Buttons */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-2xl">
@@ -172,33 +167,6 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
                 </Card>
               );
             })}
-          </div>
-
-          {/* Additional Options */}
-          <div className="space-y-4 pt-4 border-t border-muted-foreground/10 w-full max-w-md">
-            <div className="flex items-center gap-4 justify-center">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={() => handleQuickAction("shortText")}
-              >
-                <Plus className="w-4 h-4 mr-2" />
-                Add Any Field
-              </Button>
-
-              <Button variant="ghost" className="flex-1">
-                Browse Templates
-              </Button>
-            </div>
-
-            <div className="text-sm text-muted-foreground bg-muted/30 rounded-lg p-3">
-              <p className="flex items-center gap-2 justify-center">
-                <span>💡</span>
-                <span>
-                  Tip: You can also drag field types from the left panel
-                </span>
-              </p>
-            </div>
           </div>
 
           {/* Debug info (remove in production) */}

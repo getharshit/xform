@@ -3,7 +3,7 @@
 import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { useAnimation } from "../AnimationProvider";
-import { AnimatedComponentProps } from "../types";
+import { AnimatedComponentProps } from "@/types";
 
 interface AnimatedProgressIndicatorProps extends AnimatedComponentProps {
   progress: number; // 0-100
@@ -12,6 +12,7 @@ interface AnimatedProgressIndicatorProps extends AnimatedComponentProps {
   currentStep?: number;
   showPercentage?: boolean;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export const AnimatedProgressIndicator: React.FC<

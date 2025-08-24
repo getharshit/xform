@@ -3,7 +3,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { useAnimation } from "../AnimationProvider";
-import { AnimationIntensity } from "../types";
+import { AnimationIntensity } from "@/types";
 
 interface AnimationIntensityControlProps {
   className?: string;

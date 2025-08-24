@@ -21,7 +21,7 @@ import {
   AlertCircle,
   CheckCircle2,
 } from "lucide-react";
-import { Form } from "@/types/form";
+import { Form } from "@/types";
 
 // Import our new state management
 import { BuilderProvider, useBuilder } from "../providers/BuilderProvider";

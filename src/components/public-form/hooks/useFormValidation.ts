@@ -1,35 +1,27 @@
 import { z } from 'zod';
-import { ExtendedFormField, ExtendedValidationError } from '../types';
+import { ExtendedFormField, FieldValidationError } from '@/types';
 
 // Validation schema builder
 export const buildValidationSchema = (fields: ExtendedFormField[]) => {
   const schemaObject: Record<string, z.ZodSchema<any>> = {};
 
   fields.forEach((field) => {
-    let fieldSchema: z.ZodSchema<any>;
+    let fieldSchema: z.ZodType<any>;
 
     switch (field.type) {
       case 'shortText':
       case 'longText':
         fieldSchema = z.string();
-        if (field.validationRules?.min) {
-          fieldSchema = fieldSchema.min(field.validationRules.min, 
-            field.validationRules.customMessage || `Minimum ${field.validationRules.min} characters required`
-          );
-        }
-        if (field.validationRules?.max || field.maxLength) {
-          const max = field.validationRules?.max || field.maxLength || 500;
-          fieldSchema = fieldSchema.max(max, 
-            field.validationRules?.customMessage || `Maximum ${max} characters allowed`
-          );
-        }
-        if (field.validationRules?.pattern) {
-          fieldSchema = fieldSchema.regex(
-            new RegExp(field.validationRules.pattern), 
-            field.validationRules.customMessage || 'Invalid format'
-          );
-        }
-        break;
+         if (field.validationRules?.min) {
+      fieldSchema = (fieldSchema as z.ZodString).min(field.validationRules.min);
+    }
+    if (field.validationRules?.max) {
+      fieldSchema = (fieldSchema as z.ZodString).max(field.validationRules.max);
+    }
+    if (field.validationRules?.pattern) {
+      fieldSchema = (fieldSchema as z.ZodString).regex(new RegExp(field.validationRules.pattern));
+    }
+    break;
 
       case 'email':
         fieldSchema = z.string().email(
@@ -115,7 +107,7 @@ export const buildValidationSchema = (fields: ExtendedFormField[]) => {
         break;
 
       default:
-        fieldSchema = z.string();
+        fieldSchema = z.any();
     }
 
     // Apply required validation
@@ -147,7 +139,7 @@ export const buildValidationSchema = (fields: ExtendedFormField[]) => {
 export const useFormValidation = (fields: ExtendedFormField[]) => {
   const validationSchema = buildValidationSchema(fields);
 
-  const validateField = (fieldId: string, value: any): ExtendedValidationError | null => {
+  const validateField = (fieldId: string, value: any): FieldValidationError | null => {
     const field = fields.find(f => f.id === fieldId);
     if (!field) return null;
 
@@ -167,7 +159,7 @@ export const useFormValidation = (fields: ExtendedFormField[]) => {
     }
   };
 
-  const validateAll = (formData: Record<string, any>): ExtendedValidationError[] => {
+  const validateAll = (formData: Record<string, any>): FieldValidationError[] => {
     try {
       validationSchema.parse(formData);
       return [];

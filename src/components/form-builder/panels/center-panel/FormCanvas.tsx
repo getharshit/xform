@@ -21,7 +21,7 @@ import {
   Scale,
   Upload,
 } from "lucide-react";
-import { Form, FormField } from "@/types/form";
+import { Form, FormField } from "@/types";
 
 export interface FormCanvasProps {
   form?: Form | null;

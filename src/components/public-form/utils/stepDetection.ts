@@ -1,4 +1,4 @@
-import { ExtendedFormField } from '../types';
+import { ExtendedFormField } from '@/types';
 
 /**
  * Detects if a form should use multi-step layout based on pageBreak fields

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { ExtendedFormField } from "../../types";
+import { ExtendedFormField } from "@/types";
 import { AnimatedFieldContainer } from "../../animation/components";
 
 interface QuestionContainerProps {

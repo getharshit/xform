@@ -235,7 +235,7 @@ export const TypographyProvider: React.FC<TypographyProviderProps> = ({
 
     return {
       isValid: errors.length === 0,
-      errors,
+      errors, // ADD THIS
       warnings,
     };
   }, [config]);

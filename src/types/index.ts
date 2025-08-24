@@ -1,12 +1,13 @@
-// src/types/index.ts - Main Types Export File
+// src/types/index.ts - UPDATED VERSION - Single Source of Truth
 // Unified type system serving as single source of truth for all form-related types
 
 // =============================================================================
-// FIELD TYPES
+// MAIN EXPORTS - THESE ARE THE ONLY IMPORTS COMPONENTS SHOULD USE
 // =============================================================================
 
+// Core field types
 export type {
-  // Core field types
+  // Main field types
   ExtendedFieldType,
   LegacyFieldType,
   FormField,
@@ -20,48 +21,18 @@ export type {
   // Field events and validation
   FieldValidationError,
   FieldChangeEvent,
+
   
   // Legacy compatibility
   ExtendedFormField
 } from './fields';
 
-
-// =============================================================================
-// CUSTOMIZATION TYPES
-// =============================================================================
-
-export type {
-  // Main customization interface
-  FormCustomization,
-  BasicCustomization,
-  
-  // Customization categories
-  ColorCustomization,
-  TypographyCustomization,
-  SpacingCustomization,
-  ButtonCustomization,
-  InputCustomization,
-  LayoutCustomization,
-  AnimationCustomization,
-  BrandingCustomization,
-  
-  // Advanced features
-  AnimatedBackgroundConfig,
-  
-  // Validation and events
-  CustomizationValidationError,
-  CustomizationValidationResult,
-  CustomizationChangeEvent
-} from './customization';
-
-// =============================================================================
-// THEME TYPES
-// =============================================================================
-
 // Main form types
 export type {
   // Core form interfaces
   Form,
+  LegacyForm,
+  BasicForm,
   ExtendedForm,
   
   // Form configuration
@@ -92,7 +63,7 @@ export type {
   StepIndex
 } from './forms';
 
-
+// Theme types
 export type {
   // Core theme interfaces
   FormTheme,
@@ -126,10 +97,32 @@ export type {
   // Utility interfaces
 } from './theme';
 
-// =============================================================================
-// LAYOUT TYPES
-// =============================================================================
+// Customization types
+export type {
+  // Main customization interface
+  FormCustomization,
+  BasicCustomization,
+  
+  // Customization categories
+  ColorCustomization,
+  TypographyCustomization,
+  SpacingCustomization,
+  ButtonCustomization,
+  InputCustomization,
+  LayoutCustomization,
+  AnimationCustomization,
+  BrandingCustomization,
+  
+  // Advanced features
+  AnimatedBackgroundConfig,
+  
+  // Validation and events
+  CustomizationValidationError,
+  CustomizationValidationResult,
+  CustomizationChangeEvent
+} from './customization';
 
+// Layout types
 export type {
   // Core layout configuration
   FormLayoutConfig,
@@ -159,28 +152,13 @@ export type {
   LayoutContextValue
 } from './layout';
 
-// =============================================================================
-// FORM TYPES
-// =============================================================================
-
-
+export * from './renderer';
 
 // =============================================================================
-// RE-EXPORTS FOR CONVENIENCE
+// CONVENIENCE TYPE GROUPS (for specific use cases)
 // =============================================================================
 
-// Export everything from each module for direct access
-export * from './fields';
-export * from './customization';
-export * from './theme';
-export * from './layout';
-export * from './forms';
-
-// =============================================================================
-// CONVENIENCE EXPORT GROUPS
-// =============================================================================
-
-// Import the types we need for the convenience groups
+// Import types for convenience groups
 import type { 
   Form, 
   FormResponse, 
@@ -278,101 +256,192 @@ export type AnalyticsTypes = {
 
 
 // =============================================================================
-// TYPE GUARDS AND UTILITIES
+// UTILITY FUNCTIONS AND CONSTANTS
 // =============================================================================
 
-// Import the types we need for type guards
-import type { 
-  ExtendedFieldType as ExtendedFieldTypeImport
-} from './fields';
-
-import type {
-  Form as FormImport,
-} from './forms';
-
-import type {
-  FormTheme as FormThemeImport,
-  LegacyFormTheme as LegacyFormThemeImport
-} from './theme';
-
-import type {
-  FormLayoutConfig as FormLayoutConfigImport,
-  LegacyFormLayoutConfig as LegacyFormLayoutConfigImport
-} from './layout';
-
-/**
- * Type guard to check if a field type is a text-based field
- */
-export const isTextField = (type: ExtendedFieldTypeImport): boolean => {
-  return ['shortText', 'longText', 'email', 'website', 'phoneNumber'].includes(type);
+// Field type categories for UI organization
+export const FIELD_CATEGORIES = {
+  text: ['shortText', 'longText', 'email', 'website', 'phoneNumber'] as ExtendedFieldType[],
+  choice: ['multipleChoice', 'dropdown', 'yesNo', 'opinionScale'] as ExtendedFieldType[],
+  rating: ['numberRating'] as ExtendedFieldType[],
+  special: ['statement', 'legal', 'fileUpload'] as ExtendedFieldType[],
+  structure: ['pageBreak', 'startingPage', 'postSubmission'] as ExtendedFieldType[]
 };
 
-/**
- * Type guard to check if a field type is a choice-based field
- */
-export const isChoiceField = (type: ExtendedFieldTypeImport): boolean => {
-  return ['multipleChoice', 'dropdown', 'yesNo', 'opinionScale'].includes(type);
-};
+// Type guards
+export const isTextField = (type: ExtendedFieldType): boolean => 
+  FIELD_CATEGORIES.text.includes(type);
 
-/**
- * Type guard to check if a field type is a rating field
- */
-export const isRatingField = (type: ExtendedFieldTypeImport): boolean => {
-  return ['numberRating'].includes(type);
-};
+export const isChoiceField = (type: ExtendedFieldType): boolean => 
+  FIELD_CATEGORIES.choice.includes(type);
 
-/**
- * Type guard to check if a field type is a special field
- */
-export const isSpecialField = (type: ExtendedFieldTypeImport): boolean => {
-  return ['statement', 'legal', 'fileUpload'].includes(type);
-};
+export const isRatingField = (type: ExtendedFieldType): boolean => 
+  FIELD_CATEGORIES.rating.includes(type);
 
-/**
- * Type guard to check if a field type is a structure field
- */
-export const isStructureField = (type: ExtendedFieldTypeImport): boolean => {
-  return ['pageBreak', 'startingPage', 'postSubmission'].includes(type);
-};
+export const isSpecialField = (type: ExtendedFieldType): boolean => 
+  FIELD_CATEGORIES.special.includes(type);
 
+export const isStructureField = (type: ExtendedFieldType): boolean => 
+  FIELD_CATEGORIES.structure.includes(type);
 
-/**
- * Type guard to check if a theme is a legacy theme
- */
-export const isLegacyTheme = (theme: FormThemeImport | LegacyFormThemeImport): theme is LegacyFormThemeImport => {
-  return 'primaryColor' in theme && typeof theme.primaryColor === 'string' && !('colors' in theme);
-};
-
-/**
- * Type guard to check if a layout config is legacy
- */
-export const isLegacyLayout = (layout: FormLayoutConfigImport | LegacyFormLayoutConfigImport): layout is LegacyFormLayoutConfigImport => {
-  return !('navigation' in layout) && !('progress' in layout);
-};
-
-/**
- * Get all field types grouped by category
- */
-export const getFieldTypesByCategory = () => ({
-  text: ['shortText', 'longText', 'email', 'website', 'phoneNumber'] as ExtendedFieldTypeImport[],
-  choice: ['multipleChoice', 'dropdown', 'yesNo', 'opinionScale'] as ExtendedFieldTypeImport[],
-  rating: ['numberRating'] as ExtendedFieldTypeImport[],
-  special: ['statement', 'legal', 'fileUpload'] as ExtendedFieldTypeImport[],
-  structure: ['pageBreak', 'startingPage', 'postSubmission'] as ExtendedFieldTypeImport[]
-});
-
-/**
- * Get field category for a given field type
- */
-export const getFieldCategory = (type: ExtendedFieldTypeImport): string => {
-  const categories = getFieldTypesByCategory();
-  for (const [category, types] of Object.entries(categories)) {
+// Get field category for a given field type
+export const getFieldCategory = (type: ExtendedFieldType): string => {
+  for (const [category, types] of Object.entries(FIELD_CATEGORIES)) {
     if (types.includes(type)) {
       return category;
     }
   }
   return 'unknown';
 };
+
+// Get all field types grouped by category
+export const getFieldTypesByCategory = () => FIELD_CATEGORIES;
+
+// Default field creation helper
+export const createDefaultField = (type: ExtendedFieldType, id: string): FormField => {
+  const baseField: FormField = {
+    id,
+    type,
+    label: `New ${type} field`,
+    description: '',
+    required: false,
+    displayOptions: {
+      width: 'full',
+      showLabel: true,
+      showDescription: true,
+    },
+    validationRules: {},
+  };
+
+  // Add type-specific defaults
+  switch (type) {
+    case 'multipleChoice':
+    case 'dropdown':
+      return { ...baseField, options: ['Option 1', 'Option 2'] };
+    case 'numberRating':
+      return { ...baseField, minRating: 1, maxRating: 5 };
+    case 'opinionScale':
+      return { ...baseField, minRating: 1, maxRating: 10 };
+    case 'shortText':
+    case 'longText':
+      return { ...baseField, placeholder: `Enter ${baseField.label.toLowerCase()}` };
+    case 'email':
+      return { 
+        ...baseField, 
+        placeholder: 'Enter your email address',
+        validationRules: {
+          pattern: '^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$',
+          customMessage: 'Please enter a valid email address'
+        }
+      };
+    case 'phoneNumber':
+      return { 
+        ...baseField, 
+        placeholder: 'Enter your phone number',
+        validationRules: { autoFormat: true }
+      };
+    case 'website':
+      return { 
+        ...baseField, 
+        placeholder: 'https://example.com',
+        validationRules: { 
+          autoAddProtocol: true,
+          allowedProtocols: ['http', 'https']
+        }
+      };
+    case 'fileUpload':
+      return { 
+        ...baseField, 
+        acceptedFileTypes: ['.pdf', '.doc', '.docx', '.jpg', '.png'],
+        maxFileSize: 10,
+        helpText: 'Maximum file size: 10MB'
+      };
+    case 'legal':
+      return { 
+        ...baseField, 
+        required: true,
+        validationRules: { requireScrollToAccept: true }
+      };
+    case 'yesNo':
+      return { 
+        ...baseField, 
+        options: ['Yes', 'No'],
+        displayOptions: { ...baseField.displayOptions, inline: true }
+      };
+    default:
+      return baseField;
+  }
+};
+
+// =============================================================================
+// DEPRECATED EXPORTS (for backward compatibility)
+// =============================================================================
+
+/**
+ * @deprecated Use ExtendedFieldType instead
+ */
+export type { LegacyFieldType as FieldType } from './fields';
+
+/**
+ * @deprecated Use FormField instead
+ */
+export type { FormField as Field } from './fields';
+
+/**
+ * @deprecated Use Form instead
+ */
+export type { Form as BuilderForm } from './forms';
+
+/**
+ * @deprecated Use LegacyFormTheme instead
+ */
+export type { LegacyFormTheme as BasicTheme } from './theme';
+
+// =============================================================================
+// ANIMATION TYPES
+// =============================================================================
+
+export type {
+  // Core animation types
+  AnimationIntensity,
+  AnimationPreset,
+  AnimationEasing,
+  AnimationTiming,
+  IntensitySettings,
+  
+  // Configuration and context
+  AnimationConfig,
+  AnimationContextValue,
+  AnimationVariants,
+  AnimationTransitions,
+  
+  // Component props
+  AnimatedComponentProps,
+  
+  // Hook return types
+  UseAnimationReturn,
+  UseButtonAnimationReturn,
+  UseErrorAnimationReturn,
+  UseSuccessAnimationReturn,
+  
+  // Provider props
+  AnimationProviderProps,
+  
+  // Form integration
+  FormAnimationCustomization
+} from './animation';
+
+// =============================================================================
+// RE-EXPORTS FOR CONVENIENCE
+// =============================================================================
+
+// Export everything from each module for direct access
+export * from './fields';
+export * from './customization';
+export * from './theme';
+export * from './layout';
+export * from './forms';
+export * from './animation';
 
 // =============================================================================
 // VERSION AND MIGRATION UTILITIES
@@ -410,38 +479,3 @@ export const MIGRATION_INFO = {
     ]
   }
 };
-
-// =============================================================================
-// DEPRECATED EXPORTS (for backward compatibility)
-// =============================================================================
-
-/**
- * @deprecated Use ExtendedFieldType instead
- */
-export type { LegacyFieldType as FieldType } from './fields';
-
-/**
- * @deprecated Use FormField instead
- */
-export type { FormField as Field } from './fields';
-
-/**
- * @deprecated Use Form instead
- */
-export type { Form as BuilderForm } from './forms';
-
-/**
- * @deprecated Use LegacyFormTheme instead
- */
-export type { LegacyFormTheme as BasicTheme } from './theme';
-
-// =============================================================================
-// RE-EXPORTS FOR CONVENIENCE
-// =============================================================================
-
-// Export everything from each module for direct access
-export * from './fields';
-export * from './customization';
-export * from './theme';
-export * from './layout';
-export * from './forms';

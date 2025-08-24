@@ -4,11 +4,12 @@ import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
+import { defaultTheme } from "@/lib/defaults/defaults";
 
 // Import the existing form builder components
 import { FormBuilderLayout, BuilderProvider } from "@/components/form-builder";
 
-import type { Form as BuilderForm } from "@/types/form";
+import type { Form as BuilderForm } from "@/types";
 
 // API Form type (what comes from your API) - Fixed to handle all possible types
 interface APIForm {
@@ -16,7 +17,7 @@ interface APIForm {
   title: string;
   description: string | null | undefined; // Allow undefined
   fields: any[];
-  theme: any;
+  theme?: any;
   prompt: string | null | undefined; // Allow undefined here too
   customization?: any;
   layout?: any;

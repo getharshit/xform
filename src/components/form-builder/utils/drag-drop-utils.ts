@@ -1,6 +1,6 @@
 // Drag and drop utilities
 import { DragItem, DropResult } from '../types/drag-drop'
-import { FormField } from '@/types/form'
+import { FormField } from '@/types'
 
 export const canDropItem = (item: DragItem, targetIndex: number, fields: FormField[]): boolean => {
   // Prevent dropping on itself

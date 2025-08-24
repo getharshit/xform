@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { FormField } from "@/types/form";
+import { FormField } from "@/types";
 import { FieldPropertySchema } from "../registry/fieldRegistry";
 
 // Import custom components

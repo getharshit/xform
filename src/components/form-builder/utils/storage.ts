@@ -1,6 +1,6 @@
 // src/components/form-builder/utils/storage.ts
 
-import { Form } from '@/types/form'
+import { Form } from '@/types'
 
 export interface StorageData {
   timestamp: number

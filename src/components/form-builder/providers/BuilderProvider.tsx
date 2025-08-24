@@ -19,7 +19,13 @@ import {
 } from "./types";
 import { builderReducer } from "./builderReducer";
 import { storage } from "../utils/storage";
-import { Form, FormField, FormTheme, FormCustomization } from "@/types/form";
+import { Form, FormField, FormTheme, FormCustomization } from "@/types";
+import {
+  ColorCustomization,
+  TypographyCustomization,
+  SpacingCustomization,
+  AnimationCustomization,
+} from "@/types";
 import {
   createFieldFromTemplate,
   getTemplateByType,
@@ -386,7 +392,9 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
       const currentColors = state.form.customization?.colors || {};
       const updatedColors = { ...currentColors, ...colorUpdates };
 
-      updateCustomization({ colors: updatedColors });
+      updateCustomization({
+        colors: updatedColors as any,
+      });
     },
     [state.form, updateCustomization]
   );
@@ -399,7 +407,9 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
       const currentTypography = state.form.customization?.typography || {};
       const updatedTypography = { ...currentTypography, ...typographyUpdates };
 
-      updateCustomization({ typography: updatedTypography });
+      updateCustomization({
+        typography: updatedTypography as any,
+      });
     },
     [state.form, updateCustomization]
   );
@@ -412,7 +422,9 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
       const currentSpacing = state.form.customization?.spacing || {};
       const updatedSpacing = { ...currentSpacing, ...spacingUpdates };
 
-      updateCustomization({ spacing: updatedSpacing });
+      updateCustomization({
+        spacing: updatedSpacing as any,
+      });
     },
     [state.form, updateCustomization]
   );
@@ -445,7 +457,9 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
       if (!state.form) return;
       const currentAnimations = state.form.customization?.animations || {};
       const updatedAnimations = { ...currentAnimations, ...animationUpdates };
-      updateCustomization({ animations: updatedAnimations });
+      updateCustomization({
+        animations: updatedAnimations as any,
+      });
     },
     [state.form, updateCustomization]
   );
@@ -852,8 +866,8 @@ export const BuilderProvider: React.FC<BuilderProviderProps> = ({
           published: false,
           createdAt: new Date(),
           updatedAt: new Date(),
-          theme: {},
-          customization: {},
+          theme: {} as any,
+          customization: {} as any,
         };
 
         // Set the form first

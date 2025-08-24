@@ -1,6 +1,6 @@
 // src/components/form-builder/types/drag-drop.ts
 
-import { FormField } from '@/types/form'
+import { FormField } from '@/types'
 import { FieldTemplate } from './builder'
 
 // Drag item types

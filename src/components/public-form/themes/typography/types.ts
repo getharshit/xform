@@ -67,6 +67,24 @@ export interface TypographyScale {
   };
 }
 
+export interface TypographyValidationError {
+  type: 'validation' | 'accessibility' | 'performance';
+  field: string;
+  message: string;
+}
+
+export interface TypographyValidationWarning {
+  type: 'warning' | 'accessibility' | 'performance';
+  field: string;
+  message: string;
+}
+
+export interface TypographyValidationResult {
+  isValid: boolean;
+  errors: TypographyValidationError[];
+  warnings: TypographyValidationWarning[];
+}
+
 // Text element types in forms
 export type TextElementType = 
   | 'formTitle'
@@ -283,25 +301,4 @@ export interface TypographyCustomProperties {
   '--form-font-scale-sm': string;
   '--form-font-scale-md': string;
   '--form-font-scale-lg': string;
-}
-
-// Validation results
-export interface TypographyValidationResult {
-  isValid: boolean;
-  errors: TypographyValidationError[];
-  warnings: TypographyValidationWarning[];
-}
-
-export interface TypographyValidationError {
-  type: 'accessibility' | 'performance' | 'compatibility';
-  field: string;
-  message: string;
-  value?: any;
-}
-
-export interface TypographyValidationWarning {
-  type: 'performance' | 'ux' | 'compatibility';
-  field: string;
-  message: string;
-  suggestion?: string;
 }

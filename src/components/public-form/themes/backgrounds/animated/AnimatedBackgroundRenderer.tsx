@@ -1,5 +1,5 @@
 import React from "react";
-import { AnimatedBackgroundConfig } from "../types";
+import { AnimatedBackgroundConfig } from "@/types";
 import Aurora from "./Aurora";
 import DarkVeil from "./DarkVeil";
 import LightRays from "./LightRays";
