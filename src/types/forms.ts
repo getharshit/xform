@@ -3,7 +3,7 @@
 
 import { FormField, FieldGroup, FieldValidationError, FieldChangeEvent } from './fields';
 import { FormCustomization, CustomizationValidationError } from './customization';
-import { FormTheme, ThemeValidationError } from './theme';
+import { FormTheme, LegacyFormTheme, ThemeValidationError } from './theme';
 import { FormLayoutConfig, LegacyFormLayoutConfig, LayoutState, LayoutValidationError } from './layout';
 
 /**
@@ -134,7 +134,6 @@ export interface Form {
   metadata?: Partial<FormMetadata>;
 }
 
-<<<<<<< Updated upstream
 /**
  * Legacy form interface for backward compatibility
  * Uses simplified type structures
@@ -153,9 +152,6 @@ export interface LegacyForm {
   createdAt: Date | string;
   updatedAt: Date | string;
 }
-=======
-
->>>>>>> Stashed changes
 
 /**
  * Form response structure
@@ -418,6 +414,7 @@ export interface FormBuilderConfig {
 
 // Export types for external use
 export type { Form as ExtendedForm };
+export type { LegacyForm as BasicForm };
 export type { FormResponse as Response };
 export type { FormAnalytics as Analytics };
 export type { FormState as State };
