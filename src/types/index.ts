@@ -25,6 +25,7 @@ export type {
   ExtendedFormField
 } from './fields';
 
+
 // =============================================================================
 // CUSTOMIZATION TYPES
 // =============================================================================
@@ -57,10 +58,44 @@ export type {
 // THEME TYPES
 // =============================================================================
 
+// Main form types
+export type {
+  // Core form interfaces
+  Form,
+  ExtendedForm,
+  
+  // Form configuration
+  FormSettings,
+  FormMetadata,
+  FormBuilderConfig,
+  
+  // Form responses
+  FormResponse,
+  Response,
+  
+  // Analytics and insights
+  FormAnalytics,
+  Analytics,
+  
+  // Validation
+  FormValidationResult,
+  
+  // State management
+  FormState,
+  State,
+  FormContextValue,
+  
+  // Utility types
+  FormId,
+  ResponseId,
+  FieldId,
+  StepIndex
+} from './forms';
+
+
 export type {
   // Core theme interfaces
   FormTheme,
-  LegacyFormTheme,
   BasicFormTheme,
   ExtendedFormTheme,
   
@@ -89,7 +124,6 @@ export type {
   ThemeContextValue,
   
   // Utility interfaces
-  ThemeUtils
 } from './theme';
 
 // =============================================================================
@@ -129,40 +163,7 @@ export type {
 // FORM TYPES
 // =============================================================================
 
-export type {
-  // Main form interfaces
-  Form,
-  LegacyForm,
-  BasicForm,
-  ExtendedForm,
-  
-  // Form configuration
-  FormSettings,
-  FormMetadata,
-  FormBuilderConfig,
-  
-  // Form responses
-  FormResponse,
-  Response,
-  
-  // Analytics and insights
-  FormAnalytics,
-  Analytics,
-  
-  // Validation
-  FormValidationResult,
-  
-  // State management
-  FormState,
-  State,
-  FormContextValue,
-  
-  // Utility types
-  FormId,
-  ResponseId,
-  FieldId,
-  StepIndex
-} from './forms';
+
 
 // =============================================================================
 // RE-EXPORTS FOR CONVENIENCE
@@ -182,7 +183,6 @@ export * from './forms';
 // Import the types we need for the convenience groups
 import type { 
   Form, 
-  LegacyForm,
   FormResponse, 
   FormSettings,
   FormBuilderConfig,
@@ -191,7 +191,6 @@ import type {
   FormContextValue,
   FormAnalytics,
   FormMetadata,
-  BasicForm
 } from './forms';
 
 import type {
@@ -212,7 +211,6 @@ import type {
 
 import type {
   FormTheme,
-  LegacyFormTheme,
   BasicFormTheme,
   ThemeContextValue
 } from './theme';
@@ -277,17 +275,7 @@ export type AnalyticsTypes = {
   FieldValidationError: FieldValidationError;
 };
 
-// Legacy types for backward compatibility
-export type LegacyTypes = {
-  LegacyForm: LegacyForm;
-  LegacyFormTheme: LegacyFormTheme;
-  LegacyFormLayoutConfig: LegacyFormLayoutConfig;
-  LegacyFieldType: LegacyFieldType;
-  BasicForm: BasicForm;
-  BasicFormTheme: BasicFormTheme;
-  BasicFormLayoutConfig: BasicFormLayoutConfig;
-  BasicCustomization: BasicCustomization;
-};
+
 
 // =============================================================================
 // TYPE GUARDS AND UTILITIES
@@ -300,7 +288,6 @@ import type {
 
 import type {
   Form as FormImport,
-  LegacyForm as LegacyFormImport
 } from './forms';
 
 import type {
@@ -348,13 +335,6 @@ export const isStructureField = (type: ExtendedFieldTypeImport): boolean => {
   return ['pageBreak', 'startingPage', 'postSubmission'].includes(type);
 };
 
-/**
- * Type guard to check if a form uses legacy structure
- */
-export const isLegacyForm = (form: FormImport | LegacyFormImport): form is LegacyFormImport => {
-  // Check if theme has the legacy structure
-  return 'primaryColor' in form.theme && typeof form.theme.primaryColor === 'string';
-};
 
 /**
  * Type guard to check if a theme is a legacy theme
