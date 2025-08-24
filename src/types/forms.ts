@@ -135,7 +135,6 @@ export interface Form {
 }
 
 <<<<<<< Updated upstream
-<<<<<<< Updated upstream
 /**
  * Legacy form interface for backward compatibility
  * Uses simplified type structures
@@ -154,9 +153,6 @@ export interface LegacyForm {
   createdAt: Date | string;
   updatedAt: Date | string;
 }
-=======
-
->>>>>>> Stashed changes
 =======
 
 >>>>>>> Stashed changes
