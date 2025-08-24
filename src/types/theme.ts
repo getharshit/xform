@@ -262,38 +262,7 @@ export interface FormTheme {
   logoUrl?: string;
 }
 
-/**
- * Legacy theme interface that maps to FormTheme
- * Provides backward compatibility for existing code
- */
-export interface LegacyFormTheme {
-  primaryColor: string;
-  secondaryColor?: string;
-  backgroundColor?: string;
-  textColor?: string;
-  borderColor?: string;
-  fontFamily: string;
-  fontSize?: {
-    title?: number;
-    question?: number;
-    input?: number;
-    small?: number;
-  };
-  fontWeight?: {
-    normal?: number;
-    medium?: number;
-    bold?: number;
-  };
-  borderRadius?: number;
-  spacing?: number;
-  shadowLevel?: 'none' | 'sm' | 'md' | 'lg';
-  buttonStyle?: 'rounded' | 'square' | 'pill';
-  inputStyle?: 'outlined' | 'filled' | 'underline';
-  showQuestionNumbers?: boolean;
-  showProgressBar?: boolean;
-  centerForm?: boolean;
-  logoUrl?: string;
-}
+
 
 /**
  * Pre-built theme types for easy selection
@@ -483,19 +452,3 @@ export type { FormTheme as ExtendedFormTheme };
 /**
  * Utility functions for theme conversion
  */
-export interface ThemeUtils {
-  /**
-   * Convert legacy theme to modern FormTheme
-   */
-  convertLegacyTheme: (legacy: LegacyFormTheme) => FormTheme;
-  
-  /**
-   * Extract legacy theme properties from FormTheme
-   */
-  extractLegacyTheme: (theme: FormTheme) => LegacyFormTheme;
-  
-  /**
-   * Merge legacy properties into FormTheme
-   */
-  mergeLegacyProperties: (theme: FormTheme, legacy: Partial<LegacyFormTheme>) => FormTheme;
-}
