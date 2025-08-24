@@ -62,6 +62,7 @@ export type {
 export type {
   // Core form interfaces
   Form,
+<<<<<<< Updated upstream
   ExtendedForm,
   
   // Form configuration
@@ -168,6 +169,8 @@ export type {
   Form,
   LegacyForm,
   BasicForm,
+=======
+>>>>>>> Stashed changes
   ExtendedForm,
   
   // Form configuration
@@ -198,6 +201,100 @@ export type {
   StepIndex
 } from './forms';
 
+<<<<<<< Updated upstream
+=======
+// Theme types
+export type {
+  // Core theme interfaces
+  FormTheme,
+  BasicFormTheme,
+  ExtendedFormTheme,
+  
+  // Theme components
+  ThemeColors,
+  ThemeTypography,
+  ThemeSpacing,
+  ThemeBorderRadius,
+  ThemeShadows,
+  ThemeTransitions,
+  ThemeBreakpoints,
+  ThemeZIndex,
+  
+  // Theme management
+  PrebuiltThemeType,
+  ThemeCategory,
+  ThemeCustomizationState,
+  ThemeState,
+  ThemeAction,
+  
+  // Theme application
+  ThemeCSSProperties,
+  ThemeValidationError,
+  ThemeValidationResult,
+  ThemeExportData,
+  ThemeContextValue,
+  
+  // Utility interfaces
+} from './theme';
+
+// Customization types
+export type {
+  // Main customization interface
+  FormCustomization,
+  BasicCustomization,
+  
+  // Customization categories
+  ColorCustomization,
+  TypographyCustomization,
+  SpacingCustomization,
+  ButtonCustomization,
+  InputCustomization,
+  LayoutCustomization,
+  AnimationCustomization,
+  BrandingCustomization,
+  
+  // Advanced features
+  AnimatedBackgroundConfig,
+  
+  // Validation and events
+  CustomizationValidationError,
+  CustomizationValidationResult,
+  CustomizationChangeEvent
+} from './customization';
+
+// Layout types
+export type {
+  // Core layout configuration
+  FormLayoutConfig,
+  LegacyFormLayoutConfig,
+  BasicFormLayoutConfig,
+  ExtendedFormLayoutConfig,
+  FormLayoutType,
+  
+  // Layout options
+  LayoutOptions,
+  SingleColumnOptions,
+  MultiStepOptions,
+  WizardOptions,
+  ConversationalOptions,
+  CustomLayoutOptions,
+  
+  // Navigation and progress
+  NavigationConfig,
+  ProgressConfig,
+  ResponsiveConfig,
+  AccessibilityConfig,
+  
+  // Layout state management
+  LayoutState,
+  LayoutValidationError,
+  LayoutTransition,
+  LayoutContextValue
+} from './layout';
+
+export * from './renderer';
+
+>>>>>>> Stashed changes
 // =============================================================================
 // RE-EXPORTS FOR CONVENIENCE
 // =============================================================================
